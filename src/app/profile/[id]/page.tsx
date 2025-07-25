@@ -352,7 +352,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 </div>
                 <div className="mt-4">
                   <button
-                    onClick={() => router.push(`/admin/users/${profileUser.id}`)}
+                    onClick={() => router.push(`/admin?userId=${profileUser.id}`)}
                     className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors cursor-pointer"
                   >
                     관리자 페이지에서 수정
