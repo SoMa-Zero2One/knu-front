@@ -4,12 +4,12 @@ import { useAuth } from '@/contexts/AuthContext';
 import { mockUniversities, getUserById } from '@/data/mockData';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { University } from '@/types';
+import { University, AppliedUniversity } from '@/types';
 
 export default function EditApplicationsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [selectedUniversities, setSelectedUniversities] = useState<string[]>([]);
+  const [selectedUniversities, setSelectedUniversities] = useState<AppliedUniversity[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [customUniversities, setCustomUniversities] = useState<University[]>([]);
@@ -58,11 +58,37 @@ export default function EditApplicationsPage() {
     if (!canEdit) return;
 
     setSelectedUniversities(prev => {
-      if (prev.includes(universityId)) {
-        return prev.filter(id => id !== universityId);
+      const isAlreadySelected = prev.some(app => app.universityId === universityId);
+      
+      if (isAlreadySelected) {
+        // 선택 해제: 해당 대학교 제거 후 순위 재정렬
+        const filtered = prev.filter(app => app.universityId !== universityId);
+        return filtered.map((app, index) => ({ ...app, rank: index + 1 }));
       } else {
-        return [...prev, universityId];
+        // 선택: 가장 뒤 순위로 추가
+        const nextRank = prev.length + 1;
+        return [...prev, { universityId, rank: nextRank }];
       }
+    });
+  };
+
+  const handleRankChange = (universityId: string, newRank: number) => {
+    if (!canEdit) return;
+
+    setSelectedUniversities(prev => {
+      const maxRank = prev.length;
+      const clampedRank = Math.max(1, Math.min(newRank, maxRank));
+      
+      const updatedList = prev.map(app => {
+        if (app.universityId === universityId) {
+          return { ...app, rank: clampedRank };
+        }
+        return app;
+      });
+
+      // 순위 중복 해결 및 정렬
+      const sortedList = updatedList.sort((a, b) => a.rank - b.rank);
+      return sortedList.map((app, index) => ({ ...app, rank: index + 1 }));
     });
   };
 
@@ -94,7 +120,7 @@ export default function EditApplicationsPage() {
     }
   };
 
-  const hasChanges = JSON.stringify(selectedUniversities.sort()) !== JSON.stringify(userData.appliedUniversities.sort());
+  const hasChanges = JSON.stringify(selectedUniversities.sort((a, b) => a.rank - b.rank)) !== JSON.stringify(userData.appliedUniversities.sort((a, b) => a.rank - b.rank));
 
   // 전체 대학교 목록 (기존 + 사용자 추가)
   const allUniversities = [...mockUniversities, ...customUniversities];
@@ -178,8 +204,11 @@ export default function EditApplicationsPage() {
     setShowAddForm(false);
     setMessage({ type: 'success', text: `${university.name}이(가) 추가되었습니다!` });
     
-    // 추가된 대학교를 자동으로 선택
-    setSelectedUniversities(prev => [...prev, customId]);
+    // 추가된 대학교를 자동으로 선택 (가장 뒤 순위로)
+    setSelectedUniversities(prev => {
+      const nextRank = prev.length + 1;
+      return [...prev, { universityId: customId, rank: nextRank }];
+    });
   };
 
   // 추가 폼 취소
@@ -376,9 +405,10 @@ export default function EditApplicationsPage() {
                </div>
              )}
 
-             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                {allUniversities.map((university) => {
-                const isSelected = selectedUniversities.includes(university.id);
+                 const selectedApp = selectedUniversities.find(app => app.universityId === university.id);
+                 const isSelected = !!selectedApp;
                 
                                  const isCustom = university.id.startsWith('custom-');
                  
@@ -400,14 +430,35 @@ export default function EditApplicationsPage() {
                       </div>
                       <div className="flex-1 min-w-0">
                                                  <div className="flex items-center justify-between">
-                           <div className="flex items-center space-x-2">
-                             <h3 className="text-lg font-medium text-gray-900 truncate">
-                               {university.name}
-                             </h3>
-                             {isCustom && (
-                               <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                 직접 추가
-                               </span>
+                           <div className="flex items-center justify-between">
+                             <div className="flex items-center space-x-2">
+                               <h3 className="text-lg font-medium text-gray-900 truncate">
+                                 {university.name}
+                               </h3>
+                               {isCustom && (
+                                 <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                   직접 추가
+                                 </span>
+                               )}
+                             </div>
+                             
+                             {/* 지망순위 표시 및 수정 */}
+                             {isSelected && selectedApp && (
+                               <div className="flex items-center space-x-2">
+                                 <span className="text-sm text-gray-600">순위:</span>
+                                 <select
+                                   value={selectedApp.rank}
+                                   onChange={(e) => handleRankChange(university.id, parseInt(e.target.value))}
+                                   onClick={(e) => e.stopPropagation()}
+                                   className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                 >
+                                   {Array.from({ length: selectedUniversities.length }, (_, i) => (
+                                     <option key={i + 1} value={i + 1}>
+                                       {i + 1}
+                                     </option>
+                                   ))}
+                                 </select>
+                               </div>
                              )}
                            </div>
                            {isSelected && (
@@ -472,20 +523,29 @@ export default function EditApplicationsPage() {
             <h3 className="text-lg font-semibold text-gray-900 mb-4">
               선택된 대학교 ({selectedUniversities.length}개)
             </h3>
-                         <div className="flex flex-wrap gap-2">
-               {selectedUniversities.map(universityId => {
-                 const university = allUniversities.find(u => u.id === universityId);
-                 if (!university) return null;
-                
-                return (
-                  <span
-                    key={universityId}
-                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
-                  >
-                    {university.flag} {university.name}
-                  </span>
-                );
-              })}
+                                      <div className="space-y-2">
+               {selectedUniversities
+                 .sort((a, b) => a.rank - b.rank)
+                 .map(app => {
+                   const university = allUniversities.find(u => u.id === app.universityId);
+                   if (!university) return null;
+                   
+                   return (
+                     <div
+                       key={app.universityId}
+                       className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg"
+                     >
+                       <div className="flex items-center space-x-3">
+                         <span className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full text-sm font-bold">
+                           {app.rank}
+                         </span>
+                         <span className="text-2xl">{university.flag}</span>
+                         <span className="font-medium text-gray-900">{university.name}</span>
+                         <span className="text-sm text-gray-600">({university.country})</span>
+                       </div>
+                     </div>
+                   );
+                 })}
             </div>
           </div>
         )}

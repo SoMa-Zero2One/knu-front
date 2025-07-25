@@ -1,4 +1,4 @@
-import { User, University, LanguageScore, UniversityNotice, LanguageTestType } from '@/types';
+import { User, University, LanguageScore, UniversityNotice, LanguageTestType, AppliedUniversity } from '@/types';
 
 // Mock 대학교 공지사항 데이터
 const mockNotices: UniversityNotice[] = [
@@ -122,7 +122,11 @@ export const mockUsers: User[] = [
     gpa: 3.8,
     gpaImageUrl: '/mock-images/gpa-1.jpg',
     languageScores: [mockLanguageScores[0], mockLanguageScores[1]],
-    appliedUniversities: ['1', '2', '6'],
+    appliedUniversities: [
+      { universityId: '1', rank: 1 },
+      { universityId: '2', rank: 2 },
+      { universityId: '6', rank: 3 }
+    ],
     verificationStatus: 'verified',
     editCount: 1,
     maxEditCount: 10,
@@ -136,7 +140,11 @@ export const mockUsers: User[] = [
     gpa: 3.5,
     gpaImageUrl: '/mock-images/gpa-2.jpg',
     languageScores: [mockLanguageScores[2]],
-    appliedUniversities: ['1', '3', '4'],
+    appliedUniversities: [
+      { universityId: '1', rank: 2 },
+      { universityId: '3', rank: 1 },
+      { universityId: '4', rank: 3 }
+    ],
     verificationStatus: 'verified',
     editCount: 0,
     maxEditCount: 10,
@@ -150,7 +158,11 @@ export const mockUsers: User[] = [
     gpa: 4.0,
     gpaImageUrl: '/mock-images/gpa-3.jpg',
     languageScores: [mockLanguageScores[3]],
-    appliedUniversities: ['5', '6', '7'],
+    appliedUniversities: [
+      { universityId: '5', rank: 1 },
+      { universityId: '6', rank: 2 },
+      { universityId: '7', rank: 3 }
+    ],
     verificationStatus: 'verified',
     editCount: 2,
     maxEditCount: 3,
@@ -162,7 +174,10 @@ export const mockUsers: User[] = [
     name: '최학생',
     role: 'user',
     languageScores: [],
-    appliedUniversities: ['1', '2'],
+    appliedUniversities: [
+      { universityId: '1', rank: 1 },
+      { universityId: '2', rank: 2 }
+    ],
     verificationStatus: 'not_verified',
     editCount: 0,
     maxEditCount: 10,
@@ -176,7 +191,10 @@ export const mockUsers: User[] = [
     gpa: 3.2,
     gpaImageUrl: '/mock-images/gpa-5.jpg',
     languageScores: [mockLanguageScores[0]],
-    appliedUniversities: ['3', '4'],
+    appliedUniversities: [
+      { universityId: '3', rank: 1 },
+      { universityId: '4', rank: 2 }
+    ],
     verificationStatus: 'pending',
     editCount: 0,
     maxEditCount: 10,
@@ -211,17 +229,30 @@ export function getUniversityById(id: string): University | undefined {
 
 export function getUniversityApplicants(universityId: string): User[] {
   return mockUsers.filter(user => 
-    user.appliedUniversities.includes(universityId)
+    user.appliedUniversities.some(app => app.universityId === universityId)
   );
 }
 
-export function getUserApplications(userId: string): University[] {
+export function getUserApplications(userId: string): Array<University & { rank: number }> {
   const user = getUserById(userId);
   if (!user) return [];
   
   return user.appliedUniversities
-    .map(univId => getUniversityById(univId))
-    .filter(Boolean) as University[];
+    .map(app => {
+      const university = getUniversityById(app.universityId);
+      return university ? { ...university, rank: app.rank } : null;
+    })
+    .filter(Boolean) as Array<University & { rank: number }>;
+}
+
+// 특정 대학교의 지원자를 지망순위와 함께 가져오기
+export function getUniversityApplicantsWithRank(universityId: string): Array<User & { rank: number }> {
+  return mockUsers
+    .filter(user => user.appliedUniversities.some(app => app.universityId === universityId))
+    .map(user => {
+      const application = user.appliedUniversities.find(app => app.universityId === universityId);
+      return { ...user, rank: application?.rank || 0 };
+    });
 }
 
 export const languageTestTypes: { value: LanguageTestType; label: string }[] = [

@@ -15,6 +15,12 @@ export type UserRole = 'user' | 'admin';
 // 인증 상태
 export type VerificationStatus = 'not_verified' | 'pending' | 'verified';
 
+// 지원 대학교 정보 (순위 포함)
+export interface AppliedUniversity {
+  universityId: string;
+  rank: number; // 지망순위 (1, 2, 3...)
+}
+
 // 사용자 인터페이스
 export interface User {
   id: string;
@@ -24,7 +30,7 @@ export interface User {
   gpa?: number;
   gpaImageUrl?: string;
   languageScores: LanguageScore[];
-  appliedUniversities: string[]; // university IDs
+  appliedUniversities: AppliedUniversity[]; // 지망순위 포함 대학교 목록
   verificationStatus: VerificationStatus;
   editCount: number;
   maxEditCount: number;
@@ -61,6 +67,7 @@ export interface UniversityApplicant {
   gpa?: number;
   languageScores: LanguageScore[];
   verificationStatus: VerificationStatus;
+  rank: number; // 지망순위
 }
 
 // JWT 페이로드

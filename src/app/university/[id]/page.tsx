@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUniversityById, getUniversityApplicants } from '@/data/mockData';
+import { getUniversityById, getUniversityApplicantsWithRank } from '@/data/mockData';
 import { University, User } from '@/types';
 
 interface UniversityPageProps {
@@ -16,7 +16,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
   const router = useRouter();
   const { user, loading } = useAuth();
   const [university, setUniversity] = useState<University | null>(null);
-  const [applicants, setApplicants] = useState<User[]>([]);
+  const [applicants, setApplicants] = useState<Array<User & { rank: number }>>([]);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
 
   useEffect(() => {

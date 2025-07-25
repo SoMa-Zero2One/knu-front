@@ -16,7 +16,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const router = useRouter();
   const { user: currentUser, loading } = useAuth();
   const [profileUser, setProfileUser] = useState<User | null>(null);
-  const [appliedUniversities, setAppliedUniversities] = useState<University[]>([]);
+  const [appliedUniversities, setAppliedUniversities] = useState<Array<University & { rank: number }>>([]);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
@@ -229,6 +229,9 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     <thead className="bg-gray-50">
                       <tr>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          지망순위
+                        </th>
+                        <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           대학교
                         </th>
                         <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -243,12 +246,24 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {appliedUniversities.map((university) => (
+                      {appliedUniversities
+                        .sort((a, b) => a.rank - b.rank)
+                        .map((university) => (
                         <tr
                           key={university.id}
                           className="hover:bg-gray-50 cursor-pointer"
                           onClick={() => router.push(`/university/${university.id}`)}
                         >
+                          <td className="px-6 py-4 whitespace-nowrap text-center">
+                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white ${
+                              university.rank === 1 ? 'bg-yellow-500' :
+                              university.rank === 2 ? 'bg-gray-400' :
+                              university.rank === 3 ? 'bg-amber-600' :
+                              'bg-blue-500'
+                            }`}>
+                              {university.rank}
+                            </span>
+                          </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex items-center">
                               <span className="text-2xl mr-3">{university.flag}</span>
