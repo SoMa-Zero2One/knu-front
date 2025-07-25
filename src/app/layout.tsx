@@ -14,7 +14,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "건대 합격 예상 정리본",
+      title: "대학교 합격 예상 정리본",
   description: "대학교 교환학생 합격 예상 정리본 및 경쟁률 확인 서비스",
 };
 

@@ -7,7 +7,7 @@ const mockNotices: UniversityNotice[] = [
     title: '2025년 봄학기 교환학생 모집 안내',
     content: '2025년 봄학기 교환학생 모집을 시작합니다.',
     date: '2025년 7월 24일',
-    url: 'www.konkuk.ac.kr'
+    url: 'www.university.ac.kr'
   },
   {
     id: '2',

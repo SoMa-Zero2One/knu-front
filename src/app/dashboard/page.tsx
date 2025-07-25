@@ -60,7 +60,7 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
-              건대 합격 예상 정리본
+              대학교 합격 예상 정리본
             </h1>
             <div className="flex items-center space-x-2 sm:space-x-4">
               <span className="text-xs sm:text-sm text-gray-600 hidden sm:block">
