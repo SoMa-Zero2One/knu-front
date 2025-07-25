@@ -173,7 +173,7 @@ export default function VerificationStatusPage() {
               
               <button
                 onClick={() => {
-                  alert('문의사항이 있으시면 admin@university.ac.kr로 연락주세요.');
+                  alert('문의사항이 있으시면 zero2one.soma@gmail.com으로 연락주세요.');
                 }}
                 className="flex-1 bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
               >
