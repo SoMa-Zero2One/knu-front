@@ -54,7 +54,7 @@ export default function VerificationPage() {
     }
   };
 
-  const updateLanguageScore = (id: string, field: keyof LanguageScoreForm, value: any) => {
+  const updateLanguageScore = (id: string, field: keyof LanguageScoreForm, value: string | number | File | null) => {
     setLanguageScores(languageScores.map(score => 
       score.id === id ? { ...score, [field]: value } : score
     ));

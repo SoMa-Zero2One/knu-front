@@ -73,7 +73,7 @@ export interface JWTPayload {
 }
 
 // API 응답 타입
-export interface ApiResponse<T = any> {
+export interface ApiResponse<T = unknown> {
   success: boolean;
   data?: T;
   error?: string;
