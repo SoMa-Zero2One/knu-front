@@ -1,184 +1,185 @@
-# 🎓 건대 합격 예상 정리본 (경쟁률 확인 서비스)
+# 🎓 SOMA - 대학교 교환학생 지원 관리 시스템
 
-건국대학교 교환학생 합격 예상 정리본 및 경쟁률 확인 서비스입니다.  
-성적 인증을 통해 대학교별 지원 현황과 경쟁률을 확인할 수 있습니다.
+**SOMA**는 대학교 교환학생 지원 과정을 체계적으로 관리하는 웹 플랫폼입니다.  
+성적 인증, 대학교 지원, 경쟁률 분석 등 교환학생 준비에 필요한 모든 기능을 제공합니다.
 
-## 📱 주요 기능
+## ✨ 주요 기능
 
-### 👥 사용자 기능
-- **성적 인증**: 학점, 어학성적 등록 및 관리자 승인
-- **대학교 정보**: 교환학생 지원 가능한 대학교 목록 및 경쟁률 확인
-- **지원 현황**: 실시간 지원자 수 및 합격 예상 정보
-- **모바일 최적화**: 모바일 퍼스트 반응형 디자인
+### 👥 **사용자 기능**
+- **🔐 간편 인증**: UUID 기반 원클릭 로그인
+- **📊 성적 관리**: 학점/어학성적 등록 및 이미지 업로드
+- **🏫 대학교 지원**: 검색 기반 대학교 추가 및 지망순위 관리
+- **📈 경쟁률 분석**: 실시간 지원 현황 및 합격 예상 정보
+- **✏️ 성적 수정**: 인증 후 성적 정보 수정 요청 시스템
 
-### 👨‍💼 관리자 기능
-- **사용자 관리**: 전체 사용자 목록 및 정보 수정
-- **인증 승인**: 성적 인증 요청 검토 및 승인/거부
-- **통계 관리**: 대학교별 지원 현황 모니터링
+### 👨‍💼 **관리자 기능**
+- **📋 사용자 관리**: 인라인 편집으로 사용자 정보 실시간 수정
+- **✅ 인증 처리**: 성적 인증 요청 검토 및 승인/거부 (이미지 확인 포함)
+- **🔄 수정 검토**: 성적 수정 요청 비교 분석 및 처리
+- **📊 통계 대시보드**: 전체 사용자 및 대학교별 지원 현황
+
+### 🎯 **핵심 특징**
+- **📱 모바일 퍼스트**: 반응형 디자인으로 모든 기기 지원
+- **🖱️ 직관적 UI**: 모든 상호작용 요소에 적절한 커서 및 피드백
+- **🎨 드래그 앤 드롭**: 지망순위 조정을 위한 직관적 인터페이스
+- **🔍 실시간 검색**: 대학교 검색 및 자동완성 기능
 
 ## 🚀 설치 및 실행
 
-### 1. 저장소 클론
+### **Prerequisites**
+- Node.js 18.0.0 이상
+- npm 8.0.0 이상 또는 yarn 1.22.0 이상
+
+### **설치**
 ```bash
+# 저장소 클론
 git clone https://github.com/your-username/soma.git
 cd soma
-```
 
-### 2. 의존성 설치
-```bash
+# 의존성 설치
 npm install
-# 또는
-yarn install
-```
 
-### 3. 개발 서버 실행
-```bash
+# 개발 서버 실행
 npm run dev
-# 또는
-yarn dev
 ```
 
-### 4. 브라우저 접속
+### **브라우저 접속**
 ```
 http://localhost:3000
 ```
 
-## 🔑 JWT 토큰 관리
+## 🧪 테스트 계정
 
-### JWT 토큰 삭제 방법
+UUID 기반 자동 로그인으로 바로 테스트 가능합니다:
 
-#### 🌐 브라우저에서 삭제 (권장)
-1. **개발자 도구** 열기 (`F12` 또는 `Ctrl+Shift+I`)
-2. **Application** 탭 클릭
-3. **Local Storage** → `localhost:3000` 선택
-4. `authToken` 키 삭제
-5. 페이지 새로고침
+### **👤 일반 사용자**
+- **김학생** (인증 완료): `http://localhost:3000/auth/user-uuid-1`
+- **이학생** (인증 완료): `http://localhost:3000/auth/user-uuid-2` 
+- **박학생** (미인증): `http://localhost:3000/auth/user-uuid-4`
 
-#### 📱 모바일에서 삭제
-1. **브라우저 설정** → **사이트 데이터 삭제**
-2. 또는 **시크릿/프라이빗 브라우징** 모드 사용
+### **👨‍💼 관리자**
+- **관리자**: `http://localhost:3000/auth/admin-uuid-1`
 
-#### 💻 프로그래밍 방식
-```javascript
-// 브라우저 콘솔에서 실행
-localStorage.removeItem('authToken');
-location.reload();
-```
+## 📱 페이지별 기능
 
-### 세션 초기화가 필요한 경우
-- 로그인 오류 발생시
-- 권한 오류 발생시  
-- 다른 사용자로 테스트시
-- 인증 상태가 이상할 때
+### **🏠 홈페이지** (`/`)
+- 서비스 소개 및 테스트 계정 링크
+- 프로젝트 개요 및 주요 기능 안내
 
-## 🧪 테스트용 계정
+### **📊 대시보드** (`/dashboard`)
+- 개인 성적 인증 상태 확인
+- 지원한 대학교 목록 (지망순위 포함)
+- 성적 수정 요청 상태 확인
+- 빠른 액션 버튼 (인증, 지원, 수정)
 
-프로젝트에는 테스트용 UUID 기반 계정들이 준비되어 있습니다:
+### **📝 성적 인증** (`/verification`)
+- **최초 인증**: 학점 및 어학성적 등록
+- **수정 요청**: 기존 성적 정보 수정 신청
+- **상태 확인**: 인증 진행 상황 모니터링
+- **이미지 업로드**: 성적표 이미지 첨부
 
-### 👤 일반 사용자
-- **사용자 1 (인증 완료)**: `/auth/user-uuid-1`
-- **사용자 2 (인증 완료)**: `/auth/user-uuid-2`  
-- **사용자 4 (미인증)**: `/auth/user-uuid-4`
+### **🏫 대학교 지원** (`/applications/edit`)
+- **검색 기반 추가**: 대학교 이름으로 검색 후 추가
+- **지망순위 관리**: 드래그 앤 드롭으로 순위 조정
+- **실시간 미리보기**: 선택한 대학교 정보 확인
+- **지원 현황**: 편집 횟수 및 마감일 제한 관리
 
-### 👨‍💼 관리자
-- **관리자**: `/auth/admin-uuid-1`
+### **🎓 대학교 상세** (`/university/[id]`)
+- 대학교 상세 정보 및 지원 조건
+- 현재 지원자 목록 (지망순위별)
+- 경쟁률 및 합격 예상 분석
+
+### **👤 프로필** (`/profile/[id]`)
+- 개인 정보 및 성적 현황
+- 지원한 대학교 목록 (순위별 정렬)
+- 관리자 페이지 바로가기 (관리자용)
+
+### **👨‍💼 관리자** (`/admin`)
+- **인라인 편집**: 사용자 정보 테이블에서 직접 수정
+- **성적 인증 처리**: 제출된 성적표 이미지 확인 및 승인/거부
+- **수정 요청 검토**: 현재 vs 요청 성적 비교 분석
+- **통계 대시보드**: 전체 사용자 현황 및 요청 건수
+
+## 🛠 기술 스택
+
+### **Frontend**
+- **Framework**: Next.js 15.4.4 (App Router)
+- **Language**: TypeScript 5
+- **Styling**: Tailwind CSS 4
+- **State Management**: React Context API
+- **UI Components**: Custom Components
+
+### **Backend**
+- **API**: Next.js API Routes
+- **Authentication**: JWT (JSON Web Token)
+- **Data Storage**: Mock Data (향후 DB 연동 예정)
+- **File Upload**: Base64 이미지 처리
+
+### **Development**
+- **React**: 19.1.0
+- **Node.js**: 18+ 
+- **Package Manager**: npm/yarn
+- **Linting**: ESLint
+- **Type Checking**: TypeScript
 
 ## 📁 프로젝트 구조
 
 ```
 soma/
 ├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── api/               # API 라우트
-│   │   │   ├── auth/          # 인증 관련 API
-│   │   │   └── verify-token/  # 토큰 검증 API
-│   │   ├── admin/             # 관리자 페이지
-│   │   ├── auth/              # 인증 페이지
-│   │   ├── dashboard/         # 대시보드
-│   │   ├── profile/           # 사용자 프로필
-│   │   ├── university/        # 대학교 상세 정보
-│   │   └── verification/      # 성적 인증
-│   ├── contexts/              # React Context
-│   │   └── AuthContext.tsx   # 인증 컨텍스트
-│   ├── data/                  # Mock 데이터
-│   ├── lib/                   # 유틸리티 함수
-│   └── types/                 # TypeScript 타입 정의
-├── package.json
-└── README.md
+│   ├── app/                     # Next.js App Router
+│   │   ├── api/                # API Routes
+│   │   │   ├── auth/[uuid]/    # UUID 기반 인증
+│   │   │   └── verify-token/   # JWT 토큰 검증
+│   │   ├── admin/              # 관리자 대시보드
+│   │   ├── applications/       # 대학교 지원 관리
+│   │   │   └── edit/          # 지원 대학교 편집
+│   │   ├── auth/[uuid]/        # 인증 페이지
+│   │   ├── dashboard/          # 사용자 대시보드
+│   │   ├── profile/[id]/       # 사용자 프로필
+│   │   ├── university/[id]/    # 대학교 상세
+│   │   └── verification/       # 성적 인증
+│   │       ├── edit/          # 성적 수정 요청
+│   │       └── status/        # 인증 상태 확인
+│   ├── contexts/               # React Context
+│   │   └── AuthContext.tsx   # 사용자 인증 상태
+│   ├── data/                   # Mock Data
+│   │   └── mockData.ts        # 사용자/대학교 데이터
+│   ├── lib/                    # 유틸리티
+│   │   └── auth.ts            # JWT 인증 로직
+│   └── types/                  # TypeScript Types
+│       └── index.ts           # 타입 정의
+├── public/                     # 정적 파일
+├── package.json               # 프로젝트 설정
+├── tsconfig.json              # TypeScript 설정
+├── tailwind.config.js         # Tailwind 설정
+└── README.md                  # 프로젝트 문서
 ```
 
-## 🛠 기술 스택
+## 🎨 UI/UX 특징
 
-### Frontend
-- **Framework**: Next.js 14 (App Router)
-- **Language**: TypeScript
-- **Styling**: Tailwind CSS
-- **State Management**: React Context API
+### **📱 반응형 디자인**
+- **Mobile First**: 모바일 우선 설계
+- **Breakpoints**: 
+  - Mobile: `< 640px`
+  - Tablet: `640px - 1024px` 
+  - Desktop: `≥ 1024px`
+- **Dynamic Layouts**: 테이블 ↔ 카드 자동 전환
 
-### Backend
-- **API**: Next.js API Routes
-- **Authentication**: JWT (JSON Web Token)
-- **Data**: Mock 데이터 (향후 DB 연동 예정)
+### **🖱️ 사용성 개선**
+- **Cursor Styles**: 모든 상호작용 요소에 적절한 커서
+- **Visual Feedback**: 호버, 포커스, 액티브 상태 표시
+- **Loading States**: 비동기 작업 중 로딩 표시
+- **Error Handling**: 명확한 에러 메시지 및 가이드
 
-### UI/UX
-- **Design System**: Tailwind CSS
-- **Responsive**: Mobile-First 디자인
-- **Icons**: Unicode Emoji + CSS
+### **🎯 인터랙션**
+- **Drag & Drop**: 지망순위 조정
+- **Search & Select**: 대학교 검색 및 선택
+- **Inline Editing**: 관리자 테이블 인라인 편집
+- **Modal Interactions**: 성적 검토 및 이미지 확인
 
-## 📋 페이지별 기능
+## 🔧 개발 명령어
 
-### 🏠 홈페이지 (`/`)
-- 서비스 소개
-- 테스트용 UUID 링크 제공
-
-### 🔐 인증 페이지 (`/auth/[uuid]`)
-- UUID 기반 자동 로그인
-- JWT 토큰 발급 및 저장
-
-### 📊 대시보드 (`/dashboard`)
-- 개인 인증 상태 확인
-- 대학교 목록 및 경쟁률
-- 성적 인증 버튼
-
-### 📝 성적 인증 (`/verification`)
-- 학점 정보 입력
-- 어학성적 등록 (복수 가능)
-- 관리자 승인 대기
-
-### 🏫 대학교 상세 (`/university/[id]`)
-- 대학교 정보 및 지원 조건
-- 현재 지원자 목록
-- 경쟁률 분석
-
-### 👥 관리자 (`/admin`)
-- 사용자 목록 및 관리
-- 인증 요청 승인/거부
-- 통계 및 모니터링
-
-## 🎨 디자인 특징
-
-### 📱 모바일 퍼스트
-- 모든 페이지가 모바일 우선으로 설계
-- 테이블 → 카드 형태로 자동 변환
-- 터치 친화적 UI 요소
-
-### 🖱 사용성 개선
-- 클릭 가능한 모든 요소에 `cursor: pointer`
-- 직관적인 호버 효과
-- 명확한 시각적 피드백
-
-### 🎯 반응형 브레이크포인트
-- **Mobile**: `< 640px` (기본)
-- **Tablet**: `≥ 640px` (sm)
-- **Desktop**: `≥ 1024px` (lg)
-
-## 🔧 개발 환경
-
-### 요구사항
-- **Node.js**: 18.0.0 이상
-- **npm**: 8.0.0 이상 또는 **yarn**: 1.22.0 이상
-
-### 개발 명령어
 ```bash
 # 개발 서버 실행
 npm run dev
@@ -186,9 +187,27 @@ npm run dev
 # 프로덕션 빌드
 npm run build
 
-# 프로덕션 서버 실행
+# 프로덕션 서버 실행  
 npm start
 
-# 린팅 검사
+# 코드 린팅
 npm run lint
 ```
+
+## 🔑 JWT 인증 관리
+
+### **토큰 저장 위치**
+- **Local Storage**: `authToken` 키
+- **자동 만료**: 24시간 후 자동 로그아웃
+
+### **토큰 초기화 방법**
+```javascript
+// 브라우저 콘솔에서 실행
+localStorage.removeItem('authToken');
+location.reload();
+```
+
+### **개발자 도구로 삭제**
+1. `F12` → **Application** → **Local Storage**
+2. `localhost:3000` → `authToken` 삭제
+3. 페이지 새로고침
