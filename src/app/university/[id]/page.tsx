@@ -139,7 +139,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                 지원자 목록 ({applicants.length}명)
               </h2>
               <p className="text-sm text-gray-600 mt-1">
-                인증 완료된 지원자들의 성적 정보를 확인할 수 있습니다.
+                모든 지원자들의 성적 정보를 확인할 수 있습니다. (인증 상태별로 구분 표시됩니다)
               </p>
             </div>
             
@@ -229,7 +229,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                   아직 지원자가 없습니다
                 </h3>
                 <p className="text-gray-600">
-                  인증 완료된 지원자가 아직 없습니다.
+                  이 대학교에 지원한 사람이 아직 없습니다.
                 </p>
               </div>
             )}

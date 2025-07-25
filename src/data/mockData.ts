@@ -211,8 +211,7 @@ export function getUniversityById(id: string): University | undefined {
 
 export function getUniversityApplicants(universityId: string): User[] {
   return mockUsers.filter(user => 
-    user.appliedUniversities.includes(universityId) && 
-    user.verificationStatus === 'verified'
+    user.appliedUniversities.includes(universityId)
   );
 }
 
