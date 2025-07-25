@@ -18,6 +18,8 @@ export default function EditApplicationsPage() {
   const [searchResults, setSearchResults] = useState<University[]>([]);
   const [selectedUniversityToAdd, setSelectedUniversityToAdd] = useState<University | null>(null);
   const [isSearching, setIsSearching] = useState(false);
+  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -72,24 +74,42 @@ export default function EditApplicationsPage() {
     });
   };
 
-  const handleRankChange = (universityId: string, newRank: number) => {
+  // 드래그 앤 드롭 핸들러들
+  const handleDragStart = (e: React.DragEvent, index: number) => {
     if (!canEdit) return;
+    setDraggedIndex(index);
+    e.dataTransfer.effectAllowed = 'move';
+  };
+
+  const handleDragOver = (e: React.DragEvent, index: number) => {
+    if (!canEdit) return;
+    e.preventDefault();
+    setDragOverIndex(index);
+  };
+
+  const handleDragEnd = () => {
+    setDraggedIndex(null);
+    setDragOverIndex(null);
+  };
+
+  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
+    if (!canEdit || draggedIndex === null) return;
+    e.preventDefault();
 
     setSelectedUniversities(prev => {
-      const maxRank = prev.length;
-      const clampedRank = Math.max(1, Math.min(newRank, maxRank));
+      const sortedList = [...prev].sort((a, b) => a.rank - b.rank);
+      const draggedItem = sortedList[draggedIndex];
       
-      const updatedList = prev.map(app => {
-        if (app.universityId === universityId) {
-          return { ...app, rank: clampedRank };
-        }
-        return app;
-      });
-
-      // 순위 중복 해결 및 정렬
-      const sortedList = updatedList.sort((a, b) => a.rank - b.rank);
-      return sortedList.map((app, index) => ({ ...app, rank: index + 1 }));
+      // 드래그된 아이템을 제거하고 새 위치에 삽입
+      const newList = sortedList.filter((_, index) => index !== draggedIndex);
+      newList.splice(dropIndex, 0, draggedItem);
+      
+      // 순위 재할당
+      return newList.map((app, index) => ({ ...app, rank: index + 1 }));
     });
+
+    setDraggedIndex(null);
+    setDragOverIndex(null);
   };
 
   const handleSubmit = async () => {
@@ -442,22 +462,12 @@ export default function EditApplicationsPage() {
                                )}
                              </div>
                              
-                             {/* 지망순위 표시 및 수정 */}
+                             {/* 선택됨 표시 */}
                              {isSelected && selectedApp && (
                                <div className="flex items-center space-x-2">
-                                 <span className="text-sm text-gray-600">순위:</span>
-                                 <select
-                                   value={selectedApp.rank}
-                                   onChange={(e) => handleRankChange(university.id, parseInt(e.target.value))}
-                                   onClick={(e) => e.stopPropagation()}
-                                   className="w-16 px-2 py-1 border border-gray-300 rounded text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
-                                 >
-                                   {Array.from({ length: selectedUniversities.length }, (_, i) => (
-                                     <option key={i + 1} value={i + 1}>
-                                       {i + 1}
-                                     </option>
-                                   ))}
-                                 </select>
+                                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
+                                   {selectedApp.rank}순위
+                                 </span>
                                </div>
                              )}
                            </div>
@@ -517,38 +527,97 @@ export default function EditApplicationsPage() {
           </button>
         </div>
 
-        {/* 현재 선택된 대학교 요약 */}
-        {selectedUniversities.length > 0 && (
-          <div className="mt-6 bg-white rounded-lg shadow p-6">
-            <h3 className="text-lg font-semibold text-gray-900 mb-4">
-              선택된 대학교 ({selectedUniversities.length}개)
-            </h3>
-                                      <div className="space-y-2">
-               {selectedUniversities
-                 .sort((a, b) => a.rank - b.rank)
-                 .map(app => {
-                   const university = allUniversities.find(u => u.id === app.universityId);
-                   if (!university) return null;
-                   
-                   return (
-                     <div
-                       key={app.universityId}
-                       className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg"
-                     >
-                       <div className="flex items-center space-x-3">
-                         <span className="flex items-center justify-center w-8 h-8 bg-blue-600 text-white rounded-full text-sm font-bold">
-                           {app.rank}
-                         </span>
-                         <span className="text-2xl">{university.flag}</span>
-                         <span className="font-medium text-gray-900">{university.name}</span>
-                         <span className="text-sm text-gray-600">({university.country})</span>
+                 {/* 선택된 대학교 순위 조정 */}
+         {selectedUniversities.length > 0 && (
+           <div className="mt-6 bg-white rounded-lg shadow">
+             <div className="p-6 border-b">
+               <h3 className="text-lg font-semibold text-gray-900">
+                 지망순위 조정 ({selectedUniversities.length}개)
+               </h3>
+               <p className="text-sm text-gray-600 mt-1">
+                 드래그하여 순서를 변경하세요. 위에서부터 1순위입니다.
+               </p>
+             </div>
+             
+             <div className="p-6">
+               <div className="space-y-3">
+                 {selectedUniversities
+                   .sort((a, b) => a.rank - b.rank)
+                   .map((app, index) => {
+                     const university = allUniversities.find(u => u.id === app.universityId);
+                     if (!university) return null;
+                     
+                     const isDragging = draggedIndex === index;
+                     const isDragOver = dragOverIndex === index;
+                     
+                     return (
+                       <div
+                         key={app.universityId}
+                         draggable={canEdit}
+                         onDragStart={(e) => handleDragStart(e, index)}
+                         onDragOver={(e) => handleDragOver(e, index)}
+                         onDragEnd={handleDragEnd}
+                         onDrop={(e) => handleDrop(e, index)}
+                         className={`flex items-center justify-between p-4 border-2 rounded-lg transition-all ${
+                           isDragging 
+                             ? 'opacity-50 scale-95 border-blue-400 bg-blue-50' 
+                             : isDragOver
+                             ? 'border-blue-400 bg-blue-25'
+                             : 'border-gray-200 bg-white hover:border-gray-300'
+                         } ${canEdit ? 'cursor-move' : 'cursor-default'}`}
+                       >
+                         <div className="flex items-center space-x-4">
+                           {/* 드래그 핸들 */}
+                           {canEdit && (
+                             <div className="flex flex-col space-y-1 text-gray-400">
+                               <div className="w-1 h-1 bg-current rounded-full"></div>
+                               <div className="w-1 h-1 bg-current rounded-full"></div>
+                               <div className="w-1 h-1 bg-current rounded-full"></div>
+                               <div className="w-1 h-1 bg-current rounded-full"></div>
+                               <div className="w-1 h-1 bg-current rounded-full"></div>
+                               <div className="w-1 h-1 bg-current rounded-full"></div>
+                             </div>
+                           )}
+                           
+                           {/* 순위 표시 */}
+                           <span className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold text-white ${
+                             app.rank === 1 ? 'bg-yellow-500' :
+                             app.rank === 2 ? 'bg-gray-400' :
+                             app.rank === 3 ? 'bg-amber-600' :
+                             'bg-blue-500'
+                           }`}>
+                             {app.rank}
+                           </span>
+                           
+                           {/* 대학교 정보 */}
+                           <span className="text-3xl">{university.flag}</span>
+                           <div>
+                             <div className="font-medium text-gray-900 text-lg">{university.name}</div>
+                             <div className="text-sm text-gray-600">{university.country}</div>
+                           </div>
+                         </div>
+                         
+                         {/* 지원자 정보 */}
+                         <div className="text-right text-sm text-gray-500">
+                           <div>지원자: {university.applicantCount}명</div>
+                           <div>모집: {university.competitionRatio.level1 + university.competitionRatio.level2}명</div>
+                         </div>
                        </div>
-                     </div>
-                   );
-                 })}
-            </div>
-          </div>
-        )}
+                     );
+                   })}
+               </div>
+               
+               {/* 안내 메시지 */}
+               {!canEdit && (
+                 <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                   <p className="text-sm text-gray-600 text-center">
+                     편집 권한이 없어 순서를 변경할 수 없습니다.
+                   </p>
+                 </div>
+               )}
+             </div>
+           </div>
+         )}
       </div>
     </div>
   );
