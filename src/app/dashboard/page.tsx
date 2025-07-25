@@ -117,6 +117,16 @@ export default function DashboardPage() {
                 {getVerificationButtonText()}
               </button>
               
+              {/* 지원 대학교 변경 버튼 */}
+              <div className="mt-4">
+                <button
+                  onClick={() => router.push('/applications/edit')}
+                  className="w-full bg-green-600 hover:bg-green-700 text-white px-4 py-3 rounded-lg font-medium transition-colors cursor-pointer"
+                >
+                  지원 대학교 변경
+                </button>
+              </div>
+              
               {user.verificationStatus === 'verified' && (
                 <div className="mt-4 text-sm text-gray-600">
                   <p>✅ 인증이 완료되었습니다</p>

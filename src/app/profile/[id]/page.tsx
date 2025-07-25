@@ -196,12 +196,31 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow">
               <div className="p-6 border-b">
-                <h2 className="text-xl font-semibold text-gray-900">
-                  지원 대학교 목록 ({appliedUniversities.length}개)
-                </h2>
-                <p className="text-sm text-gray-600 mt-1">
-                  {profileUser.name}님이 지원한 대학교들입니다. 대학교를 클릭하면 해당 대학교의 다른 지원자들을 확인할 수 있습니다.
-                </p>
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      지원 대학교 목록 ({appliedUniversities.length}개)
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      {profileUser.name}님이 지원한 대학교들입니다. 대학교를 클릭하면 해당 대학교의 다른 지원자들을 확인할 수 있습니다.
+                    </p>
+                  </div>
+                  
+                  {/* 본인 프로필인 경우에만 변경 버튼 표시 */}
+                  {currentUser && currentUser.id === profileUser.id && (
+                    <div className="mt-4 sm:mt-0">
+                      <button
+                        onClick={() => router.push('/applications/edit')}
+                        className="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors"
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
+                        </svg>
+                        지원 대학교 변경
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
               
               {appliedUniversities.length > 0 ? (

@@ -1,0 +1,417 @@
+'use client';
+
+import { useAuth } from '@/contexts/AuthContext';
+import { mockUniversities, getUserById } from '@/data/mockData';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { University } from '@/types';
+
+export default function EditApplicationsPage() {
+  const { user, loading } = useAuth();
+  const router = useRouter();
+  const [selectedUniversities, setSelectedUniversities] = useState<string[]>([]);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
+  const [customUniversities, setCustomUniversities] = useState<University[]>([]);
+  const [showAddForm, setShowAddForm] = useState(false);
+  const [newUniversity, setNewUniversity] = useState({
+    name: '',
+    country: '',
+    flag: '🏫'
+  });
+
+  useEffect(() => {
+    if (user) {
+      const userData = getUserById(user.id);
+      if (userData) {
+        setSelectedUniversities([...userData.appliedUniversities]);
+      }
+    }
+  }, [user]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
+  }
+
+  if (!user) {
+    router.push('/');
+    return null;
+  }
+
+  const userData = getUserById(user.id);
+  if (!userData) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-red-600">사용자 정보를 찾을 수 없습니다.</div>
+      </div>
+    );
+  }
+
+  // 편집 제한 체크
+  const canEdit = userData.editCount < userData.maxEditCount && !userData.isDeadlineRestricted;
+  const remainingEdits = userData.maxEditCount - userData.editCount;
+
+  const handleUniversityToggle = (universityId: string) => {
+    if (!canEdit) return;
+
+    setSelectedUniversities(prev => {
+      if (prev.includes(universityId)) {
+        return prev.filter(id => id !== universityId);
+      } else {
+        return [...prev, universityId];
+      }
+    });
+  };
+
+  const handleSubmit = async () => {
+    if (!canEdit) return;
+    
+    setIsSubmitting(true);
+    
+    try {
+      // 실제 구현에서는 API 호출
+      // 여기서는 mock 데이터 업데이트 시뮬레이션
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock 데이터 업데이트 (실제로는 API 호출)
+      userData.appliedUniversities = [...selectedUniversities];
+      userData.editCount += 1;
+      
+      setMessage({ type: 'success', text: '지원 대학교가 성공적으로 변경되었습니다!' });
+      
+      // 3초 후 프로필 페이지로 이동
+      setTimeout(() => {
+        router.push(`/profile/${user.id}`);
+      }, 3000);
+      
+    } catch (error) {
+      setMessage({ type: 'error', text: '변경 중 오류가 발생했습니다. 다시 시도해주세요.' });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const hasChanges = JSON.stringify(selectedUniversities.sort()) !== JSON.stringify(userData.appliedUniversities.sort());
+
+  // 전체 대학교 목록 (기존 + 사용자 추가)
+  const allUniversities = [...mockUniversities, ...customUniversities];
+
+  // 새 대학교 추가 핸들러
+  const handleAddUniversity = () => {
+    if (!newUniversity.name.trim() || !newUniversity.country.trim()) {
+      setMessage({ type: 'error', text: '대학교 이름과 국가를 모두 입력해주세요.' });
+      return;
+    }
+
+    const customId = `custom-${Date.now()}`;
+    const university: University = {
+      id: customId,
+      name: newUniversity.name.trim(),
+      country: newUniversity.country.trim(),
+      flag: newUniversity.flag,
+      competitionRatio: { level1: 0, level2: 0 },
+      notices: [],
+      applicantCount: 0
+    };
+
+    setCustomUniversities(prev => [...prev, university]);
+    setNewUniversity({ name: '', country: '', flag: '🏫' });
+    setShowAddForm(false);
+    setMessage({ type: 'success', text: `${university.name}이(가) 추가되었습니다!` });
+    
+    // 추가된 대학교를 자동으로 선택
+    setSelectedUniversities(prev => [...prev, customId]);
+  };
+
+  // 사용자 추가 대학교 삭제
+  const handleRemoveCustomUniversity = (universityId: string) => {
+    setCustomUniversities(prev => prev.filter(u => u.id !== universityId));
+    setSelectedUniversities(prev => prev.filter(id => id !== universityId));
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-50">
+      {/* 헤더 */}
+      <header className="bg-white shadow-sm border-b">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center space-x-4">
+              <button
+                onClick={() => router.back()}
+                className="text-gray-600 hover:text-gray-900"
+              >
+                ← 뒤로가기
+              </button>
+              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
+                지원 대학교 변경
+              </h1>
+            </div>
+            <div className="text-sm text-gray-600">
+              {user.name}님
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 안내 메시지 */}
+        <div className="bg-white rounded-lg shadow p-6 mb-6">
+          <h2 className="text-lg font-semibold text-gray-900 mb-4">📝 편집 안내</h2>
+          
+          {canEdit ? (
+            <div className="space-y-2">
+              <p className="text-green-700">✅ 편집 가능한 상태입니다.</p>
+              <p className="text-sm text-gray-600">• 남은 편집 횟수: <span className="font-semibold">{remainingEdits}회</span></p>
+              <p className="text-sm text-gray-600">• 원하는 대학교를 선택하고 저장하세요.</p>
+            </div>
+          ) : (
+            <div className="space-y-2">
+              <p className="text-red-700">❌ 편집할 수 없습니다.</p>
+              {userData.editCount >= userData.maxEditCount && (
+                <p className="text-sm text-gray-600">• 편집 횟수를 모두 사용했습니다.</p>
+              )}
+              {userData.isDeadlineRestricted && (
+                <p className="text-sm text-gray-600">• 마감일이 임박하여 편집이 제한됩니다.</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* 메시지 표시 */}
+        {message && (
+          <div className={`rounded-lg p-4 mb-6 ${
+            message.type === 'success' ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'
+          }`}>
+            {message.text}
+          </div>
+        )}
+
+                 {/* 대학교 선택 */}
+         <div className="bg-white rounded-lg shadow">
+           <div className="p-6 border-b">
+             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+               <div>
+                 <h2 className="text-xl font-semibold text-gray-900">
+                   지원 대학교 선택 ({selectedUniversities.length}개)
+                 </h2>
+                 <p className="text-sm text-gray-600 mt-1">
+                   지원하고 싶은 대학교를 선택하세요. 목록에 없는 대학교는 직접 추가할 수 있습니다.
+                 </p>
+               </div>
+               
+               <div className="mt-4 sm:mt-0">
+                 <button
+                   onClick={() => setShowAddForm(true)}
+                   disabled={!canEdit}
+                   className={`inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm text-sm font-medium transition-colors ${
+                     canEdit 
+                       ? 'text-green-700 bg-green-50 hover:bg-green-100' 
+                       : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                   }`}
+                 >
+                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                   </svg>
+                   새 대학교 추가
+                 </button>
+               </div>
+             </div>
+           </div>
+          
+                     <div className="p-6">
+             {/* 새 대학교 추가 폼 */}
+             {showAddForm && (
+               <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                 <h3 className="text-lg font-medium text-gray-900 mb-4">새 대학교 추가</h3>
+                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                       대학교 이름 *
+                     </label>
+                     <input
+                       type="text"
+                       value={newUniversity.name}
+                       onChange={(e) => setNewUniversity(prev => ({ ...prev, name: e.target.value }))}
+                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                       placeholder="예: Seoul National University"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                       국가 *
+                     </label>
+                     <input
+                       type="text"
+                       value={newUniversity.country}
+                       onChange={(e) => setNewUniversity(prev => ({ ...prev, country: e.target.value }))}
+                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                       placeholder="예: 대한민국"
+                     />
+                   </div>
+                   <div>
+                     <label className="block text-sm font-medium text-gray-700 mb-1">
+                       국기 (선택)
+                     </label>
+                     <input
+                       type="text"
+                       value={newUniversity.flag}
+                       onChange={(e) => setNewUniversity(prev => ({ ...prev, flag: e.target.value }))}
+                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
+                       placeholder="🇰🇷"
+                     />
+                   </div>
+                 </div>
+                 <div className="flex justify-end space-x-3 mt-4">
+                   <button
+                     onClick={() => {
+                       setShowAddForm(false);
+                       setNewUniversity({ name: '', country: '', flag: '🏫' });
+                     }}
+                     className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
+                   >
+                     취소
+                   </button>
+                   <button
+                     onClick={handleAddUniversity}
+                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                   >
+                     추가하기
+                   </button>
+                 </div>
+               </div>
+             )}
+
+             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+               {allUniversities.map((university) => {
+                const isSelected = selectedUniversities.includes(university.id);
+                
+                                 const isCustom = university.id.startsWith('custom-');
+                 
+                 return (
+                   <div
+                     key={university.id}
+                     className={`border-2 rounded-lg p-4 cursor-pointer transition-all relative ${
+                       isSelected 
+                         ? 'border-blue-500 bg-blue-50' 
+                         : 'border-gray-200 hover:border-gray-300'
+                     } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''} ${
+                       isCustom ? 'border-green-300 bg-green-25' : ''
+                     }`}
+                     onClick={() => handleUniversityToggle(university.id)}
+                   >
+                     {/* 사용자 추가 대학교 삭제 버튼 */}
+                     {isCustom && canEdit && (
+                       <button
+                         onClick={(e) => {
+                           e.stopPropagation();
+                           handleRemoveCustomUniversity(university.id);
+                         }}
+                         className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors flex items-center justify-center text-xs"
+                         title="삭제"
+                       >
+                         ×
+                       </button>
+                     )}
+                    <div className="flex items-start space-x-3">
+                      <div className="flex-shrink-0">
+                        <span className="text-3xl">{university.flag}</span>
+                      </div>
+                      <div className="flex-1 min-w-0">
+                                                 <div className="flex items-center justify-between">
+                           <div className="flex items-center space-x-2">
+                             <h3 className="text-lg font-medium text-gray-900 truncate">
+                               {university.name}
+                             </h3>
+                             {isCustom && (
+                               <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
+                                 직접 추가
+                               </span>
+                             )}
+                           </div>
+                           {isSelected && (
+                             <div className="flex-shrink-0 ml-2">
+                               <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
+                                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
+                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                 </svg>
+                               </div>
+                             </div>
+                           )}
+                         </div>
+                         <p className="text-sm text-gray-600 mb-2">{university.country}</p>
+                         <div className="text-sm text-gray-500">
+                           <p>지원자: {university.applicantCount}명</p>
+                           <p>모집인원: {university.competitionRatio.level1 + university.competitionRatio.level2}명</p>
+                         </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+        </div>
+
+        {/* 저장 버튼 */}
+        <div className="mt-6 flex justify-center space-x-4">
+          <button
+            onClick={() => router.back()}
+            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+          >
+            취소
+          </button>
+          
+          <button
+            onClick={handleSubmit}
+            disabled={!canEdit || !hasChanges || isSubmitting}
+            className={`px-6 py-3 rounded-lg font-medium transition-colors ${
+              canEdit && hasChanges && !isSubmitting
+                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+            }`}
+          >
+            {isSubmitting ? (
+              <>
+                <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white inline" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                저장 중...
+              </>
+            ) : (
+              '변경 저장'
+            )}
+          </button>
+        </div>
+
+        {/* 현재 선택된 대학교 요약 */}
+        {selectedUniversities.length > 0 && (
+          <div className="mt-6 bg-white rounded-lg shadow p-6">
+            <h3 className="text-lg font-semibold text-gray-900 mb-4">
+              선택된 대학교 ({selectedUniversities.length}개)
+            </h3>
+                         <div className="flex flex-wrap gap-2">
+               {selectedUniversities.map(universityId => {
+                 const university = allUniversities.find(u => u.id === universityId);
+                 if (!university) return null;
+                
+                return (
+                  <span
+                    key={universityId}
+                    className="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                  >
+                    {university.flag} {university.name}
+                  </span>
+                );
+              })}
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+} 
