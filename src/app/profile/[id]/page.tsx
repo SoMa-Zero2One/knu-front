@@ -38,6 +38,21 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     }
   }, [resolvedParams]);
 
+  // 리디렉션 로직을 useEffect로 이동
+  useEffect(() => {
+    if (loading) return; // 로딩 중이면 아직 체크하지 않음
+
+    if (!currentUser) {
+      router.push('/');
+      return;
+    }
+
+    if (currentUser.verificationStatus !== 'verified' && currentUser.role !== 'admin') {
+      router.push('/dashboard');
+      return;
+    }
+  }, [currentUser, loading, router]);
+
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
@@ -46,14 +61,13 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     );
   }
 
-  if (!currentUser) {
-    router.push('/');
-    return null;
-  }
-
-  if (currentUser.verificationStatus !== 'verified' && currentUser.role !== 'admin') {
-    router.push('/dashboard');
-    return null;
+  // 리디렉션 중이면 로딩 표시
+  if (!currentUser || (currentUser.verificationStatus !== 'verified' && currentUser.role !== 'admin')) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+      </div>
+    );
   }
 
   if (!profileUser) {
