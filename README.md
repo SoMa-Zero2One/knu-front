@@ -192,18 +192,3 @@ npm start
 # 린팅 검사
 npm run lint
 ```
-
-## 📞 문의사항
-
-- **이메일**: admin@university.ac.kr
-- **개발자**: [GitHub 프로필]
-- **이슈 리포팅**: [GitHub Issues]
-
-## 📄 라이선스
-
-이 프로젝트는 MIT 라이선스 하에 배포됩니다.
-
----
-
-### 🎉 Happy Coding! 
-건국대학교 교환학생 지원에 도움이 되는 서비스가 되기를 바랍니다! 🚀
