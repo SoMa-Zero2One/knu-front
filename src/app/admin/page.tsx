@@ -691,21 +691,22 @@ function AdminPageContent() {
           </div>
         </div>
 
-        {/* 성적 수정 요청 검토 모달 - 특별한 검토가 필요한 경우만 */}
-        {editingUser && editingUser.pendingEditRequest?.status === 'pending' && (
+        {/* 성적 관련 모달 - 인증 처리 & 수정 요청 검토 */}
+        {editingUser && (editingUser.pendingEditRequest?.status === 'pending' || editingUser.verificationStatus === 'pending') && (
           <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
             <div className="bg-white rounded-lg p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                {editingUser.name} 수정 요청 검토
+                {editingUser.name} {editingUser.pendingEditRequest?.status === 'pending' ? '수정 요청 검토' : '성적 인증 처리'}
               </h3>
-                {/* 수정 요청 검토 화면 */}
-                <div className="space-y-6">
-                  <div className="bg-yellow-50 p-4 rounded-lg">
-                    <h4 className="font-medium text-yellow-800 mb-2">📋 수정 요청 정보</h4>
-                    <p className="text-sm text-yellow-700">
-                      요청일: {editingUser.pendingEditRequest!.requestDate}
-                    </p>
-                  </div>
+                {editingUser.pendingEditRequest?.status === 'pending' ? (
+                  /* 수정 요청 검토 화면 */
+                  <div className="space-y-6">
+                    <div className="bg-yellow-50 p-4 rounded-lg">
+                      <h4 className="font-medium text-yellow-800 mb-2">📋 수정 요청 정보</h4>
+                      <p className="text-sm text-yellow-700">
+                        요청일: {editingUser.pendingEditRequest.requestDate}
+                      </p>
+                    </div>
                   
                                      {/* 현재 vs 요청 비교 */}
                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -844,7 +845,119 @@ function AdminPageContent() {
                       승인
                     </button>
                   </div>
-                </div>
+                  </div>
+                ) : (
+                  /* 일반 성적 인증 처리 화면 */
+                  <div className="space-y-6">
+                    <div className="bg-blue-50 p-4 rounded-lg">
+                      <h4 className="font-medium text-blue-800 mb-2">📋 성적 인증 정보</h4>
+                      <p className="text-sm text-blue-700">
+                        인증 상태: 대기 중
+                      </p>
+                    </div>
+                    
+                    {/* 성적 정보와 이미지 */}
+                    <div>
+                      <h4 className="font-medium text-gray-900 mb-3">제출된 성적</h4>
+                      <div className="bg-gray-50 p-4 rounded-lg">
+                        <div className="mb-4">
+                          <span className="text-sm font-medium">학점:</span>
+                          <span className="ml-2 text-blue-600 font-semibold">
+                            {editingUser.gpa || '미입력'}
+                          </span>
+                          {editingUser.gpaImageUrl && (
+                            <div className="mt-2">
+                              <img 
+                                src={editingUser.gpaImageUrl} 
+                                alt="성적표" 
+                                className="w-full max-w-64 h-40 object-cover border border-gray-300 rounded cursor-pointer hover:opacity-90"
+                                onClick={() => window.open(editingUser.gpaImageUrl, '_blank')}
+                              />
+                              <p className="text-xs text-gray-500 mt-1 cursor-pointer">클릭하면 확대</p>
+                            </div>
+                          )}
+                        </div>
+                        <div>
+                          <span className="text-sm font-medium">어학 성적:</span>
+                          <div className="mt-2 space-y-2">
+                            {editingUser.languageScores?.length > 0 ? (
+                              editingUser.languageScores.map((score, index) => (
+                                <div key={index} className="border border-gray-200 p-2 rounded">
+                                  <div className="text-xs bg-green-100 text-green-800 px-2 py-1 rounded inline-block mb-2">
+                                    {score.type}: {score.score}
+                                  </div>
+                                  {score.imageUrl && (
+                                    <img 
+                                      src={score.imageUrl} 
+                                      alt={`${score.type} 성적표`}
+                                      className="w-full max-w-48 h-32 object-cover border border-gray-300 rounded cursor-pointer hover:opacity-90"
+                                      onClick={() => window.open(score.imageUrl, '_blank')}
+                                    />
+                                  )}
+                                </div>
+                              ))
+                            ) : (
+                              <span className="text-xs text-gray-500">없음</span>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    {/* 관리자 코멘트 */}
+                    <div>
+                      <label className="block text-sm font-medium text-gray-700 mb-2">
+                        관리자 코멘트 (선택사항)
+                      </label>
+                      <textarea
+                        rows={3}
+                        className="w-full border border-gray-300 rounded-md px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500 cursor-text"
+                        placeholder="인증 결과에 대한 코멘트를 입력하세요..."
+                        id="adminVerificationComment"
+                      />
+                    </div>
+                    
+                    {/* 인증 결정 버튼 */}
+                    <div className="flex justify-end space-x-3">
+                      <button
+                        onClick={() => setEditingUser(null)}
+                        className="px-4 py-2 bg-gray-300 text-gray-700 rounded-md hover:bg-gray-400 transition-colors cursor-pointer"
+                      >
+                        닫기
+                      </button>
+                      <button
+                        onClick={() => {
+                          const comment = (document.getElementById('adminVerificationComment') as HTMLTextAreaElement)?.value;
+                          handleStatusChange(editingUser.id, 'not_verified');
+                          setEditingUser(null);
+                          if (comment) {
+                            alert(`${editingUser.name}님의 인증이 거부되었습니다.\n사유: ${comment}`);
+                          } else {
+                            alert(`${editingUser.name}님의 인증이 거부되었습니다.`);
+                          }
+                        }}
+                        className="px-4 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors cursor-pointer"
+                      >
+                        거부
+                      </button>
+                      <button
+                        onClick={() => {
+                          const comment = (document.getElementById('adminVerificationComment') as HTMLTextAreaElement)?.value;
+                          handleStatusChange(editingUser.id, 'verified');
+                          setEditingUser(null);
+                          if (comment) {
+                            alert(`${editingUser.name}님의 인증이 승인되었습니다.\n코멘트: ${comment}`);
+                          } else {
+                            alert(`${editingUser.name}님의 인증이 승인되었습니다.`);
+                          }
+                        }}
+                        className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors cursor-pointer"
+                      >
+                        승인
+                      </button>
+                    </div>
+                  </div>
+                )}
             </div>
           </div>
         )}
