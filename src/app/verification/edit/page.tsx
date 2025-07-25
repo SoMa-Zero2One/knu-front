@@ -3,7 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { languageTestTypes } from '@/data/mockData';
+import { languageTestTypes, getUserById } from '@/data/mockData';
 import { LanguageTestType } from '@/types';
 
 interface LanguageScoreForm {
@@ -26,26 +26,31 @@ export default function VerificationEditPage() {
   const [editCount, setEditCount] = useState(0);
   const [maxEditCount, setMaxEditCount] = useState(10);
   const [isDeadlineRestricted, setIsDeadlineRestricted] = useState(false);
+  const [hasPendingRequest, setHasPendingRequest] = useState(false);
 
   useEffect(() => {
     if (user) {
-      // 기존 데이터로 폼 초기화
-      setGpa(user.gpa?.toString() || '');
-      setEditCount(user.editCount || 0);
-      setMaxEditCount(user.maxEditCount || 10);
-      setIsDeadlineRestricted(user.isDeadlineRestricted || false);
-      
-      if (user.languageScores && user.languageScores.length > 0) {
-        const formattedScores = user.languageScores.map(score => ({
-          id: score.id,
-          type: score.type,
-          score: score.score,
-          imageFile: null,
-          existingImageUrl: score.imageUrl
-        }));
-        setLanguageScores(formattedScores);
-      } else {
-        setLanguageScores([{ id: '1', type: '', score: '', imageFile: null }]);
+      const userData = getUserById(user.id);
+      if (userData) {
+        // 기존 데이터로 폼 초기화
+        setGpa(userData.gpa?.toString() || '');
+        setEditCount(userData.editCount || 0);
+        setMaxEditCount(userData.maxEditCount || 10);
+        setIsDeadlineRestricted(userData.isDeadlineRestricted || false);
+        setHasPendingRequest(!!userData.pendingEditRequest);
+        
+        if (userData.languageScores && userData.languageScores.length > 0) {
+          const formattedScores = userData.languageScores.map(score => ({
+            id: score.id,
+            type: score.type,
+            score: score.score,
+            imageFile: null,
+            existingImageUrl: score.imageUrl
+          }));
+          setLanguageScores(formattedScores);
+        } else {
+          setLanguageScores([{ id: '1', type: '', score: '', imageFile: null }]);
+        }
       }
     }
   }, [user]);
@@ -68,7 +73,7 @@ export default function VerificationEditPage() {
     return null;
   }
 
-  const canEdit = !isDeadlineRestricted || editCount < maxEditCount;
+  const canEdit = (!isDeadlineRestricted || editCount < maxEditCount) && !hasPendingRequest;
 
   const addLanguageScore = () => {
     const newId = Date.now().toString();
@@ -123,10 +128,10 @@ export default function VerificationEditPage() {
         currentEditCount: editCount
       });
 
-      // Mock: 수정 완료
+      // Mock: 수정 요청 제출
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      alert('성적 정보가 성공적으로 수정되었습니다!');
+      alert('성적 수정 요청이 제출되었습니다!\n관리자 검토 후 승인되면 성적이 업데이트됩니다.');
       router.push('/dashboard');
     } catch (error) {
       console.error('수정 오류:', error);
@@ -163,6 +168,22 @@ export default function VerificationEditPage() {
       </header>
 
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 수정 요청 상태 안내 */}
+        {hasPendingRequest && (
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+            <div className="flex items-start">
+              <div className="text-blue-400 text-xl mr-3">⏳</div>
+              <div>
+                <h3 className="font-medium text-blue-800 mb-1">수정 요청 확인 중</h3>
+                <p className="text-sm text-blue-700">
+                  이전에 요청하신 성적 수정이 관리자 검토 중입니다. 
+                  새로운 수정 요청은 현재 요청이 처리된 후에 가능합니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* 수정 제한 안내 */}
         {isDeadlineRestricted && (
           <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-4 mb-6">
@@ -183,10 +204,11 @@ export default function VerificationEditPage() {
         <div className="bg-white rounded-lg shadow p-8">
           <div className="mb-8">
             <h2 className="text-xl font-semibold text-gray-900 mb-2">
-              성적 정보 수정
+              성적 정보 수정 요청
             </h2>
             <p className="text-gray-600">
-              인증된 성적 정보를 수정할 수 있습니다. 수정된 정보는 다시 관리자 검토를 거쳐 승인됩니다.
+              인증된 성적 정보의 수정을 요청할 수 있습니다. 
+              수정 요청은 관리자 검토를 거쳐 승인되며, 승인 전까지는 기존 성적이 유지됩니다.
             </p>
           </div>
 
@@ -366,7 +388,9 @@ export default function VerificationEditPage() {
                     : 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
                 }`}
               >
-                {isSubmitting ? '수정 중...' : !canEdit ? '수정 불가' : '수정하기'}
+                {isSubmitting ? '요청 제출 중...' : 
+                 hasPendingRequest ? '검토 중' :
+                 !canEdit ? '요청 불가' : '수정 요청하기'}
               </button>
             </div>
           </form>

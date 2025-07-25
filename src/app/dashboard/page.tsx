@@ -1,14 +1,22 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { mockUniversities } from '@/data/mockData';
-import { useState } from 'react';
+import { mockUniversities, getUserById } from '@/data/mockData';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [selectedUniversity, setSelectedUniversity] = useState(mockUniversities[0]);
+  const [userData, setUserData] = useState<any>(null);
+
+  useEffect(() => {
+    if (user) {
+      const fullUserData = getUserById(user.id);
+      setUserData(fullUserData);
+    }
+  }, [user]);
 
   if (loading) {
     return (
@@ -132,6 +140,23 @@ export default function DashboardPage() {
                   <p>✅ 인증이 완료되었습니다</p>
                   <p>• 학점: {user.gpa}</p>
                   <p>• 어학 성적: {user.languageScores.length}개</p>
+                  
+                  {/* 수정 요청 상태 표시 */}
+                  {userData?.pendingEditRequest && (
+                    <div className="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-md">
+                      <p className="text-blue-800 font-medium">📋 수정 요청 상태</p>
+                      <p className="text-blue-700 text-xs mt-1">
+                        {userData.pendingEditRequest.status === 'pending' ? '관리자 검토 중' :
+                         userData.pendingEditRequest.status === 'approved' ? '승인됨' :
+                         '거부됨'}
+                      </p>
+                      {userData.pendingEditRequest.requestedGpa && (
+                        <p className="text-blue-700 text-xs">
+                          요청 학점: {userData.pendingEditRequest.requestedGpa}
+                        </p>
+                      )}
+                    </div>
+                  )}
                 </div>
               )}
             </div>

@@ -1,4 +1,4 @@
-import { User, University, LanguageScore, UniversityNotice, LanguageTestType, AppliedUniversity } from '@/types';
+import { User, University, LanguageScore, UniversityNotice, LanguageTestType, AppliedUniversity, ScoreEditRequest } from '@/types';
 
 // Mock 대학교 공지사항 데이터
 const mockNotices: UniversityNotice[] = [
@@ -166,7 +166,22 @@ export const mockUsers: User[] = [
     verificationStatus: 'verified',
     editCount: 2,
     maxEditCount: 3,
-    isDeadlineRestricted: true
+    isDeadlineRestricted: true,
+    pendingEditRequest: {
+      id: 'edit-req-1',
+      requestDate: '2025-01-15',
+      status: 'pending',
+      requestedGpa: 4.2,
+      requestedGpaImageUrl: '/mock-images/gpa-updated.jpg',
+      requestedLanguageScores: [
+        {
+          id: 'new-1',
+          type: 'TOEIC',
+          score: '950',
+          imageUrl: '/mock-images/toeic-updated.jpg'
+        }
+      ]
+    }
   },
   {
     id: '4',
