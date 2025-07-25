@@ -14,11 +14,10 @@ export default function EditApplicationsPage() {
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [customUniversities, setCustomUniversities] = useState<University[]>([]);
   const [showAddForm, setShowAddForm] = useState(false);
-  const [newUniversity, setNewUniversity] = useState({
-    name: '',
-    country: '',
-    flag: '🏫'
-  });
+  const [searchQuery, setSearchQuery] = useState('');
+  const [searchResults, setSearchResults] = useState<University[]>([]);
+  const [selectedUniversityToAdd, setSelectedUniversityToAdd] = useState<University | null>(null);
+  const [isSearching, setIsSearching] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -100,26 +99,82 @@ export default function EditApplicationsPage() {
   // 전체 대학교 목록 (기존 + 사용자 추가)
   const allUniversities = [...mockUniversities, ...customUniversities];
 
-  // 새 대학교 추가 핸들러
-  const handleAddUniversity = () => {
-    if (!newUniversity.name.trim() || !newUniversity.country.trim()) {
-      setMessage({ type: 'error', text: '대학교 이름과 국가를 모두 입력해주세요.' });
+  // Mock API - 대학교 검색 (실제로는 백엔드 API 호출)
+  const searchUniversities = async (query: string) => {
+    if (!query.trim()) {
+      setSearchResults([]);
       return;
     }
 
+    setIsSearching(true);
+    
+    // 실제 구현에서는 백엔드 API 호출
+    await new Promise(resolve => setTimeout(resolve, 300)); // 네트워크 지연 시뮬레이션
+    
+    // Mock 검색 결과 (실제로는 API 응답)
+    const mockSearchResults: University[] = [
+      {
+        id: `search-1-${Date.now()}`,
+        name: 'Stanford University',
+        country: '미국',
+        flag: '🇺🇸',
+        competitionRatio: { level1: 5, level2: 3 },
+        notices: [],
+        applicantCount: 0
+      },
+      {
+        id: `search-2-${Date.now()}`,
+        name: 'University of Cambridge',
+        country: '영국',
+        flag: '🇬🇧',
+        competitionRatio: { level1: 4, level2: 2 },
+        notices: [],
+        applicantCount: 0
+      },
+      {
+        id: `search-3-${Date.now()}`,
+        name: 'Seoul National University',
+        country: '대한민국',
+        flag: '🇰🇷',
+        competitionRatio: { level1: 10, level2: 5 },
+        notices: [],
+        applicantCount: 0
+      },
+    ].filter(uni => 
+      uni.name.toLowerCase().includes(query.toLowerCase()) ||
+      uni.country.toLowerCase().includes(query.toLowerCase())
+    );
+
+    setSearchResults(mockSearchResults);
+    setIsSearching(false);
+  };
+
+  // 검색어 변경 핸들러
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    setSelectedUniversityToAdd(null);
+    searchUniversities(query);
+  };
+
+  // 검색 결과에서 대학교 선택
+  const handleSelectSearchResult = (university: University) => {
+    setSelectedUniversityToAdd(university);
+    setSearchResults([]);
+    setSearchQuery('');
+  };
+
+  // 확인 후 대학교 추가
+  const handleConfirmAddUniversity = () => {
+    if (!selectedUniversityToAdd) return;
+
     const customId = `custom-${Date.now()}`;
     const university: University = {
-      id: customId,
-      name: newUniversity.name.trim(),
-      country: newUniversity.country.trim(),
-      flag: newUniversity.flag,
-      competitionRatio: { level1: 0, level2: 0 },
-      notices: [],
-      applicantCount: 0
+      ...selectedUniversityToAdd,
+      id: customId
     };
 
     setCustomUniversities(prev => [...prev, university]);
-    setNewUniversity({ name: '', country: '', flag: '🏫' });
+    setSelectedUniversityToAdd(null);
     setShowAddForm(false);
     setMessage({ type: 'success', text: `${university.name}이(가) 추가되었습니다!` });
     
@@ -127,11 +182,15 @@ export default function EditApplicationsPage() {
     setSelectedUniversities(prev => [...prev, customId]);
   };
 
-  // 사용자 추가 대학교 삭제
-  const handleRemoveCustomUniversity = (universityId: string) => {
-    setCustomUniversities(prev => prev.filter(u => u.id !== universityId));
-    setSelectedUniversities(prev => prev.filter(id => id !== universityId));
+  // 추가 폼 취소
+  const handleCancelAdd = () => {
+    setShowAddForm(false);
+    setSearchQuery('');
+    setSearchResults([]);
+    setSelectedUniversityToAdd(null);
   };
+
+
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -226,61 +285,93 @@ export default function EditApplicationsPage() {
              {/* 새 대학교 추가 폼 */}
              {showAddForm && (
                <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                 <h3 className="text-lg font-medium text-gray-900 mb-4">새 대학교 추가</h3>
-                 <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                       대학교 이름 *
-                     </label>
+                 <h3 className="text-lg font-medium text-gray-900 mb-4">새 대학교 검색 및 추가</h3>
+                 
+                 {/* 검색 입력 */}
+                 <div className="relative">
+                   <label className="block text-sm font-medium text-gray-700 mb-2">
+                     대학교 이름으로 검색
+                   </label>
+                   <div className="relative">
                      <input
                        type="text"
-                       value={newUniversity.name}
-                       onChange={(e) => setNewUniversity(prev => ({ ...prev, name: e.target.value }))}
-                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                       placeholder="예: Seoul National University"
+                       value={searchQuery}
+                       onChange={(e) => handleSearchChange(e.target.value)}
+                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10"
+                       placeholder="예: Stanford University, Cambridge, 서울대학교..."
                      />
+                     {isSearching && (
+                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                         <svg className="animate-spin h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24">
+                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                         </svg>
+                       </div>
+                     )}
                    </div>
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                       국가 *
-                     </label>
-                     <input
-                       type="text"
-                       value={newUniversity.country}
-                       onChange={(e) => setNewUniversity(prev => ({ ...prev, country: e.target.value }))}
-                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                       placeholder="예: 대한민국"
-                     />
-                   </div>
-                   <div>
-                     <label className="block text-sm font-medium text-gray-700 mb-1">
-                       국기 (선택)
-                     </label>
-                     <input
-                       type="text"
-                       value={newUniversity.flag}
-                       onChange={(e) => setNewUniversity(prev => ({ ...prev, flag: e.target.value }))}
-                       className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500"
-                       placeholder="🇰🇷"
-                     />
-                   </div>
+                   
+                   {/* 검색 결과 드롭다운 */}
+                   {searchResults.length > 0 && (
+                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                       {searchResults.map((university) => (
+                         <button
+                           key={university.id}
+                           onClick={() => handleSelectSearchResult(university)}
+                           className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                         >
+                           <div className="flex items-center space-x-3">
+                             <span className="text-2xl">{university.flag}</span>
+                             <div>
+                               <div className="font-medium text-gray-900">{university.name}</div>
+                               <div className="text-sm text-gray-500">{university.country}</div>
+                             </div>
+                           </div>
+                         </button>
+                       ))}
+                     </div>
+                   )}
                  </div>
+
+                 {/* 선택된 대학교 확인 카드 */}
+                 {selectedUniversityToAdd && (
+                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                     <h4 className="text-md font-medium text-gray-900 mb-3">추가할 대학교 정보를 확인해주세요</h4>
+                     <div className="flex items-start space-x-4">
+                       <span className="text-4xl">{selectedUniversityToAdd.flag}</span>
+                       <div className="flex-1">
+                         <h5 className="text-lg font-semibold text-gray-900">{selectedUniversityToAdd.name}</h5>
+                         <p className="text-gray-600 mb-2">{selectedUniversityToAdd.country}</p>
+                         <div className="grid grid-cols-2 gap-4 text-sm">
+                           <div>
+                             <span className="text-gray-500">모집인원 (1학기):</span>
+                             <span className="ml-2 font-medium">{selectedUniversityToAdd.competitionRatio.level1}명</span>
+                           </div>
+                           <div>
+                             <span className="text-gray-500">모집인원 (2학기):</span>
+                             <span className="ml-2 font-medium">{selectedUniversityToAdd.competitionRatio.level2}명</span>
+                           </div>
+                         </div>
+                       </div>
+                     </div>
+                   </div>
+                 )}
+
+                 {/* 버튼 영역 */}
                  <div className="flex justify-end space-x-3 mt-4">
                    <button
-                     onClick={() => {
-                       setShowAddForm(false);
-                       setNewUniversity({ name: '', country: '', flag: '🏫' });
-                     }}
+                     onClick={handleCancelAdd}
                      className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
                    >
                      취소
                    </button>
-                   <button
-                     onClick={handleAddUniversity}
-                     className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                   >
-                     추가하기
-                   </button>
+                   {selectedUniversityToAdd && (
+                     <button
+                       onClick={handleConfirmAddUniversity}
+                       className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
+                     >
+                       이 대학교 추가하기
+                     </button>
+                   )}
                  </div>
                </div>
              )}
@@ -294,7 +385,7 @@ export default function EditApplicationsPage() {
                  return (
                    <div
                      key={university.id}
-                     className={`border-2 rounded-lg p-4 cursor-pointer transition-all relative ${
+                     className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
                        isSelected 
                          ? 'border-blue-500 bg-blue-50' 
                          : 'border-gray-200 hover:border-gray-300'
@@ -303,19 +394,6 @@ export default function EditApplicationsPage() {
                      }`}
                      onClick={() => handleUniversityToggle(university.id)}
                    >
-                     {/* 사용자 추가 대학교 삭제 버튼 */}
-                     {isCustom && canEdit && (
-                       <button
-                         onClick={(e) => {
-                           e.stopPropagation();
-                           handleRemoveCustomUniversity(university.id);
-                         }}
-                         className="absolute top-2 right-2 w-6 h-6 bg-red-500 text-white rounded-full hover:bg-red-600 transition-colors flex items-center justify-center text-xs"
-                         title="삭제"
-                       >
-                         ×
-                       </button>
-                     )}
                     <div className="flex items-start space-x-3">
                       <div className="flex-shrink-0">
                         <span className="text-3xl">{university.flag}</span>
