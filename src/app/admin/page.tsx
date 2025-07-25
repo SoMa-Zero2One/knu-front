@@ -14,6 +14,7 @@ export default function AdminPage() {
   const [statusFilter, setStatusFilter] = useState<VerificationStatus | 'all'>('all');
   const [editingUser, setEditingUser] = useState<User | null>(null);
   const [pendingRequests, setPendingRequests] = useState<User[]>([]);
+  const [pendingVerifications, setPendingVerifications] = useState<User[]>([]);
 
   useEffect(() => {
     // 관리자가 아닌 사용자는 일반 사용자만 필터링
@@ -25,6 +26,12 @@ export default function AdminPage() {
       u.pendingEditRequest && u.pendingEditRequest.status === 'pending'
     );
     setPendingRequests(usersWithPendingRequests);
+    
+    // 성적 인증 대기 중인 사용자 필터링 (최초 인증)
+    const usersWithPendingVerifications = filteredUsers.filter(u => 
+      u.verificationStatus === 'pending' && !u.pendingEditRequest
+    );
+    setPendingVerifications(usersWithPendingVerifications);
   }, []);
 
   if (loading) {
@@ -48,9 +55,17 @@ export default function AdminPage() {
   });
 
   const handleStatusChange = (userId: string, newStatus: VerificationStatus) => {
-    setUsers(users.map(u => 
+    const updatedUsers = users.map(u => 
       u.id === userId ? { ...u, verificationStatus: newStatus } : u
-    ));
+    );
+    setUsers(updatedUsers);
+    
+    // 성적 인증 대기 목록 업데이트
+    const newPendingVerifications = updatedUsers.filter(user => 
+      user.verificationStatus === 'pending' && !user.pendingEditRequest
+    );
+    setPendingVerifications(newPendingVerifications);
+    
     alert(`사용자 ${userId}의 인증 상태가 ${newStatus}로 변경되었습니다.`);
   };
 
@@ -111,6 +126,12 @@ export default function AdminPage() {
     );
     setPendingRequests(newPendingRequests);
     
+    // 성적 인증 대기 목록도 업데이트
+    const newPendingVerifications = updatedUsers.filter(user => 
+      user.verificationStatus === 'pending' && !user.pendingEditRequest
+    );
+    setPendingVerifications(newPendingVerifications);
+    
     setEditingUser(null);
     alert(`수정 요청이 ${decision === 'approved' ? '승인' : '거부'}되었습니다.`);
   };
@@ -142,6 +163,37 @@ export default function AdminPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        {/* 성적 인증 확인 요청 목록 */}
+        {pendingVerifications.length > 0 && (
+          <div className="mb-8 bg-blue-50 border border-blue-200 rounded-lg p-6">
+            <h2 className="text-lg font-semibold text-blue-800 mb-4">
+              📋 성적 인증 확인 요청 ({pendingVerifications.length}건)
+            </h2>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+              {pendingVerifications.map(user => (
+                <div key={user.id} className="bg-white p-4 rounded-lg border">
+                  <div className="flex justify-between items-start mb-2">
+                    <h3 className="font-medium text-gray-900">{user.name}</h3>
+                    <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                      인증 대기
+                    </span>
+                  </div>
+                  <div className="text-sm text-gray-600 mb-3">
+                    <p>학점: {user.gpa || '미제출'}</p>
+                    <p>어학성적: {user.languageScores.length}개</p>
+                  </div>
+                  <button
+                    onClick={() => setEditingUser(user)}
+                    className="w-full bg-blue-600 text-white px-3 py-2 rounded text-sm hover:bg-blue-700 transition-colors"
+                  >
+                    인증 처리
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        )}
+
         {/* 수정 요청 대기 목록 */}
         {pendingRequests.length > 0 && (
           <div className="mb-8 bg-yellow-50 border border-yellow-200 rounded-lg p-6">
@@ -178,7 +230,7 @@ export default function AdminPage() {
         )}
 
         {/* 통계 카드 */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-6 mb-8">
           <div className="bg-white rounded-lg shadow p-6">
             <div className="flex items-center">
               <div className="text-3xl mr-4">👥</div>
@@ -209,6 +261,18 @@ export default function AdminPage() {
                   {users.filter(u => u.verificationStatus === 'pending').length}
                 </p>
                 <p className="text-sm text-gray-600">인증 대기</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="bg-white rounded-lg shadow p-6">
+            <div className="flex items-center">
+              <div className="text-3xl mr-4">📝</div>
+              <div>
+                <p className="text-2xl font-bold text-orange-600">
+                  {users.filter(u => u.pendingEditRequest && u.pendingEditRequest.status === 'pending').length}
+                </p>
+                <p className="text-sm text-gray-600">수정 요청</p>
               </div>
             </div>
           </div>
