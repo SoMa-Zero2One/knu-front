@@ -32,7 +32,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
       const univData = getUniversityById(resolvedParams.id);
       if (univData) {
         setUniversity(univData);
-        const applicantData = getUniversityApplicants(resolvedParams.id);
+        const applicantData = getUniversityApplicantsWithRank(resolvedParams.id);
         setApplicants(applicantData);
       }
     }
@@ -149,6 +149,9 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                   <thead className="bg-gray-50">
                     <tr>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        지망순위
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         이름
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
@@ -163,12 +166,30 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {applicants.map((applicant) => (
+                    {applicants
+                      .sort((a, b) => a.rank - b.rank)
+                      .map((applicant) => (
                       <tr
                         key={applicant.id}
                         className="hover:bg-gray-50 cursor-pointer"
                         onClick={() => router.push(`/profile/${applicant.id}`)}
                       >
+                        <td className="px-6 py-4 whitespace-nowrap text-center">
+                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white ${
+                            applicant.rank === 1 ? 'bg-yellow-500' :
+                            applicant.rank === 2 ? 'bg-gray-400' :
+                            applicant.rank === 3 ? 'bg-amber-600' :
+                            'bg-blue-500'
+                          }`}>
+                            {applicant.rank}
+                          </span>
+                          <div className="text-xs text-gray-500 mt-1">
+                            {applicant.rank === 1 ? '1지망' :
+                             applicant.rank === 2 ? '2지망' :
+                             applicant.rank === 3 ? '3지망' :
+                             `${applicant.rank}지망`}
+                          </div>
+                        </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm font-medium text-gray-900">
                             {applicant.name}
