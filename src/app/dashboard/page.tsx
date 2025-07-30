@@ -61,29 +61,6 @@ export default function DashboardPage() {
       </header>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
-        {/* 인증하지 않은 유저를 위한 안내 메시지 */}
-        {user.verificationStatus === 'not_verified' && (
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
-            <div className="flex items-center">
-              <div className="text-blue-600 mr-3">
-                <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="flex-1">
-                <p className="text-blue-800 font-medium">
-                  성적 인증하고 다른 사람 성적 확인하기: 
-                  <button
-                    onClick={() => router.push('/verification')}
-                    className="ml-2 text-blue-600 hover:text-blue-800 underline cursor-pointer"
-                  >
-                    성적 인증하러 가기
-                  </button>
-                </p>
-              </div>
-            </div>
-          </div>
-        )}
 
         {/* 대학교 리스트 */}
         <div>

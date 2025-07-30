@@ -9,27 +9,10 @@ export interface LanguageScore {
   imageUrl?: string;
 }
 
-// 성적 수정 요청 상태
-export type EditRequestStatus = 'pending' | 'approved' | 'rejected';
-
-// 성적 수정 요청 인터페이스
-export interface ScoreEditRequest {
-  id: string;
-  requestDate: string;
-  status: EditRequestStatus;
-  requestedGpa?: number;
-  requestedGpaImageUrl?: string;
-  requestedLanguageScores?: LanguageScore[];
-  adminComment?: string;
-  adminId?: string;
-  adminReviewDate?: string;
-}
 
 // 사용자 역할
 export type UserRole = 'user' | 'admin';
 
-// 인증 상태
-export type VerificationStatus = 'not_verified' | 'pending' | 'verified';
 
 // 지원 대학교 정보 (순위 포함)
 export interface AppliedUniversity {
@@ -44,14 +27,8 @@ export interface User {
   name: string;
   role: UserRole;
   gpa?: number;
-  gpaImageUrl?: string;
   languageScores: LanguageScore[];
   appliedUniversities: AppliedUniversity[]; // 지망순위 포함 대학교 목록
-  verificationStatus: VerificationStatus;
-  editCount: number;
-  maxEditCount: number;
-  isDeadlineRestricted: boolean; // 마감 3일 전 여부
-  pendingEditRequest?: ScoreEditRequest; // 대기 중인 성적 수정 요청
 }
 
 // 대학교 공지사항
@@ -83,7 +60,6 @@ export interface UniversityApplicant {
   userName: string;
   gpa?: number;
   languageScores: LanguageScore[];
-  verificationStatus: VerificationStatus;
   rank: number; // 지망순위
 }
 

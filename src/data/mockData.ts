@@ -1,4 +1,4 @@
-import { User, University, LanguageScore, UniversityNotice, LanguageTestType, AppliedUniversity, ScoreEditRequest } from '@/types';
+import { User, University, LanguageScore, UniversityNotice, LanguageTestType, AppliedUniversity } from '@/types';
 
 // Mock 대학교 공지사항 데이터
 const mockNotices: UniversityNotice[] = [
@@ -120,17 +120,12 @@ export const mockUsers: User[] = [
     name: '김학생',
     role: 'user',
     gpa: 3.8,
-    gpaImageUrl: '/mock-images/gpa-1.jpg',
     languageScores: [mockLanguageScores[0], mockLanguageScores[1]],
     appliedUniversities: [
       { universityId: '1', rank: 1 },
       { universityId: '2', rank: 2 },
       { universityId: '6', rank: 3 }
-    ],
-    verificationStatus: 'verified',
-    editCount: 1,
-    maxEditCount: 10,
-    isDeadlineRestricted: false
+    ]
   },
   {
     id: '2',
@@ -138,17 +133,12 @@ export const mockUsers: User[] = [
     name: '이학생',
     role: 'user',
     gpa: 3.5,
-    gpaImageUrl: '/mock-images/gpa-2.jpg',
     languageScores: [mockLanguageScores[2]],
     appliedUniversities: [
       { universityId: '1', rank: 2 },
       { universityId: '3', rank: 1 },
       { universityId: '4', rank: 3 }
-    ],
-    verificationStatus: 'verified',
-    editCount: 0,
-    maxEditCount: 10,
-    isDeadlineRestricted: false
+    ]
   },
   {
     id: '3',
@@ -156,32 +146,12 @@ export const mockUsers: User[] = [
     name: '박학생',
     role: 'user',
     gpa: 4.0,
-    gpaImageUrl: '/mock-images/gpa-3.jpg',
     languageScores: [mockLanguageScores[3]],
     appliedUniversities: [
       { universityId: '5', rank: 1 },
       { universityId: '6', rank: 2 },
       { universityId: '7', rank: 3 }
-    ],
-    verificationStatus: 'verified',
-    editCount: 2,
-    maxEditCount: 3,
-    isDeadlineRestricted: true,
-    pendingEditRequest: {
-      id: 'edit-req-1',
-      requestDate: '2025-01-15',
-      status: 'pending',
-      requestedGpa: 4.2,
-      requestedGpaImageUrl: '/mock-images/gpa-updated.jpg',
-      requestedLanguageScores: [
-        {
-          id: 'new-1',
-          type: 'TOEIC',
-          score: '950',
-          imageUrl: '/mock-images/toeic-updated.jpg'
-        }
-      ]
-    }
+    ]
   },
   {
     id: '4',
@@ -192,11 +162,7 @@ export const mockUsers: User[] = [
     appliedUniversities: [
       { universityId: '1', rank: 1 },
       { universityId: '2', rank: 2 }
-    ],
-    verificationStatus: 'not_verified',
-    editCount: 0,
-    maxEditCount: 10,
-    isDeadlineRestricted: false
+    ]
   },
   {
     id: '5',
@@ -204,16 +170,11 @@ export const mockUsers: User[] = [
     name: '정학생',
     role: 'user',
     gpa: 3.2,
-    gpaImageUrl: '/mock-images/gpa-5.jpg',
     languageScores: [mockLanguageScores[0]],
     appliedUniversities: [
       { universityId: '3', rank: 1 },
       { universityId: '4', rank: 2 }
-    ],
-    verificationStatus: 'pending',
-    editCount: 0,
-    maxEditCount: 10,
-    isDeadlineRestricted: false
+    ]
   },
 ];
 

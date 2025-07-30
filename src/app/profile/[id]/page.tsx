@@ -47,10 +47,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
       return;
     }
 
-    if (currentUser.verificationStatus !== 'verified' && currentUser.role !== 'admin') {
-      router.push('/dashboard');
-      return;
-    }
   }, [currentUser, loading, router]);
 
   if (loading) {
@@ -61,14 +57,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     );
   }
 
-  // 리디렉션 중이면 로딩 표시
-  if (!currentUser || (currentUser.verificationStatus !== 'verified' && currentUser.role !== 'admin')) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
-      </div>
-    );
-  }
 
   if (!profileUser) {
     return (
@@ -106,7 +94,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                {currentUser.name}님 ({currentUser.role === 'admin' ? '관리자' : '사용자'})
+                {currentUser?.name}님 ({currentUser?.role === 'admin' ? '관리자' : '사용자'})
               </span>
             </div>
           </div>
@@ -126,20 +114,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 <h2 className="text-xl font-bold text-gray-900 mb-2">
                   {profileUser.name}
                 </h2>
-                <span className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-medium ${
-                  profileUser.verificationStatus === 'verified' 
-                    ? 'bg-green-100 text-green-800' 
-                    : profileUser.verificationStatus === 'pending'
-                    ? 'bg-yellow-100 text-yellow-800'
-                    : 'bg-red-100 text-red-800'
-                }`}>
-                  {profileUser.verificationStatus === 'verified' 
-                    ? '✅ 인증 완료' 
-                    : profileUser.verificationStatus === 'pending'
-                    ? '⏳ 인증 진행 중'
-                    : '❌ 미인증'
-                  }
-                </span>
               </div>
 
               {/* 통계 */}
@@ -166,32 +140,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   </h3>
                   
                   <button
-                    onClick={() => {
-                      if (currentUser.verificationStatus === 'not_verified') {
-                        router.push('/verification');
-                      } else if (currentUser.verificationStatus === 'pending') {
-                        router.push('/verification/status');
-                      } else {
-                        router.push('/verification/edit');
-                      }
-                    }}
-                    className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
-                      currentUser.verificationStatus === 'verified' 
-                        ? 'bg-green-600 hover:bg-green-700 text-white'
-                        : currentUser.verificationStatus === 'pending'
-                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
-                        : 'bg-blue-600 hover:bg-blue-700 text-white'
-                    }`}
-                  >
-                    {currentUser.verificationStatus === 'verified' 
-                      ? '성적 수정하기' 
-                      : currentUser.verificationStatus === 'pending'
-                      ? '인증 상태 확인'
-                      : '성적 인증하기'
-                    }
-                  </button>
-                  
-                  <button
                     onClick={() => router.push('/applications/edit')}
                     className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
                   >
@@ -202,50 +150,48 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             </div>
 
             {/* 성적 정보 */}
-            {profileUser.verificationStatus === 'verified' && (
-              <div className="bg-white rounded-lg shadow p-6">
-                <h3 className="text-lg font-semibold text-gray-900 mb-4">
-                  📊 성적 정보
-                </h3>
-                
-                {/* 학점 */}
-                <div className="mb-4">
-                  <h4 className="font-medium text-gray-700 mb-2">학점</h4>
-                  {profileUser.gpa ? (
-                    <div className="bg-blue-50 rounded-lg p-3">
-                      <p className="text-lg font-bold text-blue-900">
-                        {profileUser.gpa.toFixed(2)} / 4.5
-                      </p>
-                    </div>
-                  ) : (
-                    <p className="text-gray-500">정보 없음</p>
-                  )}
-                </div>
-
-                {/* 어학 성적 */}
-                <div>
-                  <h4 className="font-medium text-gray-700 mb-2">어학 성적</h4>
-                  {profileUser.languageScores.length > 0 ? (
-                    <div className="space-y-2">
-                      {profileUser.languageScores.map((score) => (
-                        <div key={score.id} className="bg-green-50 rounded-lg p-3">
-                          <div className="flex justify-between items-center">
-                            <span className="font-medium text-green-900">
-                              {score.type}
-                            </span>
-                            <span className="text-green-700 font-semibold">
-                              {score.score}
-                            </span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  ) : (
-                    <p className="text-gray-500">어학 성적 없음</p>
-                  )}
-                </div>
+            <div className="bg-white rounded-lg shadow p-6">
+              <h3 className="text-lg font-semibold text-gray-900 mb-4">
+                📊 성적 정보
+              </h3>
+              
+              {/* 학점 */}
+              <div className="mb-4">
+                <h4 className="font-medium text-gray-700 mb-2">학점</h4>
+                {profileUser.gpa ? (
+                  <div className="bg-blue-50 rounded-lg p-3">
+                    <p className="text-lg font-bold text-blue-900">
+                      {profileUser.gpa.toFixed(2)} / 4.5
+                    </p>
+                  </div>
+                ) : (
+                  <p className="text-gray-500">정보 없음</p>
+                )}
               </div>
-            )}
+
+              {/* 어학 성적 */}
+              <div>
+                <h4 className="font-medium text-gray-700 mb-2">어학 성적</h4>
+                {profileUser.languageScores.length > 0 ? (
+                  <div className="space-y-2">
+                    {profileUser.languageScores.map((score) => (
+                      <div key={score.id} className="bg-green-50 rounded-lg p-3">
+                        <div className="flex justify-between items-center">
+                          <span className="font-medium text-green-900">
+                            {score.type}
+                          </span>
+                          <span className="text-green-700 font-semibold">
+                            {score.score}
+                          </span>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <p className="text-gray-500">어학 성적 없음</p>
+                )}
+              </div>
+            </div>
           </div>
 
           {/* 오른쪽: 지원 대학교 목록 */}
@@ -265,35 +211,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   {/* 본인 프로필인 경우에만 액션 버튼들 표시 */}
                   {currentUser && currentUser.id === profileUser.id && (
                     <div className="mt-4 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-3 sm:flex">
-                      <button
-                        onClick={() => {
-                          if (currentUser.verificationStatus === 'not_verified') {
-                            router.push('/verification');
-                          } else if (currentUser.verificationStatus === 'pending') {
-                            router.push('/verification/status');
-                          } else {
-                            router.push('/verification/edit');
-                          }
-                        }}
-                        className={`w-full sm:w-auto inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium transition-colors ${
-                          currentUser.verificationStatus === 'verified' 
-                            ? 'border border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
-                            : currentUser.verificationStatus === 'pending'
-                            ? 'border border-yellow-300 text-yellow-700 bg-yellow-50 hover:bg-yellow-100'
-                            : 'border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
-                        }`}
-                      >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
-                        </svg>
-                        {currentUser.verificationStatus === 'verified' 
-                          ? '성적 수정하기' 
-                          : currentUser.verificationStatus === 'pending'
-                          ? '인증 상태 확인'
-                          : '성적 인증하기'
-                        }
-                      </button>
-                      
                       <button
                         onClick={() => router.push('/applications/edit')}
                         className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
@@ -399,38 +316,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               )}
             </div>
 
-            {/* 관리자용 추가 정보 */}
-            {currentUser.role === 'admin' && (
-              <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-6 mt-6">
-                <h3 className="text-lg font-semibold text-yellow-800 mb-3">
-                  🔧 관리자 정보
-                </h3>
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4 text-sm">
-                  <div>
-                    <p className="font-medium text-yellow-700">수정 횟수</p>
-                    <p className="text-yellow-600">{profileUser.editCount} / {profileUser.maxEditCount}</p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-yellow-700">마감 제한</p>
-                    <p className="text-yellow-600">
-                      {profileUser.isDeadlineRestricted ? '제한됨' : '제한 없음'}
-                    </p>
-                  </div>
-                  <div>
-                    <p className="font-medium text-yellow-700">사용자 ID</p>
-                    <p className="text-yellow-600">{profileUser.id}</p>
-                  </div>
-                </div>
-                <div className="mt-4">
-                  <button
-                    onClick={() => router.push(`/admin?userId=${profileUser.id}`)}
-                    className="bg-yellow-600 text-white px-4 py-2 rounded-lg hover:bg-yellow-700 transition-colors cursor-pointer"
-                  >
-                    관리자 페이지에서 수정
-                  </button>
-                </div>
-              </div>
-            )}
           </div>
         </div>
       </div>
