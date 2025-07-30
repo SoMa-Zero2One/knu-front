@@ -68,7 +68,6 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     );
   }
 
-  const canViewApplicants = user.verificationStatus === 'verified';
 
   return (
     <div className="min-h-screen bg-gray-50">
@@ -92,7 +91,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                {user.name}님 ({user.role === 'admin' ? '관리자' : '사용자'})
+                {user.name}님
               </span>
             </div>
           </div>
@@ -132,14 +131,13 @@ export default function UniversityPage({ params }: UniversityPageProps) {
         </div>
 
         {/* 지원자 목록 */}
-        {canViewApplicants ? (
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
               <h2 className="text-xl font-semibold text-gray-900">
                 지원자 목록 ({applicants.length}명)
               </h2>
               <p className="text-sm text-gray-600 mt-1">
-                모든 지원자들의 성적 정보를 확인할 수 있습니다. (인증 상태별로 구분 표시됩니다)
+                모든 지원자들의 성적 정보를 확인할 수 있습니다.
               </p>
             </div>
             
@@ -159,9 +157,6 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         어학 성적
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        인증 상태
                       </th>
                     </tr>
                   </thead>
@@ -222,22 +217,6 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                             )}
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap">
-                          <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
-                            applicant.verificationStatus === 'verified' 
-                              ? 'bg-green-100 text-green-800' 
-                              : applicant.verificationStatus === 'pending'
-                              ? 'bg-yellow-100 text-yellow-800'
-                              : 'bg-red-100 text-red-800'
-                          }`}>
-                            {applicant.verificationStatus === 'verified' 
-                              ? '인증 완료' 
-                              : applicant.verificationStatus === 'pending'
-                              ? '인증 진행 중'
-                              : '미인증'
-                            }
-                          </span>
-                        </td>
                       </tr>
                     ))}
                   </tbody>
@@ -255,24 +234,6 @@ export default function UniversityPage({ params }: UniversityPageProps) {
               </div>
             )}
           </div>
-        ) : (
-          /* 미인증 사용자용 메시지 */
-          <div className="bg-white rounded-lg shadow p-8 text-center">
-            <div className="text-yellow-400 text-6xl mb-4">🔒</div>
-            <h3 className="text-lg font-semibold text-gray-900 mb-2">
-              성적 인증이 필요합니다
-            </h3>
-            <p className="text-gray-600 mb-4">
-              다른 지원자들의 성적 정보를 확인하려면 먼저 본인의 성적을 인증해주세요.
-            </p>
-            <button
-              onClick={() => router.push('/verification')}
-              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors cursor-pointer"
-            >
-              성적 인증하러 가기
-            </button>
-          </div>
-        )}
       </div>
     </div>
   );

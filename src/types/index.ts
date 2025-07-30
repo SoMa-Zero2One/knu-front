@@ -10,8 +10,6 @@ export interface LanguageScore {
 }
 
 
-// 사용자 역할
-export type UserRole = 'user' | 'admin';
 
 
 // 지원 대학교 정보 (순위 포함)
@@ -25,7 +23,6 @@ export interface User {
   id: string;
   uuid: string;
   name: string;
-  role: UserRole;
   gpa?: number;
   languageScores: LanguageScore[];
   appliedUniversities: AppliedUniversity[]; // 지망순위 포함 대학교 목록
@@ -67,7 +64,6 @@ export interface UniversityApplicant {
 export interface JWTPayload {
   userId: string;
   uuid: string;
-  role: UserRole;
   exp?: number;
   iat?: number;
 }

@@ -118,7 +118,6 @@ export const mockUsers: User[] = [
     id: '1',
     uuid: 'user-uuid-1',
     name: '김학생',
-    role: 'user',
     gpa: 3.8,
     languageScores: [mockLanguageScores[0], mockLanguageScores[1]],
     appliedUniversities: [
@@ -131,7 +130,6 @@ export const mockUsers: User[] = [
     id: '2',
     uuid: 'user-uuid-2',
     name: '이학생',
-    role: 'user',
     gpa: 3.5,
     languageScores: [mockLanguageScores[2]],
     appliedUniversities: [
@@ -144,7 +142,6 @@ export const mockUsers: User[] = [
     id: '3',
     uuid: 'user-uuid-3',
     name: '박학생',
-    role: 'user',
     gpa: 4.0,
     languageScores: [mockLanguageScores[3]],
     appliedUniversities: [
@@ -157,7 +154,6 @@ export const mockUsers: User[] = [
     id: '4',
     uuid: 'user-uuid-4',
     name: '최학생',
-    role: 'user',
     languageScores: [],
     appliedUniversities: [
       { universityId: '1', rank: 1 },
@@ -168,7 +164,6 @@ export const mockUsers: User[] = [
     id: '5',
     uuid: 'user-uuid-5',
     name: '정학생',
-    role: 'user',
     gpa: 3.2,
     languageScores: [mockLanguageScores[0]],
     appliedUniversities: [

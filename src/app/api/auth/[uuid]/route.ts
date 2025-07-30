@@ -41,8 +41,6 @@ export async function GET(
         user: {
           id: user.id,
           name: user.name,
-          role: user.role,
-          verificationStatus: user.verificationStatus,
         }
       }
     });

@@ -94,7 +94,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
             </div>
             <div className="flex items-center space-x-4">
               <span className="text-sm text-gray-600">
-                {currentUser?.name}님 ({currentUser?.role === 'admin' ? '관리자' : '사용자'})
+                {currentUser?.name}님
               </span>
             </div>
           </div>
