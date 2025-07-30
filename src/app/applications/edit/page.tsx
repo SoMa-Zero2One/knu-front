@@ -18,8 +18,6 @@ export default function EditApplicationsPage() {
   const [searchResults, setSearchResults] = useState<University[]>([]);
   const [selectedUniversityToAdd, setSelectedUniversityToAdd] = useState<University | null>(null);
   const [isSearching, setIsSearching] = useState(false);
-  const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
-  const [dragOverIndex, setDragOverIndex] = useState<number | null>(null);
 
   useEffect(() => {
     if (user) {
@@ -72,44 +70,6 @@ export default function EditApplicationsPage() {
         return [...prev, { universityId, rank: nextRank }];
       }
     });
-  };
-
-  // 드래그 앤 드롭 핸들러들
-  const handleDragStart = (e: React.DragEvent, index: number) => {
-    if (!canEdit) return;
-    setDraggedIndex(index);
-    e.dataTransfer.effectAllowed = 'move';
-  };
-
-  const handleDragOver = (e: React.DragEvent, index: number) => {
-    if (!canEdit) return;
-    e.preventDefault();
-    setDragOverIndex(index);
-  };
-
-  const handleDragEnd = () => {
-    setDraggedIndex(null);
-    setDragOverIndex(null);
-  };
-
-  const handleDrop = (e: React.DragEvent, dropIndex: number) => {
-    if (!canEdit || draggedIndex === null) return;
-    e.preventDefault();
-
-    setSelectedUniversities(prev => {
-      const sortedList = [...prev].sort((a, b) => a.rank - b.rank);
-      const draggedItem = sortedList[draggedIndex];
-      
-      // 드래그된 아이템을 제거하고 새 위치에 삽입
-      const newList = sortedList.filter((_, index) => index !== draggedIndex);
-      newList.splice(dropIndex, 0, draggedItem);
-      
-      // 순위 재할당
-      return newList.map((app, index) => ({ ...app, rank: index + 1 }));
-    });
-
-    setDraggedIndex(null);
-    setDragOverIndex(null);
   };
 
   const handleSubmit = async () => {
@@ -265,7 +225,7 @@ export default function EditApplicationsPage() {
         </div>
       </header>
 
-      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 안내 메시지 */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">📝 편집 안내</h2>
@@ -298,205 +258,210 @@ export default function EditApplicationsPage() {
           </div>
         )}
 
-                 {/* 대학교 선택 */}
-         <div className="bg-white rounded-lg shadow">
-           <div className="p-6 border-b">
-             <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
-               <div>
-                 <h2 className="text-xl font-semibold text-gray-900">
-                   지원 대학교 선택 ({selectedUniversities.length}개)
-                 </h2>
-                 <p className="text-sm text-gray-600 mt-1">
-                   지원하고 싶은 대학교를 선택하세요. 목록에 없는 대학교는 직접 추가할 수 있습니다.
-                 </p>
-               </div>
-               
-               <div className="mt-4 sm:mt-0">
-                 <button
-                   onClick={() => setShowAddForm(true)}
-                   disabled={!canEdit}
-                   className={`inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm text-sm font-medium transition-colors ${
-                     canEdit 
-                       ? 'text-green-700 bg-green-50 hover:bg-green-100' 
-                       : 'text-gray-400 bg-gray-50 cursor-not-allowed'
-                   }`}
-                 >
-                   <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
-                   </svg>
-                   새 대학교 추가
-                 </button>
-               </div>
-             </div>
-           </div>
-          
-                     <div className="p-6">
-             {/* 새 대학교 추가 폼 */}
-             {showAddForm && (
-               <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-                 <h3 className="text-lg font-medium text-gray-900 mb-4">새 대학교 검색 및 추가</h3>
-                 
-                 {/* 검색 입력 */}
-                 <div className="relative">
-                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                     대학교 이름으로 검색
-                   </label>
-                   <div className="relative">
-                     <input
-                       type="text"
-                       value={searchQuery}
-                       onChange={(e) => handleSearchChange(e.target.value)}
-                       className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10"
-                       placeholder="예: Stanford University, Cambridge, 서울대학교..."
-                     />
-                     {isSearching && (
-                       <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                         <svg className="animate-spin h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24">
-                           <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                         </svg>
-                       </div>
-                     )}
-                   </div>
-                   
-                   {/* 검색 결과 드롭다운 */}
-                   {searchResults.length > 0 && (
-                     <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
-                       {searchResults.map((university) => (
-                         <button
-                           key={university.id}
-                           onClick={() => handleSelectSearchResult(university)}
-                           className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 border-b border-gray-100 last:border-b-0"
-                         >
-                           <div className="flex items-center space-x-3">
-                             <span className="text-2xl">{university.flag}</span>
-                             <div>
-                               <div className="font-medium text-gray-900">{university.name}</div>
-                               <div className="text-sm text-gray-500">{university.country}</div>
-                             </div>
-                           </div>
-                         </button>
-                       ))}
-                     </div>
-                   )}
-                 </div>
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* 좌측: 선택된 대학교 목록 */}
+          <div className="lg:col-span-1">
+            <div className="bg-white rounded-lg shadow sticky top-8">
+              <div className="p-6 border-b">
+                <h3 className="text-lg font-semibold text-gray-900">
+                  나의 지원 목록 ({selectedUniversities.length}개)
+                </h3>
+                <p className="text-sm text-gray-600 mt-1">
+                  선택한 순서대로 순위가 정해집니다.
+                </p>
+              </div>
+              
+              <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
+                {selectedUniversities.length > 0 ? (
+                  selectedUniversities
+                    .sort((a, b) => a.rank - b.rank)
+                    .map((app) => {
+                      const university = allUniversities.find(u => u.id === app.universityId);
+                      if (!university) return null;
+                      
+                      return (
+                        <div
+                          key={app.universityId}
+                          className="flex items-center justify-between p-3 border rounded-lg bg-white shadow-sm"
+                        >
+                          <div className="flex items-center space-x-3">
+                            <span className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white ${
+                              app.rank === 1 ? 'bg-yellow-500' :
+                              app.rank === 2 ? 'bg-gray-400' :
+                              app.rank === 3 ? 'bg-amber-600' :
+                              'bg-blue-500'
+                            }`}>
+                              {app.rank}
+                            </span>
+                            <span className="text-2xl">{university.flag}</span>
+                            <div>
+                              <div className="font-medium text-gray-800">{university.name}</div>
+                              <div className="text-xs text-gray-500">{university.country}</div>
+                            </div>
+                          </div>
+                        </div>
+                      );
+                    })
+                ) : (
+                  <div className="text-center py-10">
+                    <p className="text-gray-500">선택된 대학교가 없습니다.</p>
+                    <p className="text-sm text-gray-400 mt-1">오른쪽 목록에서 대학교를 선택해주세요.</p>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
 
-                 {/* 선택된 대학교 확인 카드 */}
-                 {selectedUniversityToAdd && (
-                   <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
-                     <h4 className="text-md font-medium text-gray-900 mb-3">추가할 대학교 정보를 확인해주세요</h4>
-                     <div className="flex items-start space-x-4">
-                       <span className="text-4xl">{selectedUniversityToAdd.flag}</span>
-                       <div className="flex-1">
-                         <h5 className="text-lg font-semibold text-gray-900">{selectedUniversityToAdd.name}</h5>
-                         <p className="text-gray-600 mb-2">{selectedUniversityToAdd.country}</p>
-                         <div className="grid grid-cols-2 gap-4 text-sm">
-                           <div>
-                             <span className="text-gray-500">모집인원 (1학기):</span>
-                             <span className="ml-2 font-medium">{selectedUniversityToAdd.competitionRatio.level1}명</span>
-                           </div>
-                           <div>
-                             <span className="text-gray-500">모집인원 (2학기):</span>
-                             <span className="ml-2 font-medium">{selectedUniversityToAdd.competitionRatio.level2}명</span>
-                           </div>
-                         </div>
-                       </div>
-                     </div>
-                   </div>
-                 )}
-
-                 {/* 버튼 영역 */}
-                 <div className="flex justify-end space-x-3 mt-4">
-                   <button
-                     onClick={handleCancelAdd}
-                     className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors"
-                   >
-                     취소
-                   </button>
-                   {selectedUniversityToAdd && (
-                     <button
-                       onClick={handleConfirmAddUniversity}
-                       className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors"
-                     >
-                       이 대학교 추가하기
-                     </button>
-                   )}
-                 </div>
-               </div>
-             )}
-
-                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-               {allUniversities.map((university) => {
-                 const selectedApp = selectedUniversities.find(app => app.universityId === university.id);
-                 const isSelected = !!selectedApp;
-                
-                                 const isCustom = university.id.startsWith('custom-');
-                 
-                 return (
-                   <div
-                     key={university.id}
-                     className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
-                       isSelected 
-                         ? 'border-blue-500 bg-blue-50' 
-                         : 'border-gray-200 hover:border-gray-300'
-                     } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''} ${
-                       isCustom ? 'border-green-300 bg-green-25' : ''
-                     }`}
-                     onClick={() => handleUniversityToggle(university.id)}
-                   >
-                    <div className="flex items-start space-x-3">
-                      <div className="flex-shrink-0">
-                        <span className="text-3xl">{university.flag}</span>
+          {/* 우측: 대학교 선택 */}
+          <div className="lg:col-span-2">
+            <div className="bg-white rounded-lg shadow">
+              <div className="p-6 border-b">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
+                  <div>
+                    <h2 className="text-xl font-semibold text-gray-900">
+                      지원 가능 대학교
+                    </h2>
+                    <p className="text-sm text-gray-600 mt-1">
+                      지원할 대학교를 선택하세요. 목록에 없으면 직접 추가할 수 있습니다.
+                    </p>
+                  </div>
+                  
+                  <div className="mt-4 sm:mt-0">
+                    <button
+                      onClick={() => setShowAddForm(true)}
+                      disabled={!canEdit}
+                      className={`inline-flex items-center px-4 py-2 border border-green-300 rounded-md shadow-sm text-sm font-medium transition-colors ${
+                        canEdit 
+                          ? 'text-green-700 bg-green-50 hover:bg-green-100' 
+                          : 'text-gray-400 bg-gray-50 cursor-not-allowed'
+                      }`}
+                    >
+                      <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 6v6m0 0v6m0-6h6m-6 0H6" />
+                      </svg>
+                      새 대학교 추가
+                    </button>
+                  </div>
+                </div>
+              </div>
+              
+              <div className="p-6">
+                {/* 새 대학교 추가 폼 */}
+                {showAddForm && (
+                  <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
+                    <h3 className="text-lg font-medium text-gray-900 mb-4">새 대학교 검색 및 추가</h3>
+                    <div className="relative">
+                      <label className="block text-sm font-medium text-gray-700 mb-2">대학교 이름으로 검색</label>
+                      <div className="relative">
+                        <input
+                          type="text"
+                          value={searchQuery}
+                          onChange={(e) => handleSearchChange(e.target.value)}
+                          className="w-full px-4 py-3 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-green-500 pr-10"
+                          placeholder="예: Stanford University, Cambridge, 서울대학교..."
+                        />
+                        {isSearching && (
+                          <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
+                            <svg className="animate-spin h-5 w-5 text-gray-400" fill="none" viewBox="0 0 24 24">
+                              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                          </div>
+                        )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                                                 <div className="flex items-center justify-between">
-                           <div className="flex items-center justify-between">
-                             <div className="flex items-center space-x-2">
-                               <h3 className="text-lg font-medium text-gray-900 truncate">
-                                 {university.name}
-                               </h3>
-                               {isCustom && (
-                                 <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">
-                                   직접 추가
-                                 </span>
-                               )}
-                             </div>
-                             
-                             {/* 선택됨 표시 */}
-                             {isSelected && selectedApp && (
-                               <div className="flex items-center space-x-2">
-                                 <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">
-                                   {selectedApp.rank}순위
-                                 </span>
-                               </div>
-                             )}
-                           </div>
-                           {isSelected && (
-                             <div className="flex-shrink-0 ml-2">
-                               <div className="w-6 h-6 bg-blue-500 rounded-full flex items-center justify-center">
-                                 <svg className="w-4 h-4 text-white" fill="currentColor" viewBox="0 0 20 20">
-                                   <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                 </svg>
-                               </div>
-                             </div>
-                           )}
-                         </div>
-                         <p className="text-sm text-gray-600 mb-2">{university.country}</p>
-                         <div className="text-sm text-gray-500">
-                           <p>지원자: {university.applicantCount}명</p>
-                           <p>모집인원: {university.competitionRatio.level1 + university.competitionRatio.level2}명</p>
-                         </div>
+                      {searchResults.length > 0 && (
+                        <div className="absolute z-10 w-full mt-1 bg-white border border-gray-300 rounded-md shadow-lg max-h-60 overflow-auto">
+                          {searchResults.map((university) => (
+                            <button
+                              key={university.id}
+                              onClick={() => handleSelectSearchResult(university)}
+                              className="w-full px-4 py-3 text-left hover:bg-gray-50 focus:outline-none focus:bg-gray-50 border-b border-gray-100 last:border-b-0"
+                            >
+                              <div className="flex items-center space-x-3">
+                                <span className="text-2xl">{university.flag}</span>
+                                <div>
+                                  <div className="font-medium text-gray-900">{university.name}</div>
+                                  <div className="text-sm text-gray-500">{university.country}</div>
+                                </div>
+                              </div>
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                    {selectedUniversityToAdd && (
+                      <div className="mt-4 p-4 bg-blue-50 border border-blue-200 rounded-md">
+                        <h4 className="text-md font-medium text-gray-900 mb-3">추가할 대학교 정보를 확인해주세요</h4>
+                        <div className="flex items-start space-x-4">
+                          <span className="text-4xl">{selectedUniversityToAdd.flag}</span>
+                          <div className="flex-1">
+                            <h5 className="text-lg font-semibold text-gray-900">{selectedUniversityToAdd.name}</h5>
+                            <p className="text-gray-600 mb-2">{selectedUniversityToAdd.country}</p>
+                          </div>
+                        </div>
                       </div>
+                    )}
+                    <div className="flex justify-end space-x-3 mt-4">
+                      <button onClick={handleCancelAdd} className="px-4 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">취소</button>
+                      {selectedUniversityToAdd && (
+                        <button onClick={handleConfirmAddUniversity} className="px-4 py-2 bg-green-600 text-white rounded-md hover:bg-green-700 transition-colors">이 대학교 추가하기</button>
+                      )}
                     </div>
                   </div>
-                );
-              })}
+                )}
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {allUniversities.map((university) => {
+                    const selectedApp = selectedUniversities.find(app => app.universityId === university.id);
+                    const isSelected = !!selectedApp;
+                    const isCustom = university.id.startsWith('custom-');
+                    
+                    return (
+                      <div
+                        key={university.id}
+                        className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                          isSelected 
+                            ? 'border-blue-500 bg-blue-50' 
+                            : 'border-gray-200 hover:border-gray-300'
+                        } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''} ${
+                          isCustom ? 'border-green-300 bg-green-25' : ''
+                        }`}
+                        onClick={() => handleUniversityToggle(university.id)}
+                      >
+                        <div className="flex items-start space-x-3">
+                          <div className="flex-shrink-0">
+                            <span className="text-3xl">{university.flag}</span>
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center space-x-2">
+                                <h3 className="text-lg font-medium text-gray-900 truncate">{university.name}</h3>
+                                {isCustom && (
+                                  <span className="px-2 py-1 bg-green-100 text-green-800 rounded-full text-xs font-medium">직접 추가</span>
+                                )}
+                              </div>
+                              {isSelected && selectedApp && (
+                                <span className="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-medium">{selectedApp.rank}순위</span>
+                              )}
+                            </div>
+                            <p className="text-sm text-gray-600 mt-1 mb-2">{university.country}</p>
+                            <div className="text-sm text-gray-500">
+                              <p>지원자: {university.applicantCount}명</p>
+                              <p>모집인원: {university.competitionRatio.level1 + university.competitionRatio.level2}명</p>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
             </div>
           </div>
         </div>
 
         {/* 저장 버튼 */}
-        <div className="mt-6 flex justify-center space-x-4">
+        <div className="mt-8 pt-6 border-t flex justify-center space-x-4">
           <button
             onClick={() => router.back()}
             className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
@@ -526,99 +491,7 @@ export default function EditApplicationsPage() {
             )}
           </button>
         </div>
-
-                 {/* 선택된 대학교 순위 조정 */}
-         {selectedUniversities.length > 0 && (
-           <div className="mt-6 bg-white rounded-lg shadow">
-             <div className="p-6 border-b">
-               <h3 className="text-lg font-semibold text-gray-900">
-                 지망순위 조정 ({selectedUniversities.length}개)
-               </h3>
-               <p className="text-sm text-gray-600 mt-1">
-                 드래그하여 순서를 변경하세요. 위에서부터 1순위입니다.
-               </p>
-             </div>
-             
-             <div className="p-6">
-               <div className="space-y-3">
-                 {selectedUniversities
-                   .sort((a, b) => a.rank - b.rank)
-                   .map((app, index) => {
-                     const university = allUniversities.find(u => u.id === app.universityId);
-                     if (!university) return null;
-                     
-                     const isDragging = draggedIndex === index;
-                     const isDragOver = dragOverIndex === index;
-                     
-                     return (
-                       <div
-                         key={app.universityId}
-                         draggable={canEdit}
-                         onDragStart={(e) => handleDragStart(e, index)}
-                         onDragOver={(e) => handleDragOver(e, index)}
-                         onDragEnd={handleDragEnd}
-                         onDrop={(e) => handleDrop(e, index)}
-                         className={`flex items-center justify-between p-4 border-2 rounded-lg transition-all ${
-                           isDragging 
-                             ? 'opacity-50 scale-95 border-blue-400 bg-blue-50' 
-                             : isDragOver
-                             ? 'border-blue-400 bg-blue-25'
-                             : 'border-gray-200 bg-white hover:border-gray-300'
-                         } ${canEdit ? 'cursor-move' : 'cursor-default'}`}
-                       >
-                         <div className="flex items-center space-x-4">
-                           {/* 드래그 핸들 */}
-                           {canEdit && (
-                             <div className="flex flex-col space-y-1 text-gray-400">
-                               <div className="w-1 h-1 bg-current rounded-full"></div>
-                               <div className="w-1 h-1 bg-current rounded-full"></div>
-                               <div className="w-1 h-1 bg-current rounded-full"></div>
-                               <div className="w-1 h-1 bg-current rounded-full"></div>
-                               <div className="w-1 h-1 bg-current rounded-full"></div>
-                               <div className="w-1 h-1 bg-current rounded-full"></div>
-                             </div>
-                           )}
-                           
-                           {/* 순위 표시 */}
-                           <span className={`flex items-center justify-center w-10 h-10 rounded-full text-sm font-bold text-white ${
-                             app.rank === 1 ? 'bg-yellow-500' :
-                             app.rank === 2 ? 'bg-gray-400' :
-                             app.rank === 3 ? 'bg-amber-600' :
-                             'bg-blue-500'
-                           }`}>
-                             {app.rank}
-                           </span>
-                           
-                           {/* 대학교 정보 */}
-                           <span className="text-3xl">{university.flag}</span>
-                           <div>
-                             <div className="font-medium text-gray-900 text-lg">{university.name}</div>
-                             <div className="text-sm text-gray-600">{university.country}</div>
-                           </div>
-                         </div>
-                         
-                         {/* 지원자 정보 */}
-                         <div className="text-right text-sm text-gray-500">
-                           <div>지원자: {university.applicantCount}명</div>
-                           <div>모집: {university.competitionRatio.level1 + university.competitionRatio.level2}명</div>
-                         </div>
-                       </div>
-                     );
-                   })}
-               </div>
-               
-               {/* 안내 메시지 */}
-               {!canEdit && (
-                 <div className="mt-4 p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                   <p className="text-sm text-gray-600 text-center">
-                     편집 권한이 없어 순서를 변경할 수 없습니다.
-                   </p>
-                 </div>
-               )}
-             </div>
-           </div>
-         )}
-      </div>
+      </main>
     </div>
   );
 } 
