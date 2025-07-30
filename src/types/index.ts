@@ -26,6 +26,9 @@ export interface User {
   gpa?: number;
   languageScores: LanguageScore[];
   appliedUniversities: AppliedUniversity[]; // 지망순위 포함 대학교 목록
+  editCount: number; // 현재 편집 횟수
+  maxEditCount: number; // 최대 편집 횟수
+  isDeadlineRestricted: boolean; // 마감 기한 제한 여부
 }
 
 // 대학교 공지사항

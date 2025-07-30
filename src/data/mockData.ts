@@ -124,7 +124,10 @@ export const mockUsers: User[] = [
       { universityId: '1', rank: 1 },
       { universityId: '2', rank: 2 },
       { universityId: '6', rank: 3 }
-    ]
+    ],
+    editCount: 1,
+    maxEditCount: 10,
+    isDeadlineRestricted: false
   },
   {
     id: '2',
@@ -136,7 +139,10 @@ export const mockUsers: User[] = [
       { universityId: '1', rank: 2 },
       { universityId: '3', rank: 1 },
       { universityId: '4', rank: 3 }
-    ]
+    ],
+    editCount: 0,
+    maxEditCount: 10,
+    isDeadlineRestricted: false
   },
   {
     id: '3',
@@ -148,7 +154,10 @@ export const mockUsers: User[] = [
       { universityId: '5', rank: 1 },
       { universityId: '6', rank: 2 },
       { universityId: '7', rank: 3 }
-    ]
+    ],
+    editCount: 2,
+    maxEditCount: 3,
+    isDeadlineRestricted: true
   },
   {
     id: '4',
@@ -158,7 +167,10 @@ export const mockUsers: User[] = [
     appliedUniversities: [
       { universityId: '1', rank: 1 },
       { universityId: '2', rank: 2 }
-    ]
+    ],
+    editCount: 0,
+    maxEditCount: 10,
+    isDeadlineRestricted: false
   },
   {
     id: '5',
@@ -169,7 +181,10 @@ export const mockUsers: User[] = [
     appliedUniversities: [
       { universityId: '3', rank: 1 },
       { universityId: '4', rank: 2 }
-    ]
+    ],
+    editCount: 0,
+    maxEditCount: 10,
+    isDeadlineRestricted: false
   },
 ];
 
