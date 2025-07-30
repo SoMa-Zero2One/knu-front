@@ -215,18 +215,6 @@ export const mockUsers: User[] = [
     maxEditCount: 10,
     isDeadlineRestricted: false
   },
-  {
-    id: '6',
-    uuid: 'admin-uuid-1',
-    name: '관리자',
-    role: 'admin',
-    languageScores: [],
-    appliedUniversities: [],
-    verificationStatus: 'verified',
-    editCount: 0,
-    maxEditCount: 999,
-    isDeadlineRestricted: false
-  }
 ];
 
 // 유틸리티 함수들
