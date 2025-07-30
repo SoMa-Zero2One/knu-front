@@ -143,7 +143,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               </div>
 
               {/* 통계 */}
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-4 mb-6">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-blue-600">
                     {appliedUniversities.length}
@@ -157,6 +157,48 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   <p className="text-sm text-gray-600">어학 성적</p>
                 </div>
               </div>
+
+              {/* 본인 프로필인 경우 주요 액션 버튼들 */}
+              {currentUser && currentUser.id === profileUser.id && (
+                <div className="space-y-3">
+                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
+                    🎯 프로필 관리
+                  </h3>
+                  
+                  <button
+                    onClick={() => {
+                      if (currentUser.verificationStatus === 'not_verified') {
+                        router.push('/verification');
+                      } else if (currentUser.verificationStatus === 'pending') {
+                        router.push('/verification/status');
+                      } else {
+                        router.push('/verification/edit');
+                      }
+                    }}
+                    className={`w-full px-4 py-3 rounded-lg font-medium transition-colors ${
+                      currentUser.verificationStatus === 'verified' 
+                        ? 'bg-green-600 hover:bg-green-700 text-white'
+                        : currentUser.verificationStatus === 'pending'
+                        ? 'bg-yellow-600 hover:bg-yellow-700 text-white'
+                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                    }`}
+                  >
+                    {currentUser.verificationStatus === 'verified' 
+                      ? '성적 수정하기' 
+                      : currentUser.verificationStatus === 'pending'
+                      ? '인증 상태 확인'
+                      : '성적 인증하기'
+                    }
+                  </button>
+                  
+                  <button
+                    onClick={() => router.push('/applications/edit')}
+                    className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
+                  >
+                    지원 대학교 변경
+                  </button>
+                </div>
+              )}
             </div>
 
             {/* 성적 정보 */}
@@ -220,12 +262,41 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     </p>
                   </div>
                   
-                  {/* 본인 프로필인 경우에만 변경 버튼 표시 */}
+                  {/* 본인 프로필인 경우에만 액션 버튼들 표시 */}
                   {currentUser && currentUser.id === profileUser.id && (
-                    <div className="mt-4 sm:mt-0">
+                    <div className="mt-4 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-3 sm:flex">
+                      <button
+                        onClick={() => {
+                          if (currentUser.verificationStatus === 'not_verified') {
+                            router.push('/verification');
+                          } else if (currentUser.verificationStatus === 'pending') {
+                            router.push('/verification/status');
+                          } else {
+                            router.push('/verification/edit');
+                          }
+                        }}
+                        className={`w-full sm:w-auto inline-flex items-center px-4 py-2 rounded-md shadow-sm text-sm font-medium transition-colors ${
+                          currentUser.verificationStatus === 'verified' 
+                            ? 'border border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                            : currentUser.verificationStatus === 'pending'
+                            ? 'border border-yellow-300 text-yellow-700 bg-yellow-50 hover:bg-yellow-100'
+                            : 'border border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
+                        }`}
+                      >
+                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                        </svg>
+                        {currentUser.verificationStatus === 'verified' 
+                          ? '성적 수정하기' 
+                          : currentUser.verificationStatus === 'pending'
+                          ? '인증 상태 확인'
+                          : '성적 인증하기'
+                        }
+                      </button>
+                      
                       <button
                         onClick={() => router.push('/applications/edit')}
-                        className="inline-flex items-center px-4 py-2 border border-blue-300 rounded-md shadow-sm text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100 transition-colors"
+                        className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
                       >
                         <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
