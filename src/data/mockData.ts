@@ -229,6 +229,17 @@ export function getUniversityApplicantsWithRank(universityId: string): Array<Use
     });
 }
 
+// 사용자 지원 대학교 업데이트 함수
+export function updateUserApplications(userId: string, applications: AppliedUniversity[]): boolean {
+  const userIndex = mockUsers.findIndex(user => user.id === userId);
+  if (userIndex === -1) return false;
+  
+  mockUsers[userIndex].appliedUniversities = [...applications];
+  mockUsers[userIndex].editCount += 1;
+  
+  return true;
+}
+
 export const languageTestTypes: { value: LanguageTestType; label: string }[] = [
   { value: 'JLPT', label: 'JLPT' },
   { value: 'HSK', label: 'HSK' },

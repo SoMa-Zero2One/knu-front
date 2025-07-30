@@ -1,7 +1,7 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { mockUniversities, getUserById } from '@/data/mockData';
+import { mockUniversities, getUserById, updateUserApplications } from '@/data/mockData';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { University, AppliedUniversity } from '@/types';
@@ -27,6 +27,7 @@ export default function EditApplicationsPage() {
       }
     }
   }, [user]);
+
 
   if (loading) {
     return (
@@ -65,6 +66,11 @@ export default function EditApplicationsPage() {
         const filtered = prev.filter(app => app.universityId !== universityId);
         return filtered.map((app, index) => ({ ...app, rank: index + 1 }));
       } else {
+        // 5개 제한 체크 (UI에서 이미 막혀있으므로 실행되지 않을 것)
+        if (prev.length >= 5) {
+          return prev;
+        }
+        
         // 선택: 가장 뒤 순위로 추가
         const nextRank = prev.length + 1;
         return [...prev, { universityId, rank: nextRank }];
@@ -82,16 +88,19 @@ export default function EditApplicationsPage() {
       // 여기서는 mock 데이터 업데이트 시뮬레이션
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Mock 데이터 업데이트 (실제로는 API 호출)
-      userData.appliedUniversities = [...selectedUniversities];
-      userData.editCount += 1;
+      // Mock 데이터 업데이트
+      const success = updateUserApplications(user.id, selectedUniversities);
       
-      setMessage({ type: 'success', text: '지원 대학교가 성공적으로 변경되었습니다!' });
-      
-      // 3초 후 프로필 페이지로 이동
-      setTimeout(() => {
-        router.push(`/profile/${user.id}`);
-      }, 3000);
+      if (success) {
+        setMessage({ type: 'success', text: '지원 대학교가 성공적으로 변경되었습니다!' });
+        
+        // 3초 후 프로필 페이지로 이동
+        setTimeout(() => {
+          router.push(`/profile/${user.id}`);
+        }, 3000);
+      } else {
+        throw new Error('업데이트 실패');
+      }
       
     } catch (error) {
       setMessage({ type: 'error', text: '변경 중 오류가 발생했습니다. 다시 시도해주세요.' });
@@ -173,6 +182,11 @@ export default function EditApplicationsPage() {
   const handleConfirmAddUniversity = () => {
     if (!selectedUniversityToAdd) return;
 
+    // 5개 제한 체크 (UI에서 이미 막혀있으므로 실행되지 않을 것)
+    if (selectedUniversities.length >= 5) {
+      return;
+    }
+
     const customId = `custom-${Date.now()}`;
     const university: University = {
       ...selectedUniversityToAdd,
@@ -198,6 +212,7 @@ export default function EditApplicationsPage() {
     setSearchResults([]);
     setSelectedUniversityToAdd(null);
   };
+
 
 
 
@@ -264,11 +279,16 @@ export default function EditApplicationsPage() {
             <div className="bg-white rounded-lg shadow sticky top-8">
               <div className="p-6 border-b">
                 <h3 className="text-lg font-semibold text-gray-900">
-                  나의 지원 목록 ({selectedUniversities.length}개)
+                  나의 지원 목록 ({selectedUniversities.length}/5개)
                 </h3>
                 <p className="text-sm text-gray-600 mt-1">
-                  선택한 순서대로 순위가 정해집니다.
+                  선택한 순서대로 순위가 정해집니다. 최대 5개까지 선택 가능합니다.
                 </p>
+                {selectedUniversities.length >= 5 && (
+                  <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700">
+                    ⚠️ 최대 선택 개수에 도달했습니다. 다른 대학교를 선택하려면 기존 선택을 해제해주세요.
+                  </div>
+                )}
               </div>
               
               <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
@@ -415,18 +435,25 @@ export default function EditApplicationsPage() {
                     const selectedApp = selectedUniversities.find(app => app.universityId === university.id);
                     const isSelected = !!selectedApp;
                     const isCustom = university.id.startsWith('custom-');
+                    const isMaxReached = selectedUniversities.length >= 5 && !isSelected;
                     
                     return (
                       <div
                         key={university.id}
-                        className={`border-2 rounded-lg p-4 cursor-pointer transition-all ${
+                        className={`border-2 rounded-lg p-4 transition-all ${
                           isSelected 
-                            ? 'border-blue-500 bg-blue-50' 
-                            : 'border-gray-200 hover:border-gray-300'
+                            ? 'border-blue-500 bg-blue-50 cursor-pointer' 
+                            : isMaxReached
+                            ? 'border-gray-200 bg-gray-50 opacity-60 cursor-not-allowed'  
+                            : 'border-gray-200 hover:border-gray-300 cursor-pointer'
                         } ${!canEdit ? 'opacity-50 cursor-not-allowed' : ''} ${
                           isCustom ? 'border-green-300 bg-green-25' : ''
                         }`}
-                        onClick={() => handleUniversityToggle(university.id)}
+                        onClick={() => {
+                          if (canEdit && !isMaxReached) {
+                            handleUniversityToggle(university.id);
+                          }
+                        }}
                       >
                         <div className="flex items-start space-x-3">
                           <div className="flex-shrink-0">
@@ -492,6 +519,7 @@ export default function EditApplicationsPage() {
           </button>
         </div>
       </main>
+
     </div>
   );
 } 
