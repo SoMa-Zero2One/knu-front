@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUserById, getUserApplications } from '@/data/mockData';
 import { User, University } from '@/types';
 import Header from '@/components/Header';
+import AppliedUniversityItem from '@/components/AppliedUniversityItem';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -178,10 +179,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   
                   {/* 본인 프로필인 경우에만 액션 버튼들 표시 */}
                   {currentUser && currentUser.id === profileUser.id && (
-                    <div className="mt-4 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-3 sm:flex">
+                    <div className="cursor-pointer mt-4 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-3 sm:flex">
                       <button
                         onClick={() => router.push('/applications/edit')}
-                        className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
+                        className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 hover:cursor-pointer transition-colors"
                       >
                         지원 대학교 변경
                       </button>
@@ -216,55 +217,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                       {appliedUniversities
                         .sort((a, b) => a.rank - b.rank)
                         .map((university) => (
-                        <tr
-                          key={university.id}
-                          className="hover:bg-gray-50 cursor-pointer"
-                          onClick={() => router.push(`/university/${university.id}`)}
-                        >
-                          <td className="px-6 py-4 whitespace-nowrap text-center">
-                            <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white ${
-                              university.rank === 1 ? 'bg-yellow-500' :
-                              university.rank === 2 ? 'bg-gray-400' :
-                              university.rank === 3 ? 'bg-amber-600' :
-                              'bg-blue-500'
-                            }`}>
-                              {university.rank}
-                            </span>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="flex items-center">
-                              <span className="text-2xl mr-3">{university.flag}</span>
-                              <div>
-                                <div className="text-sm font-medium text-gray-900">
-                                  {university.name}
-                                </div>
-                              </div>
-                            </div>
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {university.country}
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                            {university.applicantCount}명
-                          </td>
-                          <td className="px-6 py-4 whitespace-nowrap text-sm">
-                            <div className="space-y-1">
-                              <div className="flex items-center">
-                                <span className="text-gray-600 mr-2">1학기:</span>
-                                <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-                                  {university.competitionRatio.level1}명
-                                </span>
-                              </div>
-                              <div className="flex items-center">
-                                <span className="text-gray-600 mr-2">2학기:</span>
-                                <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-                                  {university.competitionRatio.level2}명
-                                </span>
-                              </div>
-                            </div>
-                          </td>
-                        </tr>
-                      ))}
+                          <AppliedUniversityItem
+                            key={university.id}
+                            university={university}
+                          />
+                        ))}
                     </tbody>
                   </table>
                 </div>
