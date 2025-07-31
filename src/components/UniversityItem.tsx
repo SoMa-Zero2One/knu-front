@@ -1,6 +1,7 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
+import Twemoji from 'react-twemoji';
 
 interface University {
   id: string;
@@ -63,7 +64,9 @@ export default function UniversityItem({ university, isMobile = false }: Univers
         onClick={handleClick}
       >
         <div className="flex items-start space-x-3">
-          <span className="text-2xl">{university.flag}</span>
+          <Twemoji options={{ className: 'twemoji text-2xl' }}>
+            <span>{university.flag}</span>
+          </Twemoji>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-gray-900 mb-1">
               {university.name}
@@ -102,7 +105,9 @@ export default function UniversityItem({ university, isMobile = false }: Univers
     >
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
-          <span className="text-2xl mr-3">{university.flag}</span>
+          <Twemoji options={{ className: 'twemoji text-2xl mr-3' }}>
+            <span>{university.flag}</span>
+          </Twemoji>
           <div>
             <div className="text-sm font-medium text-gray-900 overflow-hidden whitespace-nowrap">
               {university.name}
