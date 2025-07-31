@@ -61,7 +61,7 @@ export const mockUniversities: University[] = [
   },
   {
     id: '5',
-    name: 'Kwansai Gakuin University111111111111111111111111111111111111111111111111',
+    name: 'Kwansai Gakuin University',
     country: '일본',
     flag: '🇯🇵',
     competitionRatio: { level1: 3, level2: 1 },
