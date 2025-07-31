@@ -97,7 +97,7 @@ export default function DashboardPage() {
 
         {/* 대학교 리스트 */}
         <div>
-            <div className="bg-white rounded-lg shadow">
+            <div className="bg-white rounded-md shadow">
               <div className="p-4 sm:p-6 border-b">
                 <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
                   대학교 합격 예상 정리본
@@ -120,23 +120,23 @@ export default function DashboardPage() {
                             {university.name}
                           </div>
                           <div className="text-xs mb-2 flex flex-wrap gap-1 items-center">
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.country)}`}>
+                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.country)}`}>
                               {university.country}
                             </span>
                             <span className="text-gray-400">•</span>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.applicantCount.toString())}`}>
+                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.applicantCount.toString())}`}>
                               {university.applicantCount}명 지원
                             </span>
                             <span className="text-gray-400">•</span>
-                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.duration || '기간 미정')}`}>
+                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.duration || '기간 미정')}`}>
                               {university.duration || '기간 미정'}
                             </span>
                           </div>
                           <div className="flex flex-wrap gap-2">
-                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
                               1학기: {university.competitionRatio.level1}명
                             </span>
-                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">
                               2학기: {university.competitionRatio.level2}명
                             </span>
                           </div>
@@ -187,17 +187,17 @@ export default function DashboardPage() {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.country)}`}>
+                          <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.country)}`}>
                             {university.country}
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.applicantCount.toString())}`}>
+                          <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.applicantCount.toString())}`}>
                             {university.applicantCount}명
                           </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
-                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.duration || '-')}`}>
+                          <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.duration || '-')}`}>
                             {university.duration || '-'}
                           </span>
                         </td>
@@ -205,13 +205,13 @@ export default function DashboardPage() {
                           <div className="space-y-1">
                             <div className="flex items-center">
                               <span className="text-gray-600 mr-2">1학기:</span>
-                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+                              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
                                 {university.competitionRatio.level1}명
                               </span>
                             </div>
                             <div className="flex items-center">
                               <span className="text-gray-600 mr-2">2학기:</span>
-                              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
+                              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">
                                 {university.competitionRatio.level2}명
                               </span>
                             </div>
