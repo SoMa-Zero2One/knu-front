@@ -115,21 +115,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 </div>
               </div>
 
-              {/* 본인 프로필인 경우 주요 액션 버튼들 */}
-              {currentUser && currentUser.id === profileUser.id && (
-                <div className="space-y-3">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                    🎯 프로필 관리
-                  </h3>
-                  
-                  <button
-                    onClick={() => router.push('/applications/edit')}
-                    className="w-full bg-purple-600 hover:bg-purple-700 text-white px-4 py-3 rounded-lg font-medium transition-colors"
-                  >
-                    지원 대학교 변경
-                  </button>
-                </div>
-              )}
             </div>
 
             {/* 성적 정보 */}
@@ -184,10 +169,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">
-                      지원 대학교 목록 ({appliedUniversities.length}개)
+                      {profileUser.name}님의 지원 대학교 목록 ({appliedUniversities.length}개)
                     </h2>
                     <p className="text-sm text-gray-600 mt-1">
-                      {profileUser.name}님이 지원한 대학교들입니다. 대학교를 클릭하면 해당 대학교의 다른 지원자들을 확인할 수 있습니다.
+                      대학교를 클릭하면 해당 대학교의 다른 지원자들을 확인할 수 있습니다.
                     </p>
                   </div>
                   
@@ -198,9 +183,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         onClick={() => router.push('/applications/edit')}
                         className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
                       >
-                        <svg className="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z" />
-                        </svg>
                         지원 대학교 변경
                       </button>
                     </div>
