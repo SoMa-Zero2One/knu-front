@@ -39,6 +39,12 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     }
   }, [resolvedParams]);
 
+    useEffect(() => {
+    if (!loading && !user) {
+      router.push('/');
+    }
+  }, [user, loading, router]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
@@ -48,7 +54,6 @@ export default function UniversityPage({ params }: UniversityPageProps) {
   }
 
   if (!user) {
-    router.push('/');
     return null;
   }
 
