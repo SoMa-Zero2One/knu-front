@@ -61,7 +61,7 @@ export const mockUniversities: University[] = [
   },
   {
     id: '5',
-    name: 'Kwansai Gakuin University',
+    name: 'Kwansai Gakuin University111111111111111111111111111111111111111111111111',
     country: '일본',
     flag: '🇯🇵',
     competitionRatio: { level1: 3, level2: 1 },
@@ -78,6 +78,16 @@ export const mockUniversities: University[] = [
     notices: mockNotices,
     applicantCount: 6,
     duration: '1학기 또는 2학기'
+  },
+  {
+    id: '8',
+    name: 'Orebro University',
+    country: '스웨덴',
+    flag: '🇸🇪',
+    competitionRatio: { level1: 2, level2: 1 },
+    notices: mockNotices,
+    applicantCount: 6,
+    duration: undefined
   },
   {
     id: '7',
