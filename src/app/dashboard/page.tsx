@@ -98,12 +98,6 @@ export default function DashboardPage() {
         {/* 대학교 리스트 */}
         <div>
             <div className="bg-white rounded-md shadow">
-              <div className="p-4 sm:p-6 border-b">
-                <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
-                  대학교 합격 예상 정리본
-                </h2>
-              </div>
-              
               {/* 모바일 카드 뷰 */}
               <div className="block sm:hidden">
                 <div className="divide-y divide-gray-200">
@@ -169,18 +163,19 @@ export default function DashboardPage() {
                       </th>
                     </tr>
                   </thead>
-                  <tbody className="bg-white divide-y divide-gray-200">
+                  <tbody className="bg-white">
                     {mockUniversities.map((university) => (
                       <tr
                         key={university.id}
-                        className="hover:bg-gray-50 cursor-pointer"
+                        className="transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
                         onClick={() => router.push(`/university/${university.id}`)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
+                            {/* 국기로 변환 예정 */}
                             <span className="text-2xl mr-3">{university.flag}</span>
                             <div>
-                              <div className="text-sm font-medium text-gray-900">
+                              <div className="text-sm font-medium text-gray-900 overflow-hidden whitespace-nowrap">
                                 {university.name}
                               </div>
                             </div>
