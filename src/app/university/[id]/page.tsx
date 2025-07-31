@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUniversityById, getUniversityApplicantsWithRank } from '@/data/mockData';
 import { University, User } from '@/types';
 import Header from '@/components/Header';
+import Twemoji from 'react-twemoji';
 
 interface UniversityPageProps {
   params: Promise<{
@@ -85,7 +86,9 @@ export default function UniversityPage({ params }: UniversityPageProps) {
         leftContent={
           <div className="flex items-center space-x-4">
             <div className="flex items-center">
-              <span className="text-3xl mr-3">{university.flag}</span>
+              <Twemoji options={{ className: 'twemoji text-3xl mr-3' }}>
+                <span>{university.flag}</span>
+              </Twemoji>
               <h1 className="text-2xl font-bold text-gray-900">
                 {university.name}
               </h1>
