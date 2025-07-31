@@ -24,7 +24,27 @@ export default function DashboardPage() {
       'bg-indigo-100 text-indigo-800',
       'bg-gray-100 text-gray-800',
       'bg-orange-100 text-orange-800',
-      'bg-teal-100 text-teal-800'
+      'bg-teal-100 text-teal-800',
+      'bg-cyan-100 text-cyan-800',
+      'bg-lime-100 text-lime-800',
+      'bg-emerald-100 text-emerald-800',
+      'bg-sky-100 text-sky-800',
+      'bg-violet-100 text-violet-800',
+      'bg-fuchsia-100 text-fuchsia-800',
+      'bg-rose-100 text-rose-800',
+      'bg-amber-100 text-amber-800',
+      'bg-slate-100 text-slate-800',
+      'bg-zinc-100 text-zinc-800',
+      'bg-neutral-100 text-neutral-800',
+      'bg-stone-100 text-stone-800',
+      'bg-red-200 text-red-900',
+      'bg-blue-200 text-blue-900',
+      'bg-green-200 text-green-900',
+      'bg-purple-200 text-purple-900',
+      'bg-pink-200 text-pink-900',
+      'bg-indigo-200 text-indigo-900',
+      'bg-orange-200 text-orange-900',
+      'bg-teal-200 text-teal-900'
     ];
     
     // 문자열을 해시하여 일관성 있는 색상 선택
@@ -47,7 +67,7 @@ export default function DashboardPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -61,7 +81,7 @@ export default function DashboardPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       <Header 
         title="경북대학교 합격 예상 정리본"
         leftContent={

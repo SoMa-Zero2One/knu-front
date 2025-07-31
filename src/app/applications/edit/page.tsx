@@ -32,7 +32,7 @@ export default function EditApplicationsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
@@ -46,7 +46,7 @@ export default function EditApplicationsPage() {
   const userData = getUserById(user.id);
   if (!userData) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-red-600">사용자 정보를 찾을 수 없습니다.</div>
       </div>
     );
@@ -218,7 +218,7 @@ export default function EditApplicationsPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-transparent">
       <Header 
         title="지원 대학교 변경"
         showBackButton={true}
