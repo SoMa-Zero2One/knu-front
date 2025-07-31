@@ -5,6 +5,7 @@ import { mockUniversities, getUserById, updateUserApplications } from '@/data/mo
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { University, AppliedUniversity } from '@/types';
+import Header from '@/components/Header';
 
 export default function EditApplicationsPage() {
   const { user, loading } = useAuth();
@@ -218,27 +219,10 @@ export default function EditApplicationsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <div className="flex items-center space-x-4">
-              <button
-                onClick={() => router.back()}
-                className="text-gray-600 hover:text-gray-900"
-              >
-                ← 뒤로가기
-              </button>
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
-                지원 대학교 변경
-              </h1>
-            </div>
-            <div className="text-sm text-gray-600">
-              {user.name}님
-            </div>
-          </div>
-        </div>
-      </header>
+      <Header 
+        title="지원 대학교 변경"
+        showBackButton={true}
+      />
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 안내 메시지 */}

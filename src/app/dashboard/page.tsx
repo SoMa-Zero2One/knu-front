@@ -4,6 +4,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { mockUniversities, getUserById } from '@/data/mockData';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
+import Header from '@/components/Header';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -35,30 +36,16 @@ export default function DashboardPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <Header 
+        title="경북대학교 합격 예상 정리본"
+        leftContent={
+          <div className="flex items-center space-x-4">
             <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
-              대학교 합격 예상 정리본
+              경북대학교 합격 예상 정리본
             </h1>
-            <div className="flex items-center space-x-2 sm:space-x-4">
-              <button
-                onClick={() => router.push(`/profile/${user.id}`)}
-                className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 cursor-pointer hidden sm:block"
-              >
-                {user.name}님 프로필
-              </button>
-              <button
-                onClick={() => router.push(`/profile/${user.id}`)}
-                className="text-xs text-gray-600 hover:text-gray-900 cursor-pointer sm:hidden"
-              >
-                {user.name}
-              </button>
-            </div>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
 

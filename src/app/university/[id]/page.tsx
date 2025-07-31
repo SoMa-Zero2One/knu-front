@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { getUniversityById, getUniversityApplicantsWithRank } from '@/data/mockData';
 import { University, User } from '@/types';
+import Header from '@/components/Header';
 
 interface UniversityPageProps {
   params: Promise<{
@@ -71,32 +72,22 @@ export default function UniversityPage({ params }: UniversityPageProps) {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* 헤더 */}
-      <header className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
+      <Header 
+        title={university.name}
+        showBackButton={true}
+        backButtonText="← 돌아가기"
+        backUrl="/dashboard"
+        leftContent={
+          <div className="flex items-center space-x-4">
             <div className="flex items-center">
-                             <button
-                 onClick={() => router.push('/dashboard')}
-                 className="mr-4 text-gray-500 hover:text-gray-700 cursor-pointer"
-               >
-                 ← 돌아가기
-               </button>
-              <div className="flex items-center">
-                <span className="text-3xl mr-3">{university.flag}</span>
-                <h1 className="text-2xl font-bold text-gray-900">
-                  {university.name}
-                </h1>
-              </div>
-            </div>
-            <div className="flex items-center space-x-4">
-              <span className="text-sm text-gray-600">
-                {user.name}님
-              </span>
+              <span className="text-3xl mr-3">{university.flag}</span>
+              <h1 className="text-2xl font-bold text-gray-900">
+                {university.name}
+              </h1>
             </div>
           </div>
-        </div>
-      </header>
+        }
+      />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* 대학교 정보 */}
