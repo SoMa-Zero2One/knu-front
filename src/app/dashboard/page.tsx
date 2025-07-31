@@ -12,6 +12,32 @@ export default function DashboardPage() {
 
   const [userData, setUserData] = useState<any>(null);
 
+  // 값별로 랜덤 색상을 할당하는 함수
+  const getColorForValue = (value: string): string => {
+    const colors = [
+      'bg-red-100 text-red-800',
+      'bg-blue-100 text-blue-800', 
+      'bg-green-100 text-green-800',
+      'bg-yellow-100 text-yellow-800',
+      'bg-purple-100 text-purple-800',
+      'bg-pink-100 text-pink-800',
+      'bg-indigo-100 text-indigo-800',
+      'bg-gray-100 text-gray-800',
+      'bg-orange-100 text-orange-800',
+      'bg-teal-100 text-teal-800'
+    ];
+    
+    // 문자열을 해시하여 일관성 있는 색상 선택
+    let hash = 0;
+    for (let i = 0; i < value.length; i++) {
+      const char = value.charCodeAt(i);
+      hash = ((hash << 5) - hash) + char;
+      hash = hash & hash; // 32bit 정수로 변환
+    }
+    
+    return colors[Math.abs(hash) % colors.length];
+  };
+
   useEffect(() => {
     if (user) {
       const fullUserData = getUserById(user.id);
@@ -73,8 +99,18 @@ export default function DashboardPage() {
                           <div className="text-sm font-medium text-gray-900 mb-1">
                             {university.name}
                           </div>
-                          <div className="text-xs text-gray-500 mb-2">
-                            {university.country} • {university.applicantCount}명 지원
+                          <div className="text-xs mb-2 flex flex-wrap gap-1 items-center">
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.country)}`}>
+                              {university.country}
+                            </span>
+                            <span className="text-gray-400">•</span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.applicantCount.toString())}`}>
+                              {university.applicantCount}명 지원
+                            </span>
+                            <span className="text-gray-400">•</span>
+                            <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.duration || '기간 미정')}`}>
+                              {university.duration || '기간 미정'}
+                            </span>
                           </div>
                           <div className="flex flex-wrap gap-2">
                             <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
@@ -106,6 +142,9 @@ export default function DashboardPage() {
                         지원자 수
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        파견 기간
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         모집인원
                       </th>
                     </tr>
@@ -127,11 +166,20 @@ export default function DashboardPage() {
                             </div>
                           </div>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {university.country}
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.country)}`}>
+                            {university.country}
+                          </span>
                         </td>
-                        <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                          {university.applicantCount}명
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.applicantCount.toString())}`}>
+                            {university.applicantCount}명
+                          </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap text-sm">
+                          <span className={`px-2 py-1 rounded-full text-xs font-medium ${getColorForValue(university.duration || '-')}`}>
+                            {university.duration || '-'}
+                          </span>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap text-sm">
                           <div className="space-y-1">

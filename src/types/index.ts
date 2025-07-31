@@ -52,6 +52,7 @@ export interface University {
   };
   notices: UniversityNotice[];
   applicantCount: number;
+  duration?: string; // 파견 기간
 }
 
 // 대학교 지원자 정보

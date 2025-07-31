@@ -26,7 +26,8 @@ export const mockUniversities: University[] = [
     flag: '🇯🇵',
     competitionRatio: { level1: 2, level2: 1 },
     notices: mockNotices,
-    applicantCount: 15
+    applicantCount: 15,
+    duration: '1학기 또는 2학기'
   },
   {
     id: '2',
@@ -35,7 +36,8 @@ export const mockUniversities: University[] = [
     flag: '🇯🇵',
     competitionRatio: { level1: 3, level2: 1 },
     notices: mockNotices,
-    applicantCount: 12
+    applicantCount: 12,
+    duration: '1학기 또는 2학기'
   },
   {
     id: '3',
@@ -44,7 +46,8 @@ export const mockUniversities: University[] = [
     flag: '🇯🇵',
     competitionRatio: { level1: 1, level2: 0 },
     notices: mockNotices,
-    applicantCount: 8
+    applicantCount: 8,
+    duration: '1학기만'
   },
   {
     id: '4',
@@ -53,7 +56,8 @@ export const mockUniversities: University[] = [
     flag: '🇯🇵',
     competitionRatio: { level1: 2, level2: 1 },
     notices: mockNotices,
-    applicantCount: 10
+    applicantCount: 10,
+    duration: '1학기 또는 2학기'
   },
   {
     id: '5',
@@ -62,7 +66,8 @@ export const mockUniversities: University[] = [
     flag: '🇯🇵',
     competitionRatio: { level1: 3, level2: 1 },
     notices: mockNotices,
-    applicantCount: 18
+    applicantCount: 18,
+    duration: '1학기 또는 2학기'
   },
   {
     id: '6',
@@ -71,7 +76,8 @@ export const mockUniversities: University[] = [
     flag: '🇸🇪',
     competitionRatio: { level1: 2, level2: 1 },
     notices: mockNotices,
-    applicantCount: 6
+    applicantCount: 6,
+    duration: '1학기 또는 2학기'
   },
   {
     id: '7',
@@ -80,7 +86,8 @@ export const mockUniversities: University[] = [
     flag: '🇳🇱',
     competitionRatio: { level1: 2, level2: 1 },
     notices: mockNotices,
-    applicantCount: 4
+    applicantCount: 4,
+    duration: '1학기 또는 2학기'
   }
 ];
 
