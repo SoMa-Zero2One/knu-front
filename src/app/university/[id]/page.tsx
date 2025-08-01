@@ -83,18 +83,8 @@ export default function UniversityPage({ params }: UniversityPageProps) {
         showBackButton={true}
         backButtonText="← 돌아가기"
         backUrl="/dashboard"
-        leftContent={
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center">
-              <Twemoji options={{ className: 'twemoji text-3xl mr-3' }}>
-                <span>{university.flag}</span>
-              </Twemoji>
-              <h1 className="text-2xl font-bold text-gray-900">
-                {university.name}
-              </h1>
-            </div>
-          </div>
-        }
+        universityFlag = {university.flag}
+        universityName = {university.name}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

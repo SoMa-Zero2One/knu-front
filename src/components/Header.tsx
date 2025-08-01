@@ -2,6 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import Twemoji from 'react-twemoji';
 
 interface HeaderProps {
   title: string;
@@ -9,7 +10,8 @@ interface HeaderProps {
   backButtonText?: string;
   onBackClick?: () => void;
   backUrl?: string;
-  leftContent?: React.ReactNode;
+  universityFlag?: string;
+  universityName?: string;
 }
 
 export default function Header({ 
@@ -18,7 +20,8 @@ export default function Header({
   backButtonText = "← 뒤로가기",
   onBackClick,
   backUrl,
-  leftContent 
+  universityFlag,
+  universityName,
 }: HeaderProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -39,27 +42,47 @@ export default function Header({
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
             {showBackButton && (
+              <>
               <button
                 onClick={handleBackClick}
-                className="mr-4 text-gray-500 hover:text-gray-700 cursor-pointer"
+                className="mr-4 text-gray-500 hover:text-gray-700 cursor-pointer hidden sm:block"
               >
                 {backButtonText}
               </button>
+              <button
+                onClick={handleBackClick}
+                className="mr-4 text-gray-500 hover:text-gray-700 cursor-pointer block sm:hidden"
+              >
+                ←
+              </button>
+              </>
             )}
-            {leftContent || (
-              <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
-                {title}
-              </h1>
-            )}
+              <div className="flex items-center">
+                {universityFlag && universityName ? (
+                  <>
+                    <Twemoji options={{ className: 'twemoji mr-3' }}>
+                      <span>{universityFlag}</span>
+                    </Twemoji>
+                    <h1 className='lg:text-xl font-semibold text-gray-900'>
+                      {universityName}
+                    </h1>
+                  </>
+                ) : (
+                  <h1 className='lg:text-xl font-semibold text-gray-900'>
+                    {title}
+                  </h1>
+                )}
+              </div>
           </div>
           {user &&
 
           <button
               onClick={() => router.push(`/profile/${user.id}`)}
-              className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 cursor-pointer hidden sm:block"
+              className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
             >
-              {user.name}님 프로필
-            </button>}
+              내 프로필
+            </button>
+            }
         </div>
       </div>
     </header>

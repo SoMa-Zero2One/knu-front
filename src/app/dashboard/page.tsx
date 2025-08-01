@@ -44,13 +44,6 @@ export default function DashboardPage() {
     <div className="min-h-screen bg-transparent">
       <Header 
         title="경북대학교 합격 예상 정리본"
-        leftContent={
-          <div className="flex items-center space-x-4">
-            <h1 className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900 truncate">
-              경북대학교 합격 예상 정리본
-            </h1>
-          </div>
-        }
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
