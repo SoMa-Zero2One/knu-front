@@ -171,7 +171,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">
-                      {profileUser.name}님의 지원 대학교 목록 ({appliedUniversities.length}개)
+                      지원한 대학교 목록 ({appliedUniversities.length}개)
                     </h2>
                     <p className="text-sm text-gray-600 mt-1">
                       대학교를 클릭하면 해당 대학교의 다른 지원자들을 확인할 수 있습니다.
