@@ -79,10 +79,11 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     <div className="min-h-screen bg-transparent">
       <Header 
         title={university.name}
+        showBackButton={true}
         backButtonText="← 돌아가기"
         backUrl="/dashboard"
-        universityFlag = {university.flag}
-        universityName = {university.name}
+        universityFlag={university.flag}
+        universityName={university.name}
       />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

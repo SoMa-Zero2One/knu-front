@@ -6,20 +6,24 @@ import Twemoji from 'react-twemoji';
 
 interface HeaderProps {
   title: string;
+  showBackButton?: boolean;
   backButtonText?: string;
   onBackClick?: () => void;
   backUrl?: string;
   universityFlag?: string;
   universityName?: string;
+  hideProfileButton?: boolean;
 }
 
 export default function Header({ 
   title, 
+  showBackButton = false,
   backButtonText = "← 뒤로가기",
   onBackClick,
   backUrl,
   universityFlag,
   universityName,
+  hideProfileButton = false,
 }: HeaderProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -39,6 +43,7 @@ export default function Header({
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
+            {showBackButton && (
               <>
               <button
                 onClick={handleBackClick}
@@ -52,7 +57,7 @@ export default function Header({
               >
                 ←
               </button>
-              </>
+              </>)}
               <div className="flex items-center">
                 {universityFlag && universityName ? (
                   <>
@@ -70,15 +75,14 @@ export default function Header({
                 )}
               </div>
           </div>
-          {user &&
-
-          <button
+          {user && !hideProfileButton && (
+            <button
               onClick={() => router.push(`/profile/${user.id}`)}
               className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
             >
               내 프로필
             </button>
-            }
+          )}
         </div>
       </div>
     </header>
