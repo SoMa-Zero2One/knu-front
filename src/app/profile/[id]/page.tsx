@@ -82,8 +82,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
       <Header 
         title={`${profileUser.name}님의 프로필`}
         showBackButton={true}
-        backButtonText="← 돌아가기"
-        backUrl="/dashboard"
+        backButtonText="← 뒤로 가기"
         hideProfileButton={true}
       />
 

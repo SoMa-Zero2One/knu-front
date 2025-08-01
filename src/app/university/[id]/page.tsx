@@ -80,8 +80,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
       <Header 
         title={university.name}
         showBackButton={true}
-        backButtonText="← 돌아가기"
-        backUrl="/dashboard"
+        backButtonText="← 뒤로 가기"
         universityFlag={university.flag}
         universityName={university.name}
       />
