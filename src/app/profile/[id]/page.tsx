@@ -7,6 +7,7 @@ import { getUserById, getUserApplications } from '@/data/mockData';
 import { User, University } from '@/types';
 import Header from '@/components/Header';
 import AppliedUniversityItem from '@/components/AppliedUniversityItem';
+import BottomNavigation from '@/components/BottomNavigation';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -83,10 +84,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
         title={`${profileUser.name}님의 프로필`}
         showBackButton={true}
         backButtonText="← 뒤로 가기"
+        showHomeButton={true}
         hideProfileButton={true}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8">
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* 왼쪽: 사용자 정보 */}
           <div className="lg:col-span-1">
@@ -242,6 +244,8 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           </div>
         </div>
       </div>
+      
+      <BottomNavigation />
     </div>
   );
 } 

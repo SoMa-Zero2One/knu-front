@@ -6,6 +6,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUniversityById, getUniversityApplicantsWithRank } from '@/data/mockData';
 import { University, User } from '@/types';
 import Header from '@/components/Header';
+import BottomNavigation from '@/components/BottomNavigation';
 
 interface UniversityPageProps {
   params: Promise<{
@@ -81,11 +82,12 @@ export default function UniversityPage({ params }: UniversityPageProps) {
         title={university.name}
         showBackButton={true}
         backButtonText="← 뒤로 가기"
+        showHomeButton={true}
         universityFlag={university.flag}
         universityName={university.name}
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8">
         {/* 대학교 정보 */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
@@ -222,6 +224,8 @@ export default function UniversityPage({ params }: UniversityPageProps) {
             )}
           </div>
       </div>
+      
+      <BottomNavigation />
     </div>
   );
 } 

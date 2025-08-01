@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import UniversityItem from '@/components/UniversityItem';
+import BottomNavigation from '@/components/BottomNavigation';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
@@ -46,7 +47,7 @@ export default function DashboardPage() {
         title="경북대학교 합격 예상 정리본"
       />
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 pb-20 sm:pb-6 lg:pb-8">
 
         {/* 대학교 리스트 */}
         <div>
@@ -92,6 +93,8 @@ export default function DashboardPage() {
             </div>
         </div>
       </div>
+      
+      <BottomNavigation />
     </div>
   );
 } 

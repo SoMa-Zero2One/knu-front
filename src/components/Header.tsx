@@ -13,6 +13,7 @@ interface HeaderProps {
   universityFlag?: string;
   universityName?: string;
   hideProfileButton?: boolean;
+  showHomeButton?: boolean;
 }
 
 export default function Header({ 
@@ -24,6 +25,7 @@ export default function Header({
   universityFlag,
   universityName,
   hideProfileButton = false,
+  showHomeButton = false,
 }: HeaderProps) {
   const router = useRouter();
   const { user } = useAuth();
@@ -38,27 +40,40 @@ export default function Header({
     }
   };
 
+  const handleHomeClick = () => {
+    router.push('/dashboard');
+  };
+
   return (
     <header className="bg-white shadow-sm border-b">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <div className="flex items-center">
-            {showBackButton && (
-              <>
-              <button
-                onClick={handleBackClick}
-                className="mr-4 text-gray-500 hover:text-gray-700 cursor-pointer hidden sm:block"
-              >
-                {backButtonText}
-              </button>
-              <button
-                onClick={handleBackClick}
-                className="mr-4 text-gray-500 hover:text-gray-700 cursor-pointer block sm:hidden"
-              >
-                ←
-              </button>
-              </>)}
-              <div className="flex items-center">
+            <div className="hidden sm:flex items-center">
+              {showBackButton && (
+                <button
+                  onClick={handleBackClick}
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                >
+                  뒤로 가기
+                </button>
+              )}
+              
+              {showBackButton && showHomeButton && (
+                <span className="mx-2 text-gray-400">|</span>
+              )}
+              
+              {showHomeButton && (
+                <button
+                  onClick={handleHomeClick}
+                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                >
+                  메인으로
+                </button>
+              )}
+            </div>
+            
+            <div className="flex items-center ml-4">
                 {universityFlag && universityName ? (
                   <>
                     <Twemoji options={{ className: 'twemoji mr-3' }}>
@@ -78,7 +93,7 @@ export default function Header({
           {user && !hideProfileButton && (
             <button
               onClick={() => router.push(`/profile/${user.id}`)}
-              className="text-xs sm:text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
+              className="hidden sm:block text-xs sm:text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
             >
               내 프로필
             </button>
