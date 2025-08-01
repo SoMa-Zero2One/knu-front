@@ -221,7 +221,6 @@ export default function EditApplicationsPage() {
     <div className="min-h-screen bg-transparent">
       <Header 
         title="지원 대학교 변경"
-        showBackButton={true}
         backButtonText="← 돌아가기"
         backUrl={`/profile/${user.id}`}
       />

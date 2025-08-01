@@ -6,7 +6,6 @@ import { useAuth } from '@/contexts/AuthContext';
 import { getUniversityById, getUniversityApplicantsWithRank } from '@/data/mockData';
 import { University, User } from '@/types';
 import Header from '@/components/Header';
-import Twemoji from 'react-twemoji';
 
 interface UniversityPageProps {
   params: Promise<{
@@ -80,7 +79,6 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     <div className="min-h-screen bg-transparent">
       <Header 
         title={university.name}
-        showBackButton={true}
         backButtonText="← 돌아가기"
         backUrl="/dashboard"
         universityFlag = {university.flag}

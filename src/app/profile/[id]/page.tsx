@@ -81,7 +81,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     <div className="min-h-screen bg-transparent">
       <Header 
         title={`${profileUser.name}님의 프로필`}
-        showBackButton={true}
         backButtonText="← 돌아가기"
         backUrl="/dashboard"
       />
