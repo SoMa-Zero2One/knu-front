@@ -1,21 +1,4 @@
-import { User, University, LanguageScore, UniversityNotice, LanguageTestType, AppliedUniversity } from '@/types';
-
-// Mock 대학교 공지사항 데이터
-const mockNotices: UniversityNotice[] = [
-  {
-    id: '1',
-    title: '2025년 봄학기 교환학생 모집 안내',
-    content: '2025년 봄학기 교환학생 모집을 시작합니다.',
-    date: '2025년 7월 24일',
-    url: 'www.university.ac.kr'
-  },
-  {
-    id: '2',
-    title: '서류 제출 기한 연장 안내',
-    content: '서류 제출 기한이 연장되었습니다.',
-    date: '2025년 7월 20일',
-  }
-];
+import { User, University, LanguageScore, LanguageTestType, AppliedUniversity } from '@/types';
 
 // Mock 대학교 데이터
 export const mockUniversities: University[] = [
@@ -25,7 +8,6 @@ export const mockUniversities: University[] = [
     country: '일본',
     flag: '🇯🇵',
     competitionRatio: { level1: 2, level2: 1 },
-    notices: mockNotices,
     applicantCount: 15,
     duration: '1학기 또는 2학기'
   },
@@ -35,7 +17,6 @@ export const mockUniversities: University[] = [
     country: '일본',
     flag: '🇯🇵',
     competitionRatio: { level1: 3, level2: 1 },
-    notices: mockNotices,
     applicantCount: 12,
     duration: '1학기 또는 2학기'
   },
@@ -45,7 +26,6 @@ export const mockUniversities: University[] = [
     country: '일본',
     flag: '🇯🇵',
     competitionRatio: { level1: 1, level2: 0 },
-    notices: mockNotices,
     applicantCount: 8,
     duration: '1학기만'
   },
@@ -55,7 +35,6 @@ export const mockUniversities: University[] = [
     country: '일본',
     flag: '🇯🇵',
     competitionRatio: { level1: 2, level2: 1 },
-    notices: mockNotices,
     applicantCount: 10,
     duration: '1학기 또는 2학기'
   },
@@ -65,7 +44,6 @@ export const mockUniversities: University[] = [
     country: '일본',
     flag: '🇯🇵',
     competitionRatio: { level1: 3, level2: 1 },
-    notices: mockNotices,
     applicantCount: 18,
     duration: '1학기 또는 2학기'
   },
@@ -75,7 +53,6 @@ export const mockUniversities: University[] = [
     country: '스웨덴',
     flag: '🇸🇪',
     competitionRatio: { level1: 2, level2: 1 },
-    notices: mockNotices,
     applicantCount: 6,
     duration: '1학기 또는 2학기'
   },
@@ -85,7 +62,6 @@ export const mockUniversities: University[] = [
     country: '스웨덴',
     flag: '🇸🇪',
     competitionRatio: { level1: 2, level2: 1 },
-    notices: mockNotices,
     applicantCount: 6,
     duration: undefined
   },
@@ -95,7 +71,6 @@ export const mockUniversities: University[] = [
     country: '네덜란드',
     flag: '🇳🇱',
     competitionRatio: { level1: 2, level2: 1 },
-    notices: mockNotices,
     applicantCount: 4,
     duration: '1학기 또는 2학기'
   }
@@ -107,25 +82,21 @@ const mockLanguageScores: LanguageScore[] = [
     id: '1',
     type: 'TOEIC',
     score: '875',
-    imageUrl: '/mock-images/toeic-score.jpg'
   },
   {
     id: '2',
     type: 'JLPT',
     score: 'N2',
-    imageUrl: '/mock-images/jlpt-score.jpg'
   },
   {
     id: '3',
     type: 'TOEIC',
     score: '790',
-    imageUrl: '/mock-images/toeic-score-2.jpg'
   },
   {
     id: '4',
     type: 'IELTS',
     score: '7.0',
-    imageUrl: '/mock-images/ielts-score.jpg'
   }
 ];
 

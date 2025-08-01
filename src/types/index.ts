@@ -31,15 +31,6 @@ export interface User {
   isDeadlineRestricted: boolean; // 마감 기한 제한 여부
 }
 
-// 대학교 공지사항
-export interface UniversityNotice {
-  id: string;
-  title: string;
-  content: string;
-  date: string;
-  url?: string;
-}
-
 // 대학교 인터페이스
 export interface University {
   id: string;
@@ -50,7 +41,6 @@ export interface University {
     level1: number; // 1개 학기
     level2: number; // 2개 학기
   };
-  notices: UniversityNotice[];
   applicantCount: number;
   duration?: string; // 파견 기간
 }
