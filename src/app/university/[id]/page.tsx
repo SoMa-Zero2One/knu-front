@@ -93,7 +93,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">국가</h3>
-              <p className="text-2xl">{university.country}</p>
+              <p className="text-2xl text-blue-600 font-semibold">{university.country}</p>
             </div>
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">총 지원자 수</h3>

@@ -53,20 +53,20 @@ export default function Header({
               {showBackButton && (
                 <button
                   onClick={handleBackClick}
-                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                  className="text-blue-600 hover:text-blue-800 cursor-pointer"
                 >
                   뒤로 가기
                 </button>
               )}
               
               {showBackButton && showHomeButton && (
-                <span className="mx-2 text-gray-400">|</span>
+                <span className="mx-2 text-gray-300">|</span>
               )}
               
               {showHomeButton && (
                 <button
                   onClick={handleHomeClick}
-                  className="text-gray-500 hover:text-gray-700 cursor-pointer"
+                  className="text-blue-600 hover:text-blue-800 cursor-pointer"
                 >
                   메인으로
                 </button>
@@ -93,7 +93,7 @@ export default function Header({
           {user && !hideProfileButton && (
             <button
               onClick={() => router.push(`/profile/${user.id}`)}
-              className="hidden sm:block text-xs sm:text-sm text-gray-600 hover:text-gray-900 cursor-pointer"
+              className="hidden sm:block text-xs sm:text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
             >
               내 프로필
             </button>
