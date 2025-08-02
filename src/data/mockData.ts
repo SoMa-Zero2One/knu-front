@@ -177,8 +177,8 @@ export const mockUsers: User[] = [
 ];
 
 // 유틸리티 함수들
-export function getUserById(id: string): User | undefined {
-  return mockUsers.find(user => user.id === id);
+export function getUserById(id: string): User |  null {
+  return mockUsers.find(user => user.id === id) || null;
 }
 
 export function getUserByUUID(uuid: string): User | undefined {

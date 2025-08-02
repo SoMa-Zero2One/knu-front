@@ -7,13 +7,14 @@ import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import UniversityItem from '@/components/UniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
+import { User } from '@/types';
 
 export default function DashboardPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
 
-  const [userData, setUserData] = useState<any>(null);
-
+  const [userData, setUserData] = useState<User | null>(null);
+  
   useEffect(() => {
     if (user) {
       const fullUserData = getUserById(user.id);
