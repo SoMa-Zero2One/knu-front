@@ -155,7 +155,11 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                       .map((applicant) => (
                       <tr
                         key={applicant.id}
-                        className="hover:bg-gray-50 cursor-pointer"
+                        className={`cursor-pointer ${
+                          applicant.id === user?.id 
+                            ? 'bg-blue-50 hover:bg-blue-100 border-l-4 border-l-blue-500' 
+                            : 'hover:bg-gray-50'
+                        }`}
                         onClick={() => router.push(`/profile/${applicant.id}`)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-center">
@@ -175,8 +179,20 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="text-sm font-medium text-gray-900">
-                            {applicant.name}
+                          <div className="flex items-center">
+                            <div className="text-sm font-medium text-gray-900">
+                              {applicant.name}
+                            </div>
+                            {applicant.id === user?.id && (
+                              <div className="ml-2 flex items-center space-x-1">
+                                <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
+                                  내 프로필
+                                </span>
+                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+                                </svg>
+                              </div>
+                            )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
