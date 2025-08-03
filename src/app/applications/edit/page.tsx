@@ -180,6 +180,7 @@ export default function EditApplicationsPage() {
       <Header 
         title="지원 대학교 변경"
         showBackButton={true}
+        showHomeButton
         backButtonText="← 돌아가기"
         backUrl={`/profile/${user.id}`}
       />
