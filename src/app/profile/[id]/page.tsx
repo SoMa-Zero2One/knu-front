@@ -3,7 +3,6 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUserById, getUserApplications } from '@/data/mockData';
 import { User, University } from '@/types';
 import Header from '@/components/Header';
 import AppliedUniversityItem from '@/components/AppliedUniversityItem';

@@ -95,8 +95,6 @@ soma/
 │   │       └── status/        # 인증 상태 확인
 │   ├── contexts/               # React Context
 │   │   └── AuthContext.tsx   # 사용자 인증 상태
-│   ├── data/                   # Mock Data
-│   │   └── mockData.ts        # 사용자/대학교 데이터
 │   ├── lib/                    # 유틸리티
 │   │   └── auth.ts            # JWT 인증 로직
 │   └── types/                  # TypeScript Types
