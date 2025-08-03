@@ -1,7 +1,6 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { getUserById } from '@/data/mockData';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
@@ -13,17 +12,8 @@ export default function DashboardPage() {
   const { user, loading, token } = useAuth();
   const router = useRouter();
 
-  const [userData, setUserData] = useState<User | null>(null);
   const [universities, setUniversities] = useState<University[]>([]);
-  const [universitiesLoading, setUniversitiesLoading] = useState(true);
   
-  useEffect(() => {
-    if (user) {
-      const fullUserData = getUserById(user.id);
-      setUserData(fullUserData);
-    }
-  }, [user]);
-
   // 백엔드에서 학교 정보 가져오기
   useEffect(() => {
     const fetchUniversities = async () => {
@@ -44,8 +34,6 @@ export default function DashboardPage() {
         setUniversities(universitiesData);
       } catch (error) {
         console.error('학교 정보 가져오기 오류:', error);
-      } finally {
-        setUniversitiesLoading(false);
       }
     };
 
