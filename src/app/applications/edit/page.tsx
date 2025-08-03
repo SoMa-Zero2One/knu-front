@@ -161,16 +161,38 @@ export default function EditApplicationsPage() {
 
   const hasChanges = JSON.stringify(selectedUniversities.sort((a, b) => a.rank - b.rank)) !== JSON.stringify(userData.appliedUniversities.sort((a, b) => a.rank - b.rank));
 
-  // 검색 필터링된 대학교 목록
-  const filteredUniversities = allUniversities.filter(university => {
-    if (!searchQuery) return true;
-    
-    const query = searchQuery.toLowerCase();
-    return (
-      university.name.toLowerCase().includes(query) ||
-      university.country.toLowerCase().includes(query)
+  // 검색 필터링된 대학교 목록 (선택된 대학 우선 정렬)
+  const filteredUniversities = (() => {
+    // 먼저 검색 조건에 맞는 대학들을 필터링
+    const filtered = allUniversities.filter(university => {
+      if (!searchQuery) return true;
+      
+      const query = searchQuery.toLowerCase();
+      return (
+        university.name.toLowerCase().includes(query) ||
+        university.country.toLowerCase().includes(query)
+      );
+    });
+
+    // 선택된 대학과 선택되지 않은 대학으로 구분
+    const selectedUniversityIds = selectedUniversities.map(app => app.universityId);
+    const selectedFiltered = filtered.filter(university => 
+      selectedUniversityIds.includes(university.id.toString())
     );
-  });
+    const unselectedFiltered = filtered.filter(university => 
+      !selectedUniversityIds.includes(university.id.toString())
+    );
+
+    // 선택된 대학들을 지망 순서대로 정렬
+    const sortedSelected = selectedFiltered.sort((a, b) => {
+      const aRank = selectedUniversities.find(app => app.universityId === a.id.toString())?.rank || 999;
+      const bRank = selectedUniversities.find(app => app.universityId === b.id.toString())?.rank || 999;
+      return aRank - bRank;
+    });
+
+    // 선택된 대학 + 선택되지 않은 대학 순서로 합침
+    return [...sortedSelected, ...unselectedFiltered];
+  })();
 
 
 
