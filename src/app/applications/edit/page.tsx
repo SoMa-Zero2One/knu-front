@@ -14,6 +14,7 @@ export default function EditApplicationsPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
   const [userData, setUserData] = useState<any>(null);
+  const [modifyCount, setModifyCount] = useState<number | null>(null);
   const [allUniversities, setAllUniversities] = useState<University[]>([]);
 
   useEffect(() => {
@@ -26,32 +27,44 @@ export default function EditApplicationsPage() {
             return;
           }
           
-          const response = await fetch(`http://3.34.47.29:8000/users/${user.id}`, {
+          // 현재 사용자 데이터 가져오기
+          const userResponse = await fetch(`https://api.knu.soma.wibaek.com/users/${user.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
             }
           });
           
-          if (response.ok) {
-            const data = await response.json();
+          // modifyCount 가져오기
+          const meResponse = await fetch('https://api.knu.soma.wibaek.com/users/me', {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+          
+          if (userResponse.ok && meResponse.ok) {
+            const userData = await userResponse.json();
+            const meData = await meResponse.json();
+            
+            setModifyCount(meData.modifyCount || 0);
             setUserData({
               editCount: 0, // TODO: API에서 제공되면 사용
               maxEditCount: 3, // TODO: API에서 제공되면 사용
               isDeadlineRestricted: false, // TODO: API에서 제공되면 사용
-              appliedUniversities: data.applications || []
+              appliedUniversities: userData.applications || []
             });
             
-            if (data.applications && data.applications.length > 0) {
+            if (userData.applications && userData.applications.length > 0) {
               // API 응답을 AppliedUniversity 형태로 변환
-              const appliedUniversities = data.applications.map((app: any) => ({
+              const appliedUniversities = userData.applications.map((app: any) => ({
                 universityId: app.universityId.toString(),
                 rank: app.choice
               }));
               setSelectedUniversities(appliedUniversities);
             }
           } else {
-            console.error('사용자 데이터 가져오기 실패:', response.status);
+            console.error('사용자 데이터 가져오기 실패:', userResponse.status, meResponse.status);
           }
         } catch (error) {
           console.error('사용자 데이터 가져오기 오류:', error);
@@ -69,7 +82,7 @@ export default function EditApplicationsPage() {
         const token = localStorage.getItem('auth_token');
         if (!token) return;
 
-        const response = await fetch('http://3.34.47.29:8000/universities', {
+        const response = await fetch('https://api.knu.soma.wibaek.com/universities', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',
@@ -104,7 +117,7 @@ export default function EditApplicationsPage() {
     return null;
   }
 
-  if (!userData) {
+  if (!userData || modifyCount === null) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -112,9 +125,9 @@ export default function EditApplicationsPage() {
     );
   }
 
-  // 편집 제한 체크
-  const canEdit = userData.editCount < userData.maxEditCount && !userData.isDeadlineRestricted;
-  const remainingEdits = userData.maxEditCount - userData.editCount;
+  // 편집 제한 체크 (modifyCount 기반)
+  const canEdit = modifyCount > 0;
+  const remainingEdits = modifyCount;
 
   const handleUniversityToggle = (universityId: string) => {
     if (!canEdit) return;
@@ -170,7 +183,7 @@ export default function EditApplicationsPage() {
       console.log('보낼 데이터:', { applications: applicationsData });
       console.log('사용할 토큰:', token ? '토큰 있음' : '토큰 없음');
 
-      const response = await fetch('http://3.34.47.29:8000/users/me/applications', {
+      const response = await fetch('https://api.knu.soma.wibaek.com/users/me/applications', {
         method: 'PUT',
         headers: {
           'Authorization': `Bearer ${token}`,
@@ -236,16 +249,13 @@ export default function EditApplicationsPage() {
               <p className="text-green-700">✅ 편집 가능한 상태입니다.</p>
               <p className="text-sm text-gray-600">• 남은 편집 횟수: <span className="font-semibold">{remainingEdits}회</span></p>
               <p className="text-sm text-gray-600">• 원하는 대학교를 선택하고 저장하세요.</p>
+              <p className="text-xs text-blue-600 mt-2">ℹ️ 마감 3일 전부터는 편집 횟수가 제한됩니다.</p>
             </div>
           ) : (
             <div className="space-y-2">
               <p className="text-red-700">❌ 편집할 수 없습니다.</p>
-              {userData.editCount >= userData.maxEditCount && (
-                <p className="text-sm text-gray-600">• 편집 횟수를 모두 사용했습니다.</p>
-              )}
-              {userData.isDeadlineRestricted && (
-                <p className="text-sm text-gray-600">• 마감일이 임박하여 편집이 제한됩니다.</p>
-              )}
+              <p className="text-sm text-gray-600">• 편집 횟수를 모두 사용했습니다.</p>
+              <p className="text-xs text-blue-600 mt-2">ℹ️ 마감 3일 전부터는 편집 횟수가 제한됩니다.</p>
             </div>
           )}
         </div>

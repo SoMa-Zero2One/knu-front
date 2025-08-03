@@ -100,7 +100,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           }
           
           // 사용자 정보 가져오기
-          const response = await fetch(`http://3.34.47.29:8000/users/${resolvedParams.id}`, {
+          const response = await fetch(`https://api.knu.soma.wibaek.com/users/${resolvedParams.id}`, {
             headers: {
               'Authorization': `Bearer ${token}`,
               'Content-Type': 'application/json'
@@ -111,7 +111,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           
           if (response.ok) {
             const userData = await response.json();
-            console.log(userData);
             
             const userProfile = {
               id: userData.id,
@@ -121,7 +120,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               appliedUniversities: userData.applications || []
             };
             
-            console.log(userProfile);
             setProfileUser(userProfile);
             
             // applications 데이터를 대학교 정보와 함께 설정

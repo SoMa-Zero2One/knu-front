@@ -42,7 +42,7 @@ export function verifyJWTToken(token: string): JWTPayload | null {
  */
 export async function getTokenFromAPI(uuid: string): Promise<{ access_token: string; token_type: string } | null> {
   try {
-    const response = await fetch('http://3.34.47.29:8000/auth/token', {
+    const response = await fetch('https://api.knu.soma.wibaek.com/auth/token', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',

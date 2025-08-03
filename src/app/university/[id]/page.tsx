@@ -36,7 +36,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
       if (!resolvedParams?.id || !token) return;
 
       try {
-        const response = await fetch(`http://3.34.47.29:8000/universities/${resolvedParams.id}`, {
+        const response = await fetch(`https://api.knu.soma.wibaek.com/universities/${resolvedParams.id}`, {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

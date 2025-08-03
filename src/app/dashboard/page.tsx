@@ -18,7 +18,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const response = await fetch('http://3.34.47.29:8000/universities', {
+        const response = await fetch('https://api.knu.soma.wibaek.com/universities', {
           headers: {
             'Authorization': `Bearer ${token}`,
             'Content-Type': 'application/json',

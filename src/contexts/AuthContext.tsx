@@ -24,7 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const loginWithUUID = useCallback(async (uuid: string) => {
     try {
       // 백엔드 API로 직접 토큰 요청
-      const response = await fetch('http://3.34.47.29:8000/auth/token', {
+      const response = await fetch('https://api.knu.soma.wibaek.com/auth/token', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
