@@ -270,11 +270,6 @@ export default function EditApplicationsPage() {
                 <p className="text-sm text-gray-600 mt-1">
                   선택한 순서대로 순위가 정해집니다. 최대 5개까지 선택 가능합니다.
                 </p>
-                {selectedUniversities.length >= 5 && (
-                  <div className="mt-2 p-2 bg-amber-50 border border-amber-200 rounded text-xs text-amber-700">
-                    ⚠️ 최대 선택 개수에 도달했습니다. 다른 대학교를 선택하려면 기존 선택을 해제해주세요.
-                  </div>
-                )}
               </div>
               
               <div className="p-6 space-y-3 max-h-[60vh] overflow-y-auto">
