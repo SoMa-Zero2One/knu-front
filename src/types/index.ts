@@ -5,7 +5,8 @@ export type LanguageTestType = 'JLPT' | 'HSK' | 'TOEIC' | 'TOEFL_IBT' | 'TOEFL_I
 export interface LanguageScore {
   id: string;
   type: LanguageTestType;
-  score: string;
+  level?: string; // JLPT N2, HSK 4급 등의 급수
+  score: string | null; // 세부 성적 (없으면 null)
 }
 
 

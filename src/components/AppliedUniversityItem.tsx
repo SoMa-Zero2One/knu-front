@@ -1,20 +1,8 @@
 'use client';
 
 import { useRouter } from 'next/navigation';
-import Twemoji from 'react-twemoji';
-
-interface University {
-  id: string;
-  name: string;
-  country: string;
-  flag: string;
-  applicantCount: number;
-  duration?: string;
-  competitionRatio: {
-    level1: number;
-    level2: number;
-  };
-}
+import { University } from '@/types';
+import { getCountryFlag } from '@/utils/countryFlags';
 
 interface AppliedUniversityItemProps {
   university: University & { rank: number };
@@ -44,9 +32,9 @@ export default function AppliedUniversityItem({ university }: AppliedUniversityI
       </td>
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
-          <Twemoji options={{ className: 'twemoji text-2xl mr-3' }}>
-            <span>{university.flag}</span>
-          </Twemoji>
+          <div className="text-2xl mr-3">
+            {getCountryFlag(university.country)}
+          </div>
           <div>
             <div className="text-sm font-medium text-gray-900">
               {university.name}
@@ -60,21 +48,10 @@ export default function AppliedUniversityItem({ university }: AppliedUniversityI
       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
         {university.applicantCount}명
       </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <div className="space-y-1">
-          <div className="flex items-center">
-            <span className="text-gray-600 mr-2">1학기:</span>
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
-              {university.competitionRatio.level1}명
-            </span>
-          </div>
-          <div className="flex items-center">
-            <span className="text-gray-600 mr-2">2학기:</span>
-            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-full text-xs">
-              {university.competitionRatio.level2}명
-            </span>
-          </div>
-        </div>
+      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+        <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-full text-xs">
+          {university.slot}명
+        </span>
       </td>
     </tr>
   );

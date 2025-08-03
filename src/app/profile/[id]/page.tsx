@@ -35,37 +35,56 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const parseLangString = (langString: string) => {
     if (!langString) return [];
     
-    // 여러 개의 어학 성적이 있을 수 있으므로 쪼표나 세미콜론으로 구분
+    // 여러 개의 어학 성적이 있을 수 있으므로 쉼표나 세미콜론으로 구분
     const scores = langString.split(/[,;]/).map(s => s.trim()).filter(s => s);
     
     return scores.map((scoreStr, index) => {
-      // 테스트 종류와 점수를 분리
-      const match = scoreStr.match(/(\S+)\s+(\d+)/);
-      if (match) {
-        const [, testName, score] = match;
-        let type: LanguageTestType = 'TOEFL_IBT'; // 기본값
-        
-        // 테스트 이름에 따라 타입 결정
-        const lowerTestName = testName.toLowerCase();
-        if (lowerTestName.includes('toefl')) {
-          type = 'TOEFL_IBT';
-        } else if (lowerTestName.includes('토익') || lowerTestName.includes('toeic')) {
-          type = 'TOEIC';
-        } else if (lowerTestName.includes('ielts')) {
-          type = 'IELTS';
-        } else if (lowerTestName.includes('jlpt')) {
-          type = 'JLPT';
-        } else if (lowerTestName.includes('hsk')) {
-          type = 'HSK';
+      let type: LanguageTestType = 'TOEFL_IBT'; // 기본값
+      let level: string | undefined;
+      let score: string | null = null;
+      
+      // JLPT N2 180, HSK 4급 200, Toefl 89, 토익 100 등 다양한 형태 처리
+      const lowerScoreStr = scoreStr.toLowerCase();
+      
+      if (lowerScoreStr.includes('jlpt')) {
+        type = 'JLPT';
+        // JLPT N2 180, JLPT N1 형태 처리
+        const jlptMatch = scoreStr.match(/jlpt\s+(n[1-5])\s*(\d+)?/i);
+        if (jlptMatch) {
+          level = jlptMatch[1].toUpperCase(); // N1, N2 등
+          score = jlptMatch[2] || null; // 세부 성적이 있으면 저장, 없으면 null
         }
-        
-        return {
-          id: `lang-${index}`,
-          type,
-          score
-        };
+      } else if (lowerScoreStr.includes('hsk')) {
+        type = 'HSK';
+        // HSK 4급 200, HSK 5급 형태 처리
+        const hskMatch = scoreStr.match(/hsk\s+(\d+)급?\s*(\d+)?/i);
+        if (hskMatch) {
+          level = `${hskMatch[1]}급`; // 4급, 5급 등
+          score = hskMatch[2] || null; // 세부 성적이 있으면 저장, 없으면 null
+        }
+      } else {
+        // TOEFL, TOEIC, IELTS 등은 급수가 없고 점수만 있음
+        const basicMatch = scoreStr.match(/(\S+)\s+(\d+)/);
+        if (basicMatch) {
+          const [, testName, scoreValue] = basicMatch;
+          score = scoreValue;
+          
+          if (lowerScoreStr.includes('toefl')) {
+            type = 'TOEFL_IBT';
+          } else if (lowerScoreStr.includes('토익') || lowerScoreStr.includes('toeic')) {
+            type = 'TOEIC';
+          } else if (lowerScoreStr.includes('ielts')) {
+            type = 'IELTS';
+          }
+        }
       }
-      return null;
+      
+      return {
+        id: `lang-${index}`,
+        type,
+        level,
+        score
+      };
     }).filter(Boolean) as LanguageScore[];
   };
 
@@ -102,11 +121,24 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               appliedUniversities: userData.applications || []
             };
             
+            console.log(userProfile);
             setProfileUser(userProfile);
             
             // applications 데이터를 대학교 정보와 함께 설정
-            // TODO: 대학교 정보를 가져오는 API 추가 필요
-            setAppliedUniversities([]);
+            if (userData.applications && userData.applications.length > 0) {
+              // applications 배열의 각 항목을 University & { rank: number } 형태로 변환
+              const universitiesWithRank = userData.applications.map((app: any, index: number) => ({
+                id: app.universityId || app.id || `univ-${index}`,
+                name: app.universityName || app.name || '대학교 이름 미상',
+                country: app.country || '국가 미상',
+                slot: app.slot || 0,
+                applicantCount: app.totalApplicants || app.applicantCount || 0, // totalApplicants 사용
+                rank: app.choice || app.rank || (index + 1) // choice를 rank로 사용
+              }));
+              setAppliedUniversities(universitiesWithRank);
+            } else {
+              setAppliedUniversities([]);
+            }
           } else {
             console.error('사용자 데이터 가져오기 실패:', response.status);
           }
@@ -203,7 +235,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     {profileUser.gpa ? (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-lg font-bold text-blue-900">
-                          {profileUser.gpa.toFixed(2)} / 4.5
+                          {profileUser.gpa.toFixed(2)} / 4.3
                         </p>
                       </div>
                     ) : (
@@ -223,7 +255,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                                 {score.type}
                               </span>
                               <span className="text-green-700 font-semibold">
-                                {score.score}
+                                {score.level ? `${score.level}${score.score ? ` (${score.score})` : ''}` : score.score}
                               </span>
                             </div>
                           </div>
@@ -379,7 +411,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 {profileUser.gpa ? (
                   <div className="bg-blue-50 rounded-lg p-3">
                     <p className="text-lg font-bold text-blue-900">
-                      {profileUser.gpa.toFixed(2)} / 4.5
+                      {profileUser.gpa.toFixed(2)} / 4.3
                     </p>
                   </div>
                 ) : (
@@ -399,7 +431,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                             {score.type}
                           </span>
                           <span className="text-green-700 font-semibold">
-                            {score.score}
+                            {score.level ? `${score.level}${score.score ? ` (${score.score})` : ''}` : score.score}
                           </span>
                         </div>
                       </div>
