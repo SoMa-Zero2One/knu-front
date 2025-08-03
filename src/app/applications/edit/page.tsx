@@ -17,6 +17,7 @@ export default function EditApplicationsPage() {
   const [userData, setUserData] = useState<any>(null);
   const [modifyCount, setModifyCount] = useState<number | null>(null);
   const [allUniversities, setAllUniversities] = useState<University[]>([]);
+  const [searchQuery, setSearchQuery] = useState<string>('');
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -160,7 +161,16 @@ export default function EditApplicationsPage() {
 
   const hasChanges = JSON.stringify(selectedUniversities.sort((a, b) => a.rank - b.rank)) !== JSON.stringify(userData.appliedUniversities.sort((a, b) => a.rank - b.rank));
 
-  // API에서 가져온 전체 대학교 목록 사용
+  // 검색 필터링된 대학교 목록
+  const filteredUniversities = allUniversities.filter(university => {
+    if (!searchQuery) return true;
+    
+    const query = searchQuery.toLowerCase();
+    return (
+      university.name.toLowerCase().includes(query) ||
+      university.country.toLowerCase().includes(query)
+    );
+  });
 
 
 
@@ -184,7 +194,7 @@ export default function EditApplicationsPage() {
               <p className="text-green-700">✅ 편집 가능한 상태입니다.</p>
               <p className="text-sm text-gray-600">• 남은 편집 횟수: <span className="font-semibold">{remainingEdits}회</span></p>
               <p className="text-sm text-gray-600">• 원하는 대학교를 선택하고 저장하세요.</p>
-              <p className="text-xs text-blue-600 mt-2">ℹ️ 마감 3일 전부터는 편집 횟수가 제한됩니다.</p>
+              <p className="text-xs text-blue-600 mt-2">ℹ️ 마감 3일 전에 편집 횟수가 4회로 초기화됩니다.</p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -261,7 +271,7 @@ export default function EditApplicationsPage() {
           {/* 우측: 대학교 선택 */}
           <div className="lg:col-span-2">
             <div className="bg-white rounded-lg shadow">
-              <div className="p-6 border-b">
+              <div className="px-6 pt-6 pb-3">
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between">
                   <div>
                     <h2 className="text-xl font-semibold text-gray-900">
@@ -271,14 +281,45 @@ export default function EditApplicationsPage() {
                       지원할 대학교를 선택하세요.
                     </p>
                   </div>
-                  
                 </div>
+              </div>
+              
+              {/* 대학교 검색창 */}
+              <div className="px-6 pb-4 border-b">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="대학교 이름 또는 국가로 검색..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                  />
+                  <svg
+                    className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                    />
+                  </svg>
+                </div>
+                {searchQuery && (
+                  <p className="text-sm text-gray-500 mt-2">
+                    "{searchQuery}" 검색 결과: {filteredUniversities.length}개 대학교
+                  </p>
+                )}
               </div>
               
               <div className="p-6">
                 <div className="max-h-[50vh] overflow-y-auto scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {allUniversities.map((university) => {
+                  {filteredUniversities.length > 0 ? (
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {filteredUniversities.map((university) => {
                     const selectedApp = selectedUniversities.find(app => app.universityId === university.id.toString());
                     const isSelected = !!selectedApp;
                     const isMaxReached = selectedUniversities.length >= 5 && !isSelected;
@@ -321,8 +362,21 @@ export default function EditApplicationsPage() {
                         </div>
                       </div>
                     );
-                  })}
-                  </div>
+                    })}
+                    </div>
+                  ) : (
+                    <div className="text-center py-10">
+                      <div className="text-gray-400 mb-2">
+                        <svg className="mx-auto h-12 w-12" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                      </div>
+                      <p className="text-gray-500 font-medium">검색 결과가 없습니다</p>
+                      <p className="text-sm text-gray-400 mt-1">
+                        다른 검색어를 입력해보세요
+                      </p>
+                    </div>
+                  )}
                 </div>
               </div>
             </div>
