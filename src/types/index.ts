@@ -6,7 +6,6 @@ export interface LanguageScore {
   id: string;
   type: LanguageTestType;
   score: string;
-  imageUrl?: string;
 }
 
 
@@ -21,7 +20,7 @@ export interface AppliedUniversity {
 // 사용자 인터페이스
 export interface User {
   id: string;
-  name: string;
+  nickname: string;
   gpa?: number;
   languageScores?: LanguageScore[];
   appliedUniversities?: AppliedUniversity[]; // 지망순위 포함 대학교 목록

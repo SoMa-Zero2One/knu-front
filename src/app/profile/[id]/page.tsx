@@ -3,7 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { User, University } from '@/types';
+import { User, University, LanguageScore, LanguageTestType } from '@/types';
 import Header from '@/components/Header';
 import AppliedUniversityItem from '@/components/AppliedUniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
@@ -31,16 +31,93 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     resolveParams();
   }, [params]);
 
-  useEffect(() => {
-    if (resolvedParams?.id) {
-      const userData = getUserById(resolvedParams.id);
-      if (userData) {
-        setProfileUser(userData);
-        const applications = getUserApplications(resolvedParams.id);
-        setAppliedUniversities(applications);
+  // lang 문자열을 LanguageScore로 변환하는 함수
+  const parseLangString = (langString: string) => {
+    if (!langString) return [];
+    
+    // 여러 개의 어학 성적이 있을 수 있으므로 쪼표나 세미콜론으로 구분
+    const scores = langString.split(/[,;]/).map(s => s.trim()).filter(s => s);
+    
+    return scores.map((scoreStr, index) => {
+      // 테스트 종류와 점수를 분리
+      const match = scoreStr.match(/(\S+)\s+(\d+)/);
+      if (match) {
+        const [, testName, score] = match;
+        let type: LanguageTestType = 'TOEFL_IBT'; // 기본값
+        
+        // 테스트 이름에 따라 타입 결정
+        const lowerTestName = testName.toLowerCase();
+        if (lowerTestName.includes('toefl')) {
+          type = 'TOEFL_IBT';
+        } else if (lowerTestName.includes('토익') || lowerTestName.includes('toeic')) {
+          type = 'TOEIC';
+        } else if (lowerTestName.includes('ielts')) {
+          type = 'IELTS';
+        } else if (lowerTestName.includes('jlpt')) {
+          type = 'JLPT';
+        } else if (lowerTestName.includes('hsk')) {
+          type = 'HSK';
+        }
+        
+        return {
+          id: `lang-${index}`,
+          type,
+          score
+        };
       }
-    }
-  }, [resolvedParams]);
+      return null;
+    }).filter(Boolean) as LanguageScore[];
+  };
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      if (resolvedParams?.id && currentUser) {
+        try {
+          // localStorage에서 accessToken 가져오기
+          const token = localStorage.getItem('auth_token');
+          if (!token) {
+            console.error('AccessToken이 없습니다.');
+            return;
+          }
+          
+          // 사용자 정보 가져오기
+          const response = await fetch(`http://3.34.47.29:8000/users/${resolvedParams.id}`, {
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            }
+          });
+
+          
+          
+          if (response.ok) {
+            const userData = await response.json();
+            console.log(userData);
+            
+            const userProfile = {
+              id: userData.id,
+              nickname: userData.nickname,
+              gpa: userData.grade, // grade를 gpa로 매핑
+              languageScores: parseLangString(userData.lang), // lang 문자열 파싱
+              appliedUniversities: userData.applications || []
+            };
+            
+            setProfileUser(userProfile);
+            
+            // applications 데이터를 대학교 정보와 함께 설정
+            // TODO: 대학교 정보를 가져오는 API 추가 필요
+            setAppliedUniversities([]);
+          } else {
+            console.error('사용자 데이터 가져오기 실패:', response.status);
+          }
+        } catch (error) {
+          console.error('사용자 데이터 가져오기 오류:', error);
+        }
+      }
+    };
+    
+    fetchUserData();
+  }, [resolvedParams, currentUser]);
 
   // 리디렉션 로직을 useEffect로 이동
   useEffect(() => {
@@ -82,7 +159,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   return (
     <div className="min-h-screen bg-transparent">
       <Header 
-        title={`${profileUser.name}님의 프로필`}
+        title={`${profileUser.nickname}님의 프로필`}
         showBackButton={true}
         backButtonText="← 뒤로 가기"
         showHomeButton={true}
@@ -103,7 +180,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 <div className="flex items-center">
                   <span className="text-lg mr-2">📊</span>
                   <span className="font-semibold text-gray-900">
-                    성적 정보 ({profileUser.languageScores.length}개 어학 성적)
+                    성적 정보 ({profileUser.languageScores?.length}개 어학 성적)
                   </span>
                 </div>
                 <svg 
@@ -245,7 +322,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                         지원한 대학교가 없습니다
                       </h3>
                       <p className="text-gray-600">
-                        {profileUser.name}님이 아직 지원한 대학교가 없습니다.
+                        {profileUser.nickname}님이 아직 지원한 대학교가 없습니다.
                       </p>
                     </div>
                   )}
@@ -264,11 +341,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               <div className="text-center mb-6">
                 <div className="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4">
                   <span className="text-xl font-bold text-white">
-                    {profileUser.name.charAt(0)}
+                    {profileUser.nickname.charAt(0)}
                   </span>
                 </div>
                 <h2 className="text-xl font-bold text-gray-900 mb-4">
-                  {profileUser.name}
+                  {profileUser.nickname}
                 </h2>
               </div>
 
@@ -404,7 +481,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     지원한 대학교가 없습니다
                   </h3>
                   <p className="text-gray-600">
-                    {profileUser.name}님이 아직 지원한 대학교가 없습니다.
+                    {profileUser.nickname}님이 아직 지원한 대학교가 없습니다.
                   </p>
                 </div>
               )}
