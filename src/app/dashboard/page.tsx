@@ -38,16 +38,26 @@ export default function DashboardPage() {
     }
   }, [user, loading, router]);
 
-  // 검색 필터링된 대학교 목록
-  const filteredUniversities = universities.filter(university => {
-    if (!searchQuery) return true;
-    
-    const query = searchQuery.toLowerCase();
-    return (
-      university.name.toLowerCase().includes(query) ||
-      university.country.toLowerCase().includes(query)
-    );
-  });
+  // 검색 필터링 및 정렬된 대학교 목록 (국가순 → 대학 이름순)
+  const filteredUniversities = universities
+    .filter(university => {
+      if (!searchQuery) return true;
+      
+      const query = searchQuery.toLowerCase();
+      return (
+        university.name.toLowerCase().includes(query) ||
+        university.country.toLowerCase().includes(query)
+      );
+    })
+    .sort((a, b) => {
+      // 먼저 국가순으로 정렬
+      const countryComparison = a.country.localeCompare(b.country);
+      if (countryComparison !== 0) {
+        return countryComparison;
+      }
+      // 같은 국가 내에서는 대학 이름순으로 정렬
+      return a.name.localeCompare(b.name);
+    });
 
   if (loading) {
     return (
