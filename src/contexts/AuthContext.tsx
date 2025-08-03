@@ -8,7 +8,6 @@ interface AuthContextType {
   user: User | null;
   token: string | null;
   loading: boolean;
-  login: (token: string) => Promise<void>;
   loginWithUUID: (uuid: string) => Promise<void>;
   logout: () => void;
 }
@@ -21,19 +20,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [loading, setLoading] = useState(true);
   const router = useRouter();
   const pathname = usePathname();
-
-  const login = useCallback(async (newToken: string) => {
-    try {
-      // 토큰을 그대로 저장 (백엔드에서 검증 처리)
-      setToken(newToken);
-      if (typeof window !== 'undefined') {
-        localStorage.setItem('auth_token', newToken);
-      }
-    } catch (error) {
-      console.error('로그인 오류:', error);
-    }
-    setLoading(false);
-  }, []);
 
   const loginWithUUID = useCallback(async (uuid: string) => {
     try {
@@ -48,24 +34,28 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       
       if (!response.ok) {
         console.error('토큰 API 요청 실패:', response.status);
+        const errorText = await response.text();
+        console.error('응답 내용:', errorText);
         setLoading(false);
         return;
       }
-
-      const { access_token, token_type, id, name} = await response.json();
       
-      if (access_token) {
-        setToken(access_token);
+      const responseData = await response.json();
+      
+      const { accessToken, token_type, id, nickname} = responseData;
+
+      if (accessToken) {
+        setToken(accessToken);
         // 사용자 정보 설정
-        setUser({ id, name });
+        setUser({ id, nickname });
         if (typeof window !== 'undefined') {
-          localStorage.setItem('auth_token', access_token);
-          localStorage.setItem('user_info', JSON.stringify({ id, name }));
+          localStorage.setItem('auth_token', accessToken);
+          localStorage.setItem('user_info', JSON.stringify({ id, nickname }));
         }
         // 로그인 성공 후 dashboard로 리다이렉트
         router.push('/dashboard');
       } else {
-        console.error('UUID 로그인 실패: access_token이 없습니다.', { access_token, token_type, id, name });
+        console.error('UUID 로그인 실패: access_token이 없습니다.', { accessToken, token_type, id, nickname });
       }
     } catch (error) {
       console.error('UUID 로그인 오류:', error);
@@ -85,13 +75,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (savedUserInfo) {
             try {
               const userInfo = JSON.parse(savedUserInfo);
-              setUser({ id: userInfo.id, name: userInfo.name });
+              setUser({ id: userInfo.id, nickname: userInfo.nickname });
             } catch (error) {
               console.error('사용자 정보 파싱 오류:', error);
-              setUser({ id: 'user', name: 'User' }); // 파싱 실패 시 기본값
+              setUser({ id: 'user', nickname: 'User' }); // 파싱 실패 시 기본값
             }
           } else {
-            setUser({ id: 'user', name: 'User' }); // 사용자 정보가 없을 때 기본값
+            setUser({ id: 'user', nickname: 'User' }); // 사용자 정보가 없을 때 기본값
           }
           // 토큰이 있고 루트 페이지에 있다면 dashboard로 리다이렉트
           if (pathname === '/') {
@@ -115,7 +105,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   };
 
   return (
-    <AuthContext.Provider value={{ user, token, loading, login, loginWithUUID, logout }}>
+    <AuthContext.Provider value={{ user, token, loading, loginWithUUID, logout }}>
       {children}
     </AuthContext.Provider>
   );
