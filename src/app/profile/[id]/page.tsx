@@ -7,6 +7,7 @@ import { User, University, LanguageScore, LanguageTestType } from '@/types';
 import Header from '@/components/Header';
 import AppliedUniversityItem from '@/components/AppliedUniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
+import { usersAPI } from '@/api';
 
 interface ProfilePageProps {
   params: Promise<{
@@ -92,53 +93,33 @@ export default function ProfilePage({ params }: ProfilePageProps) {
     const fetchUserData = async () => {
       if (resolvedParams?.id && currentUser) {
         try {
-          // localStorage에서 accessToken 가져오기
-          const token = localStorage.getItem('auth_token');
-          if (!token) {
-            console.error('AccessToken이 없습니다.');
-            return;
-          }
-          
           // 사용자 정보 가져오기
-          const response = await fetch(`https://api.knu.soma.wibaek.com/users/${resolvedParams.id}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
-
+          const userData = await usersAPI.getUserById(resolvedParams.id);
           
+          const userProfile = {
+            id: userData.id,
+            nickname: userData.nickname,
+            gpa: userData.grade, // grade를 gpa로 매핑
+            languageScores: parseLangString(userData.lang), // lang 문자열 파싱
+            appliedUniversities: userData.applications || []
+          };
           
-          if (response.ok) {
-            const userData = await response.json();
-            
-            const userProfile = {
-              id: userData.id,
-              nickname: userData.nickname,
-              gpa: userData.grade, // grade를 gpa로 매핑
-              languageScores: parseLangString(userData.lang), // lang 문자열 파싱
-              appliedUniversities: userData.applications || []
-            };
-            
-            setProfileUser(userProfile);
-            
-            // applications 데이터를 대학교 정보와 함께 설정
-            if (userData.applications && userData.applications.length > 0) {
-              // applications 배열의 각 항목을 University & { rank: number } 형태로 변환
-              const universitiesWithRank = userData.applications.map((app: any, index: number) => ({
-                id: app.universityId || app.id || `univ-${index}`,
-                name: app.universityName || app.name || '대학교 이름 미상',
-                country: app.country || '국가 미상',
-                slot: app.slot || 0,
-                applicantCount: app.totalApplicants || app.applicantCount || 0, // totalApplicants 사용
-                rank: app.choice || app.rank || (index + 1) // choice를 rank로 사용
-              }));
-              setAppliedUniversities(universitiesWithRank);
-            } else {
-              setAppliedUniversities([]);
-            }
+          setProfileUser(userProfile);
+          
+          // applications 데이터를 대학교 정보와 함께 설정
+          if (userData.applications && userData.applications.length > 0) {
+            // applications 배열의 각 항목을 University & { rank: number } 형태로 변환
+            const universitiesWithRank = userData.applications.map((app: any, index: number) => ({
+              id: app.universityId || app.id || `univ-${index}`,
+              name: app.universityName || app.name || '대학교 이름 미상',
+              country: app.country || '국가 미상',
+              slot: app.slot || 0,
+              applicantCount: app.totalApplicants || app.applicantCount || 0, // totalApplicants 사용
+              rank: app.choice || app.rank || (index + 1) // choice를 rank로 사용
+            }));
+            setAppliedUniversities(universitiesWithRank);
           } else {
-            console.error('사용자 데이터 가져오기 실패:', response.status);
+            setAppliedUniversities([]);
           }
         } catch (error) {
           console.error('사용자 데이터 가져오기 오류:', error);

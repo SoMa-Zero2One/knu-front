@@ -7,6 +7,7 @@ import Header from '@/components/Header';
 import UniversityItem from '@/components/UniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
 import { User, University } from '@/types';
+import { universitiesAPI } from '@/api';
 
 export default function DashboardPage() {
   const { user, loading, token } = useAuth();
@@ -18,19 +19,7 @@ export default function DashboardPage() {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const response = await fetch('https://api.knu.soma.wibaek.com/universities', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          console.error('학교 정보 요청 실패:', response.status);
-          return;
-        }
-
-        const universitiesData = await response.json();
+        const universitiesData = await universitiesAPI.getUniversities();
         setUniversities(universitiesData);
       } catch (error) {
         console.error('학교 정보 가져오기 오류:', error);

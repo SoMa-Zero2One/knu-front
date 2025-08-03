@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { University, AppliedUniversity } from '@/types';
 import { getCountryFlag } from '@/utils/countryFlags';
 import Header from '@/components/Header';
+import { usersAPI, universitiesAPI } from '@/api';
 
 export default function EditApplicationsPage() {
   const { user, loading } = useAuth();
@@ -21,50 +22,27 @@ export default function EditApplicationsPage() {
     const fetchUserData = async () => {
       if (user) {
         try {
-          const token = localStorage.getItem('auth_token');
-          if (!token) {
-            console.error('AccessToken이 없습니다.');
-            return;
-          }
-          
           // 현재 사용자 데이터 가져오기
-          const userResponse = await fetch(`https://api.knu.soma.wibaek.com/users/${user.id}`, {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
-          });
+          const userData = await usersAPI.getUserById(user.id);
           
           // modifyCount 가져오기
-          const meResponse = await fetch('https://api.knu.soma.wibaek.com/users/me', {
-            headers: {
-              'Authorization': `Bearer ${token}`,
-              'Content-Type': 'application/json'
-            }
+          const meData = await usersAPI.getMe();
+          
+          setModifyCount(meData.modifyCount || 0);
+          setUserData({
+            editCount: 0, // TODO: API에서 제공되면 사용
+            maxEditCount: 3, // TODO: API에서 제공되면 사용
+            isDeadlineRestricted: false, // TODO: API에서 제공되면 사용
+            appliedUniversities: userData.applications || []
           });
           
-          if (userResponse.ok && meResponse.ok) {
-            const userData = await userResponse.json();
-            const meData = await meResponse.json();
-            
-            setModifyCount(meData.modifyCount || 0);
-            setUserData({
-              editCount: 0, // TODO: API에서 제공되면 사용
-              maxEditCount: 3, // TODO: API에서 제공되면 사용
-              isDeadlineRestricted: false, // TODO: API에서 제공되면 사용
-              appliedUniversities: userData.applications || []
-            });
-            
-            if (userData.applications && userData.applications.length > 0) {
-              // API 응답을 AppliedUniversity 형태로 변환
-              const appliedUniversities = userData.applications.map((app: any) => ({
-                universityId: app.universityId.toString(),
-                rank: app.choice
-              }));
-              setSelectedUniversities(appliedUniversities);
-            }
-          } else {
-            console.error('사용자 데이터 가져오기 실패:', userResponse.status, meResponse.status);
+          if (userData.applications && userData.applications.length > 0) {
+            // API 응답을 AppliedUniversity 형태로 변환
+            const appliedUniversities = userData.applications.map((app: any) => ({
+              universityId: app.universityId.toString(),
+              rank: app.choice
+            }));
+            setSelectedUniversities(appliedUniversities);
           }
         } catch (error) {
           console.error('사용자 데이터 가져오기 오류:', error);
@@ -79,22 +57,8 @@ export default function EditApplicationsPage() {
   useEffect(() => {
     const fetchUniversities = async () => {
       try {
-        const token = localStorage.getItem('auth_token');
-        if (!token) return;
-
-        const response = await fetch('https://api.knu.soma.wibaek.com/universities', {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (response.ok) {
-          const universitiesData = await response.json();
-          setAllUniversities(universitiesData);
-        } else {
-          console.error('대학교 정보 요청 실패:', response.status);
-        }
+        const universitiesData = await universitiesAPI.getUniversities();
+        setAllUniversities(universitiesData);
       } catch (error) {
         console.error('대학교 정보 가져오기 오류:', error);
       }
@@ -164,11 +128,6 @@ export default function EditApplicationsPage() {
     setIsSubmitting(true);
     
     try {
-      const token = localStorage.getItem('auth_token');
-      if (!token) {
-        throw new Error('인증 토큰이 없습니다.');
-      }
-
       // 선택된 대학교들을 API 형식에 맞게 변환 (항상 5개 보내기)
       const applicationsData = [];
       
@@ -181,39 +140,15 @@ export default function EditApplicationsPage() {
       });
       
       console.log('보낼 데이터:', { applications: applicationsData });
-      console.log('사용할 토큰:', token ? '토큰 있음' : '토큰 없음');
 
-      const response = await fetch('https://api.knu.soma.wibaek.com/users/me/applications', {
-        method: 'PUT',
-        headers: {
-          'Authorization': `Bearer ${token}`,
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          applications: applicationsData
-        })
-      });
+      await usersAPI.updateApplications({ applications: applicationsData });
 
-      console.log('응답 상태:', response.status);
-      console.log('응답 헤더:', Object.fromEntries(response.headers.entries()));
-
-      if (response.ok) {
-        setMessage({ type: 'success', text: '지원 대학교가 성공적으로 변경되었습니다!' });
-        
-        // 3초 후 프로필 페이지로 이동
-        setTimeout(() => {
-          router.push(`/profile/${user.id}`);
-        }, 3000);
-      } else {
-        const errorText = await response.text();
-        console.error('API 오류 응답:', errorText);
-        try {
-          const errorData = JSON.parse(errorText);
-          throw new Error(errorData.message || `업데이트 실패 (${response.status})`);
-        } catch (parseError) {
-          throw new Error(`업데이트 실패 (${response.status}): ${errorText}`);
-        }
-      }
+      setMessage({ type: 'success', text: '지원 대학교가 성공적으로 변경되었습니다!' });
+      
+      // 3초 후 프로필 페이지로 이동
+      setTimeout(() => {
+        router.push(`/profile/${user.id}`);
+      }, 3000);
       
     } catch (error) {
       console.error('지원 대학교 업데이트 오류:', error);

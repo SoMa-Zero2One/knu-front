@@ -3,6 +3,7 @@
 import React, { createContext, useContext, useEffect, useState, useCallback } from 'react';
 import { useRouter, usePathname } from 'next/navigation';
 import { User } from '@/types';
+import { authAPI } from '@/api';
 
 interface AuthContextType {
   user: User | null;
@@ -23,25 +24,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const loginWithUUID = useCallback(async (uuid: string) => {
     try {
-      // 백엔드 API로 직접 토큰 요청
-      const response = await fetch('https://api.knu.soma.wibaek.com/auth/token', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({ uuid }),
-      });
-      
-      if (!response.ok) {
-        console.error('토큰 API 요청 실패:', response.status);
-        const errorText = await response.text();
-        console.error('응답 내용:', errorText);
-        setLoading(false);
-        return;
-      }
-      
-      const responseData = await response.json();
-      
+      const responseData = await authAPI.loginWithUUID(uuid);
       const { accessToken, token_type, id, nickname} = responseData;
 
       if (accessToken) {

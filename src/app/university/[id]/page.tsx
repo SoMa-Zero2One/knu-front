@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { getCountryFlag } from '@/utils/countryFlags';
 import { calculateConvertedScore, sortApplicantsByRank } from '@/utils/scoreCalculation';
+import { universitiesAPI } from '@/api';
 
 interface UniversityPageProps {
   params: Promise<{
@@ -36,19 +37,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
       if (!resolvedParams?.id || !token) return;
 
       try {
-        const response = await fetch(`https://api.knu.soma.wibaek.com/universities/${resolvedParams.id}`, {
-          headers: {
-            'Authorization': `Bearer ${token}`,
-            'Content-Type': 'application/json',
-          },
-        });
-
-        if (!response.ok) {
-          console.error('대학교 상세 정보 요청 실패:', response.status);
-          return;
-        }
-
-        const universityData = await response.json();
+        const universityData = await universitiesAPI.getUniversityById(resolvedParams.id);
         setUniversity(universityData);
       } catch (error) {
         console.error('대학교 상세 정보 가져오기 오류:', error);

@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
 import { JWTPayload } from '@/types';
+import { authAPI } from '@/api';
 
 // JWT 시크릿 키 (실제 환경에서는 환경 변수로 관리)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
@@ -42,21 +43,11 @@ export function verifyJWTToken(token: string): JWTPayload | null {
  */
 export async function getTokenFromAPI(uuid: string): Promise<{ access_token: string; token_type: string } | null> {
   try {
-    const response = await fetch('https://api.knu.soma.wibaek.com/auth/token', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ uuid }),
-    });
-
-    if (!response.ok) {
-      console.error('토큰 API 요청 실패:', response.status);
-      return null;
-    }
-
-    const data = await response.json();
-    return data;
+    const data = await authAPI.loginWithUUID(uuid);
+    return {
+      access_token: data.accessToken,
+      token_type: data.token_type
+    };
   } catch (error) {
     console.error('토큰 API 호출 오류:', error);
     return null;
