@@ -2,19 +2,8 @@
 
 import { useRouter } from 'next/navigation';
 import Twemoji from 'react-twemoji';
-
-interface University {
-  id: string;
-  name: string;
-  country: string;
-  flag: string;
-  applicantCount: number;
-  duration?: string;
-  competitionRatio: {
-    level1: number;
-    level2: number;
-  };
-}
+import { University } from '@/types';
+import { getCountryFlag } from '@/utils/countryFlags';
 
 interface UniversityItemProps {
   university: University;
@@ -65,7 +54,7 @@ export default function UniversityItem({ university, isMobile = false }: Univers
       >
         <div className="flex items-start space-x-3">
           <Twemoji options={{ className: 'twemoji text-2xl' }}>
-            <span>{university.flag}</span>
+            <span>{getCountryFlag(university.country)}</span>
           </Twemoji>
           <div className="flex-1 min-w-0">
             <div className="text-sm font-medium text-gray-900 mb-1">
@@ -77,19 +66,11 @@ export default function UniversityItem({ university, isMobile = false }: Univers
               </span>
               <span className="text-gray-400">•</span>
               <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.applicantCount.toString())}`}>
-                {university.applicantCount}명 지원
+                지원자 {university.applicantCount}명
               </span>
               <span className="text-gray-400">•</span>
-              <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.duration || '기간 미정')}`}>
-                {university.duration || '기간 미정'}
-              </span>
-            </div>
-            <div className="flex flex-wrap gap-2">
-              <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
-                1학기: {university.competitionRatio.level1}명
-              </span>
-              <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">
-                2학기: {university.competitionRatio.level2}명
+              <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.slot.toString())}`}>
+                모집 {university.slot}명
               </span>
             </div>
           </div>
@@ -106,7 +87,7 @@ export default function UniversityItem({ university, isMobile = false }: Univers
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <Twemoji options={{ className: 'twemoji text-2xl mr-3' }}>
-            <span>{university.flag}</span>
+            <span>{getCountryFlag(university.country)}</span>
           </Twemoji>
           <div>
             <div className="text-sm font-medium text-gray-900 overflow-hidden whitespace-nowrap">
@@ -126,25 +107,9 @@ export default function UniversityItem({ university, isMobile = false }: Univers
         </span>
       </td>
       <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.duration || '파견기간 미정2')}`}>
-          {university.duration || '파견기간 미정'}
+        <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.slot.toString())}`}>
+          {university.slot}명
         </span>
-      </td>
-      <td className="px-6 py-4 whitespace-nowrap text-sm">
-        <div className="space-y-1">
-          <div className="flex items-center">
-            <span className="text-gray-600 mr-2">1학기:</span>
-            <span className="bg-blue-100 text-blue-800 px-2 py-1 rounded-md text-xs">
-              {university.competitionRatio.level1}명
-            </span>
-          </div>
-          <div className="flex items-center">
-            <span className="text-gray-600 mr-2">2학기:</span>
-            <span className="bg-green-100 text-green-800 px-2 py-1 rounded-md text-xs">
-              {university.competitionRatio.level2}명
-            </span>
-          </div>
-        </div>
       </td>
     </tr>
   );

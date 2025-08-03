@@ -12,7 +12,7 @@ interface AuthPageProps {
 
 export default function AuthPage({ params }: AuthPageProps) {
   const router = useRouter();
-  const { login } = useAuth();
+  const { loginWithUUID } = useAuth();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -20,15 +20,8 @@ export default function AuthPage({ params }: AuthPageProps) {
     const authenticateUser = async () => {
       try {
         const resolvedParams = await params;
-        const response = await fetch(`/api/auth/${resolvedParams.uuid}`);
-        const result = await response.json();
-
-        if (result.success && result.data.token) {
-          await login(result.data.token);
-          router.push('/dashboard');
-        } else {
-          setError(result.error || '인증에 실패했습니다.');
-        }
+        await loginWithUUID(resolvedParams.uuid);
+        // AuthContext에서 자동으로 dashboard로 리다이렉트 처리됨
       } catch (error) {
         console.error('인증 오류:', error);
         setError('서버 오류가 발생했습니다.');
@@ -38,7 +31,7 @@ export default function AuthPage({ params }: AuthPageProps) {
     };
 
     authenticateUser();
-  }, [params, login, router]);
+  }, [params, loginWithUUID]);
 
   if (loading) {
     return (

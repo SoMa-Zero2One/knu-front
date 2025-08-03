@@ -3,10 +3,11 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
-import { getUniversityById, getUniversityApplicantsWithRank } from '@/data/mockData';
-import { University, User } from '@/types';
+import { UniversityDetail, UniversityApplicant } from '@/types';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
+import { getCountryFlag } from '@/utils/countryFlags';
+import { calculateConvertedScore, sortApplicantsByRank } from '@/utils/scoreCalculation';
 
 interface UniversityPageProps {
   params: Promise<{
@@ -16,9 +17,9 @@ interface UniversityPageProps {
 
 export default function UniversityPage({ params }: UniversityPageProps) {
   const router = useRouter();
-  const { user, loading } = useAuth();
-  const [university, setUniversity] = useState<University | null>(null);
-  const [applicants, setApplicants] = useState<Array<User & { rank: number }>>([]);
+  const { user, loading, token } = useAuth();
+  const [university, setUniversity] = useState<UniversityDetail | null>(null);
+  const [dataLoading, setDataLoading] = useState(true);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
 
   useEffect(() => {
@@ -29,16 +30,35 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     resolveParams();
   }, [params]);
 
+  // 백엔드에서 대학교 상세 정보 가져오기
   useEffect(() => {
-    if (resolvedParams?.id) {
-      const univData = getUniversityById(resolvedParams.id);
-      if (univData) {
-        setUniversity(univData);
-        const applicantData = getUniversityApplicantsWithRank(resolvedParams.id);
-        setApplicants(applicantData);
+    const fetchUniversityDetail = async () => {
+      if (!resolvedParams?.id || !token) return;
+
+      try {
+        const response = await fetch(`http://3.34.47.29:8000/universities/${resolvedParams.id}`, {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.error('대학교 상세 정보 요청 실패:', response.status);
+          return;
+        }
+
+        const universityData = await response.json();
+        setUniversity(universityData);
+      } catch (error) {
+        console.error('대학교 상세 정보 가져오기 오류:', error);
+      } finally {
+        setDataLoading(false);
       }
-    }
-  }, [resolvedParams]);
+    };
+
+    fetchUniversityDetail();
+  }, [resolvedParams, token]);
 
     useEffect(() => {
     if (!loading && !user) {
@@ -46,7 +66,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     }
   }, [user, loading, router]);
 
-  if (loading) {
+  if (loading || dataLoading) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
@@ -83,7 +103,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
         showBackButton={true}
         backButtonText="← 뒤로 가기"
         showHomeButton={true}
-        universityFlag={university.flag}
+        universityFlag={getCountryFlag(university.country)}
         universityName={university.name}
       />
 
@@ -93,28 +113,18 @@ export default function UniversityPage({ params }: UniversityPageProps) {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">국가</h3>
-              <p className="text-2xl text-blue-600 font-semibold">{university.country}</p>
+              <div className="flex items-center justify-center space-x-2">
+                <span className="text-2xl">{getCountryFlag(university.country)}</span>
+                <p className="text-2xl text-blue-600 font-semibold">{university.country}</p>
+              </div>
             </div>
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">총 지원자 수</h3>
-              <p className="text-3xl font-bold text-blue-600">{university.applicantCount}명</p>
+              <p className="text-3xl font-bold text-blue-600">{university.totalApplicants}명</p>
             </div>
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">모집인원</h3>
-              <div className="space-y-2">
-                <div className="flex justify-center items-center">
-                  <span className="text-gray-600 mr-2">1학기:</span>
-                  <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full font-semibold">
-                    {university.competitionRatio.level1}명
-                  </span>
-                </div>
-                <div className="flex justify-center items-center">
-                  <span className="text-gray-600 mr-2">2학기:</span>
-                  <span className="bg-green-100 text-green-800 px-3 py-1 rounded-full font-semibold">
-                    {university.competitionRatio.level2}명
-                  </span>
-                </div>
-              </div>
+              <p className="text-3xl font-bold text-green-600">{university.slot}명</p>
             </div>
           </div>
         </div>
@@ -123,14 +133,14 @@ export default function UniversityPage({ params }: UniversityPageProps) {
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
               <h2 className="text-xl font-semibold text-gray-900">
-                지원자 목록 ({applicants.length}명)
+                지원자 목록 ({university.applicants.length}명)
               </h2>
               <p className="text-sm text-gray-600 mt-1">
                 모든 지원자들의 성적 정보를 확인할 수 있습니다.
               </p>
             </div>
             
-            {applicants.length > 0 ? (
+            {university.applicants.length > 0 ? (
               <div className="overflow-x-auto">
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
@@ -139,7 +149,10 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                         지망순위
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        이름
+                        닉네임
+                      </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        환산점수
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         학점
@@ -150,8 +163,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
-                    {applicants
-                      .sort((a, b) => a.rank - b.rank)
+                    {sortApplicantsByRank(university.applicants)
                       .map((applicant) => (
                       <tr
                         key={applicant.id}
@@ -163,64 +175,49 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                         onClick={() => router.push(`/profile/${applicant.id}`)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white ${
-                            applicant.rank === 1 ? 'bg-yellow-500' :
-                            applicant.rank === 2 ? 'bg-gray-400' :
-                            applicant.rank === 3 ? 'bg-amber-600' :
-                            'bg-blue-500'
+                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                            applicant.choice === 1 ? 'bg-red-100 text-red-800' :
+                            applicant.choice === 2 ? 'bg-orange-100 text-orange-800' :
+                            applicant.choice === 3 ? 'bg-yellow-100 text-yellow-800' :
+                            applicant.choice === 4 ? 'bg-green-100 text-green-800' :
+                            applicant.choice === 5 ? 'bg-blue-100 text-blue-800' :
+                            'bg-gray-100 text-gray-800'
                           }`}>
-                            {applicant.rank}
+                            {applicant.choice}지망
                           </span>
-                          <div className="text-xs text-gray-500 mt-1">
-                            {applicant.rank === 1 ? '1지망' :
-                             applicant.rank === 2 ? '2지망' :
-                             applicant.rank === 3 ? '3지망' :
-                             `${applicant.rank}지망`}
-                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
                             <div className="text-sm font-medium text-gray-900">
-                              {applicant.name}
+                              {applicant.nickname}
                             </div>
                             {applicant.id === user?.id && (
                               <div className="ml-2 flex items-center space-x-1">
                                 <span className="inline-flex items-center px-2 py-0.5 rounded text-xs font-medium bg-blue-100 text-blue-800">
-                                  내 프로필
+                                  내 정보
                                 </span>
-                                <svg className="w-4 h-4 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-                                </svg>
                               </div>
                             )}
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="text-sm text-gray-900">
-                            {applicant.gpa ? (
-                              <span className="font-semibold text-blue-600">
-                                {applicant.gpa.toFixed(1)}
-                              </span>
-                            ) : (
-                              <span className="text-gray-400">미제출</span>
-                            )}
+                            <span className="font-semibold text-purple-600">
+                              {calculateConvertedScore(applicant)}점
+                            </span>
                           </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
-                          <div className="flex flex-wrap gap-1">
-                            {applicant.languageScores.length > 0 ? (
-                              applicant.languageScores.map((score) => (
-                                <span
-                                  key={score.id}
-                                  className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800"
-                                >
-                                  {score.type}: {score.score}
-                                </span>
-                              ))
-                            ) : (
-                              <span className="text-gray-400 text-sm">어학 성적 없음</span>
-                            )}
+                          <div className="text-sm text-gray-900">
+                            <span className="font-semibold text-blue-600">
+                              {applicant.grade.toFixed(2)}
+                            </span>
                           </div>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {applicant.lang}
+                          </span>
                         </td>
                       </tr>
                     ))}

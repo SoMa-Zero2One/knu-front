@@ -1,19 +1,21 @@
 'use client';
 
 import { useAuth } from '@/contexts/AuthContext';
-import { mockUniversities, getUserById } from '@/data/mockData';
+import { getUserById } from '@/data/mockData';
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Header from '@/components/Header';
 import UniversityItem from '@/components/UniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
-import { User } from '@/types';
+import { User, University } from '@/types';
 
 export default function DashboardPage() {
-  const { user, loading } = useAuth();
+  const { user, loading, token } = useAuth();
   const router = useRouter();
 
   const [userData, setUserData] = useState<User | null>(null);
+  const [universities, setUniversities] = useState<University[]>([]);
+  const [universitiesLoading, setUniversitiesLoading] = useState(true);
   
   useEffect(() => {
     if (user) {
@@ -21,6 +23,36 @@ export default function DashboardPage() {
       setUserData(fullUserData);
     }
   }, [user]);
+
+  // 백엔드에서 학교 정보 가져오기
+  useEffect(() => {
+    const fetchUniversities = async () => {
+      try {
+        const response = await fetch('http://3.34.47.29:8000/universities', {
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json',
+          },
+        });
+
+        if (!response.ok) {
+          console.error('학교 정보 요청 실패:', response.status);
+          return;
+        }
+
+        const universitiesData = await response.json();
+        setUniversities(universitiesData);
+      } catch (error) {
+        console.error('학교 정보 가져오기 오류:', error);
+      } finally {
+        setUniversitiesLoading(false);
+      }
+    };
+
+    if (token) {
+      fetchUniversities();
+    }
+  }, [token]);
 
     useEffect(() => {
     if (!loading && !user) {
@@ -40,8 +72,6 @@ export default function DashboardPage() {
     return null;
   }
 
-
-
   return (
     <div className="min-h-screen bg-transparent">
       <Header 
@@ -56,7 +86,7 @@ export default function DashboardPage() {
               {/* 모바일 카드 뷰 */}
               <div className="block sm:hidden">
                 <div className="divide-y divide-gray-200">
-                  {mockUniversities.map((university) => (
+                  {universities.map((university) => (
                     <UniversityItem key={university.id} university={university} isMobile />
                   ))}
                 </div>
@@ -77,15 +107,12 @@ export default function DashboardPage() {
                         지원자 수
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        파견 기간
-                      </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         모집인원
                       </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white">
-                    {mockUniversities.map((university) => (
+                    {universities.map((university) => (
                       <UniversityItem key={university.id} university={university} />
                     ))}
                   </tbody>

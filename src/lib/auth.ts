@@ -1,6 +1,6 @@
 import jwt from 'jsonwebtoken';
 import { v4 as uuidv4 } from 'uuid';
-import { JWTPayload, UserRole } from '@/types';
+import { JWTPayload } from '@/types';
 
 // JWT 시크릿 키 (실제 환경에서는 환경 변수로 관리)
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key-here';
@@ -38,6 +38,32 @@ export function verifyJWTToken(token: string): JWTPayload | null {
 }
 
 /**
+ * 외부 API를 통해 UUID로부터 JWT 토큰 획득
+ */
+export async function getTokenFromAPI(uuid: string): Promise<{ access_token: string; token_type: string } | null> {
+  try {
+    const response = await fetch('http://3.34.47.29:8000/auth/token', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ uuid }),
+    });
+
+    if (!response.ok) {
+      console.error('토큰 API 요청 실패:', response.status);
+      return null;
+    }
+
+    const data = await response.json();
+    return data;
+  } catch (error) {
+    console.error('토큰 API 호출 오류:', error);
+    return null;
+  }
+}
+
+/**
  * UUID로부터 JWT 토큰 생성 (Mock 구현)
  * 실제 환경에서는 백엔드에서 처리됩니다.
  */
@@ -53,7 +79,6 @@ export function convertUUIDToJWT(uuid: string): string | null {
   return generateJWTToken({
     userId: user.id,
     uuid: user.uuid,
-    role: user.role,
   });
 }
 
@@ -66,37 +91,31 @@ function getMockUsers() {
       id: '1',
       uuid: 'user-uuid-1',
       name: '김학생',
-      role: 'user' as UserRole,
     },
     {
       id: '2',
       uuid: 'user-uuid-2',
       name: '이학생',
-      role: 'user' as UserRole,
     },
     {
       id: '3',
       uuid: 'user-uuid-3',
       name: '박학생',
-      role: 'user' as UserRole,
     },
     {
       id: '4',
       uuid: 'user-uuid-4',
       name: '최학생',
-      role: 'user' as UserRole,
     },
     {
       id: '5',
       uuid: 'user-uuid-5',
       name: '정학생',
-      role: 'user' as UserRole,
     },
     {
       id: '6',
       uuid: 'admin-uuid-1',
       name: '관리자',
-      role: 'admin' as UserRole,
     },
   ];
 } 

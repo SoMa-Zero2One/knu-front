@@ -1,5 +1,5 @@
 import { NextResponse } from 'next/server';
-import { convertUUIDToJWT } from '@/lib/auth';
+import { getTokenFromAPI } from '@/lib/auth';
 import { getUserByUUID } from '@/data/mockData';
 
 export async function GET(
@@ -16,32 +16,27 @@ export async function GET(
       );
     }
 
-    // UUID로 사용자 확인
-    const user = getUserByUUID(uuid);
-    if (!user) {
-      return NextResponse.json(
-        { success: false, error: '사용자를 찾을 수 없습니다.' },
-        { status: 404 }
-      );
-    }
-
-    // JWT 토큰 생성
-    const token = convertUUIDToJWT(uuid);
-    if (!token) {
+    // 외부 API를 통해 JWT 토큰 획득
+    const tokenResponse = await getTokenFromAPI(uuid);
+    if (!tokenResponse) {
       return NextResponse.json(
         { success: false, error: '토큰 생성에 실패했습니다.' },
         { status: 500 }
       );
     }
 
+    // 로컬에서 사용자 정보 조회 (선택사항)
+    const user = getUserByUUID(uuid);
+
     return NextResponse.json({
       success: true,
       data: {
-        token,
-        user: {
+        access_token: tokenResponse.access_token,
+        token_type: tokenResponse.token_type,
+        user: user ? {
           id: user.id,
           name: user.name,
-        }
+        } : null
       }
     });
 

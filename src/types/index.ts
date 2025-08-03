@@ -21,14 +21,13 @@ export interface AppliedUniversity {
 // 사용자 인터페이스
 export interface User {
   id: string;
-  uuid: string;
   name: string;
   gpa?: number;
-  languageScores: LanguageScore[];
-  appliedUniversities: AppliedUniversity[]; // 지망순위 포함 대학교 목록
-  editCount: number; // 현재 편집 횟수
-  maxEditCount: number; // 최대 편집 횟수
-  isDeadlineRestricted: boolean; // 마감 기한 제한 여부
+  languageScores?: LanguageScore[];
+  appliedUniversities?: AppliedUniversity[]; // 지망순위 포함 대학교 목록
+  editCount?: number; // 현재 편집 횟수
+  maxEditCount?: number; // 최대 편집 횟수
+  isDeadlineRestricted?: boolean; // 마감 기한 제한 여부
 }
 
 // 대학교 인터페이스
@@ -36,22 +35,27 @@ export interface University {
   id: string;
   name: string;
   country: string;
-  flag: string;
-  competitionRatio: {
-    level1: number; // 1개 학기
-    level2: number; // 2개 학기
-  };
-  applicantCount: number;
-  duration?: string; // 파견 기간
+  slot: number; // 모집인원
+  applicantCount: number; // 지원자 수
 }
 
 // 대학교 지원자 정보
 export interface UniversityApplicant {
-  userId: string;
-  userName: string;
-  gpa?: number;
-  languageScores: LanguageScore[];
-  rank: number; // 지망순위
+  id: string;
+  nickname: string;
+  grade: number; // 학점
+  lang: string; // 어학 성적
+  choice: number; // 지망순위
+  rank: number; // 학점 순위
+}
+
+// 대학교 상세 정보 (지원자 포함)
+export interface UniversityDetail {
+  name: string;
+  country: string;
+  slot: number;
+  totalApplicants: number;
+  applicants: UniversityApplicant[];
 }
 
 // JWT 페이로드
