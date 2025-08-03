@@ -23,6 +23,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [expandedGrades, setExpandedGrades] = useState(false);
   const [expandedUniversities, setExpandedUniversities] = useState(true);
+  const [profileLoading, setProfileLoading] = useState(true);
 
   useEffect(() => {
     const resolveParams = async () => {
@@ -92,6 +93,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
   useEffect(() => {
     const fetchUserData = async () => {
       if (resolvedParams?.id && currentUser) {
+        setProfileLoading(true);
         try {
           // 사용자 정보 가져오기
           const userData = await usersAPI.getUserById(resolvedParams.id);
@@ -123,6 +125,8 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           }
         } catch (error) {
           console.error('사용자 데이터 가져오기 오류:', error);
+        } finally {
+          setProfileLoading(false);
         }
       }
     };
@@ -141,14 +145,13 @@ export default function ProfilePage({ params }: ProfilePageProps) {
 
   }, [currentUser, loading, router]);
 
-  if (loading) {
+  if (loading || profileLoading) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
       </div>
     );
   }
-
 
   if (!profileUser) {
     return (
