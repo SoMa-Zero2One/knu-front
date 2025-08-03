@@ -174,17 +174,19 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                         }`}
                         onClick={() => router.push(`/profile/${applicant.id}`)}
                       >
-                        <td className="px-6 py-4 whitespace-nowrap text-center">
-                          <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                            applicant.choice === 1 ? 'bg-red-100 text-red-800' :
-                            applicant.choice === 2 ? 'bg-orange-100 text-orange-800' :
-                            applicant.choice === 3 ? 'bg-yellow-100 text-yellow-800' :
-                            applicant.choice === 4 ? 'bg-green-100 text-green-800' :
-                            applicant.choice === 5 ? 'bg-blue-100 text-blue-800' :
-                            'bg-gray-100 text-gray-800'
-                          }`}>
-                            {applicant.choice}지망
-                          </span>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          <div>
+                            <span className={`inline-flex items-center justify-center w-10 h-10 rounded-full font-bold text-lg ${
+                              applicant.choice === 1 ? 'bg-gradient-to-r from-yellow-400 to-yellow-500 text-black shadow-lg' :
+                              applicant.choice === 2 ? 'bg-gradient-to-r from-gray-300 to-gray-400 text-black shadow-md' :
+                              applicant.choice === 3 ? 'bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-md' :
+                              applicant.choice === 4 ? 'bg-blue-500 text-white shadow-sm' :
+                              applicant.choice === 5 ? 'bg-emerald-500 text-white shadow-sm' :
+                              'bg-gray-500 text-white'
+                            }`}>
+                              {applicant.choice}
+                            </span>
+                          </div>
                         </td>
                         <td className="px-6 py-4 whitespace-nowrap">
                           <div className="flex items-center">
