@@ -95,7 +95,7 @@ export default function Header({
               onClick={() => router.push(`/profile/${user.id}`)}
               className="hidden sm:block text-xs sm:text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
             >
-              내 프로필
+              {user.nickname}님 프로필
             </button>
           )}
         </div>
