@@ -5,7 +5,7 @@ import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { User, University, LanguageScore, LanguageTestType } from '@/types';
 import Header from '@/components/Header';
-import AppliedUniversityItem from '@/components/AppliedUniversityItem';
+import UniversityItem from '@/components/UniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
 import { usersAPI } from '@/api';
 import { parseLangString } from '@/utils/languageParser';
@@ -265,9 +265,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                           {appliedUniversities
                             .sort((a, b) => a.rank - b.rank)
                             .map((university) => (
-                              <AppliedUniversityItem
+                              <UniversityItem
                                 key={university.id}
                                 university={university}
+                                showRank={true}
                               />
                             ))}
                         </tbody>
@@ -424,9 +425,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                       {appliedUniversities
                         .sort((a, b) => a.rank - b.rank)
                         .map((university) => (
-                          <AppliedUniversityItem
+                          <UniversityItem
                             key={university.id}
                             university={university}
+                            showRank={true}
                           />
                         ))}
                     </tbody>
