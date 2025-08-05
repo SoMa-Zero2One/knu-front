@@ -50,7 +50,7 @@ export default function UniversityItem({ university, isMobile = false, showRank 
       .replace(/\s+/g, '')
       .replace(/[^\w가-힣-]/g, '');
     
-    trackButtonClick(`${university.name} 상세보기로 이동`, `go_to_university_${safeEventName}`);
+    trackButtonClick(`${university.name} 상세보기로 이동`, `대학상세페이지_이동_${safeEventName}`);
     router.push(`/university/${university.id}`);
   };
 

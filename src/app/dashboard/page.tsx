@@ -154,7 +154,7 @@ export default function DashboardPage() {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <button
                 onClick={() => {
-                  trackButtonClick('지원자가 있는 대학만 보기', 'filter_dashboard_has_applicants');
+                  trackButtonClick('지원자가 있는 대학만 보기', '대시보드_지원자있는대학_필터');
                   setFilterType('hasApplicants');
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
@@ -167,7 +167,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => {
-                  trackButtonClick('모든 대학 보기', 'filter_dashboard_all');
+                  trackButtonClick('모든 대학 보기', '대시보드_모든대학_필터');
                   setFilterType('all');
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
@@ -180,7 +180,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => {
-                  trackButtonClick('지망한 대학만 보기', 'filter_dashboard_applied');
+                  trackButtonClick('지망한 대학만 보기', '대시보드_지망대학_필터');
                   setFilterType('applied');
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${

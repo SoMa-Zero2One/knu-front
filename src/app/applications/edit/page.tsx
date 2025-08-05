@@ -129,7 +129,7 @@ export default function EditApplicationsPage() {
     }
     
     // GA 이벤트 전송
-    trackFormSubmit('지원 대학교 변경 저장', 'submit_applications_edit');
+    trackFormSubmit('지원 대학교 변경 저장', '지원대학교_변경_저장');
     
     setIsSubmitting(true);
     
