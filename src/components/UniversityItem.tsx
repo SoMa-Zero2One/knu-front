@@ -5,6 +5,7 @@ import Twemoji from 'react-twemoji';
 import { University } from '@/types';
 import { getCountryFlag } from '@/utils/countryFlags';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface UniversityItemProps {
   university: University & { rank?: number };
@@ -44,13 +45,20 @@ export default function UniversityItem({ university, isMobile = false, showRank 
 
   const router = useRouter();
   const { trackButtonClick } = useAnalytics();
+  const { user } = useAuth();
 
   const handleClick = () => {
     const safeEventName = `${university.country}-${university.name}`
       .replace(/\s+/g, '')
       .replace(/[^\w가-힣-]/g, '');
     
-    trackButtonClick(`${university.name} 상세보기로 이동`, `대학상세페이지_이동_${safeEventName}`);
+    const safeNickname = user?.nickname
+      ?.replace(/\s+/g, '')
+      ?.replace(/[^\w가-힣]/g, '') || user?.id;
+      
+    const labelWithUser = `${university.name} 상세보기로 이동_클릭자_${safeNickname}`;
+    
+    trackButtonClick(labelWithUser, `대학상세페이지_이동_${safeEventName}`);
     router.push(`/university/${university.id}`);
   };
 
