@@ -3,6 +3,8 @@
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { createFeedbackHandler } from '@/utils/feedback';
+import { createNavigationHandlers } from '@/utils/navigation';
 
 interface BottomNavigationProps {
   onBackClick?: () => void;
@@ -14,31 +16,12 @@ export default function BottomNavigation({ onBackClick, backUrl }: BottomNavigat
   const pathname = usePathname();
   const { user } = useAuth();
   const { trackEvent } = useAnalytics();
-
-  const handleBackClick = () => {
-    if (onBackClick) {
-      onBackClick();
-    } else if (backUrl) {
-      router.push(backUrl);
-    } else {
-      router.back();
-    }
-  };
-
-  const handleHomeClick = () => {
-    router.push('/dashboard');
-  };
-
-  const handleProfileClick = () => {
-    if (user) {
-      router.push(`/profile/${user.id}`);
-    }
-  };
-
-  const handleFeedbackClick = () => {
-    trackEvent(`피드백_클릭_${user?.nickname}`, 'feedback');
-    window.open('https://forms.gle/jD29BxgSNBthL9Sz6', '_blank');
-  };
+  
+  const { handleHomeClick, handleProfileClick, handleBackClick: navHandleBackClick } = createNavigationHandlers(router);
+  const handleFeedbackClick = createFeedbackHandler(trackEvent, user?.nickname);
+  
+  const handleBackClick = () => navHandleBackClick(onBackClick, backUrl);
+  const userProfileClick = () => handleProfileClick(user?.id);
 
   const isHomePage = pathname === '/dashboard';
   const isMyProfilePage = pathname === `/profile/${user?.id}`;
@@ -73,7 +56,7 @@ export default function BottomNavigation({ onBackClick, backUrl }: BottomNavigat
         {/* 내 프로필 */}
         {user && (
           <button
-            onClick={handleProfileClick}
+            onClick={userProfileClick}
             className={`flex flex-col items-center justify-center p-2 ${
               isMyProfilePage ? 'text-blue-600' : 'text-black hover:text-gray-700'
             }`}

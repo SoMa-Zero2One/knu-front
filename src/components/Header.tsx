@@ -3,6 +3,8 @@
 import { useRouter } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import { createFeedbackHandler } from '@/utils/feedback';
+import { createNavigationHandlers } from '@/utils/navigation';
 import Twemoji from 'react-twemoji';
 
 interface HeaderProps {
@@ -29,20 +31,11 @@ export default function Header({
   const router = useRouter();
   const { user } = useAuth();
   const { trackEvent } = useAnalytics();
-
-  const handleBackClick = () => {
-    if (onBackClick) {
-      onBackClick();
-    } else if (backUrl) {
-      router.push(backUrl);
-    } else {
-      router.back();
-    }
-  };
-
-  const handleHomeClick = () => {
-    router.push('/dashboard');
-  };
+  
+  const { handleHomeClick, handleProfileClick, handleBackClick: navHandleBackClick } = createNavigationHandlers(router);
+  const handleFeedbackClick = createFeedbackHandler(trackEvent, user?.nickname);
+  
+  const handleBackClick = () => navHandleBackClick(onBackClick, backUrl);
 
   return (
     <header className="bg-white shadow-sm border-b">
@@ -92,10 +85,7 @@ export default function Header({
           </div>
           <div className="hidden sm:flex items-center space-x-4">
             <button
-              onClick={() => {
-                trackEvent(`피드백_클릭_${user?.nickname}`, 'feedback');
-                window.open('https://forms.gle/jD29BxgSNBthL9Sz6', '_blank');
-              }}
+              onClick={handleFeedbackClick}
               className="text-xs sm:text-sm text-gray-600 hover:text-gray-800 cursor-pointer flex items-center"
             >
               <svg className="w-4 h-4 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -105,7 +95,7 @@ export default function Header({
             </button>
             {user && !hideProfileButton && (
               <button
-                onClick={() => router.push(`/profile/${user.id}`)}
+                onClick={() => handleProfileClick(user.id)}
                 className="text-xs sm:text-sm text-blue-600 hover:text-blue-800 cursor-pointer"
               >
                 {user.nickname}님 프로필
