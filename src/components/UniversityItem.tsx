@@ -4,6 +4,7 @@ import { useRouter } from 'next/navigation';
 import Twemoji from 'react-twemoji';
 import { University } from '@/types';
 import { getCountryFlag } from '@/utils/countryFlags';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface UniversityItemProps {
   university: University & { rank?: number };
@@ -42,8 +43,14 @@ export default function UniversityItem({ university, isMobile = false, showRank 
 };
 
   const router = useRouter();
+  const { trackButtonClick } = useAnalytics();
 
   const handleClick = () => {
+    const safeEventName = `${university.country}-${university.name}`
+      .replace(/\s+/g, '')
+      .replace(/[^\w가-힣-]/g, '');
+    
+    trackButtonClick(`${university.name} 상세보기로 이동`, `go_to_university_${safeEventName}`);
     router.push(`/university/${university.id}`);
   };
 
