@@ -20,7 +20,7 @@ interface ProfilePageProps {
 export default function ProfilePage({ params }: ProfilePageProps) {
   const router = useRouter();
   const { user: currentUser, loading } = useAuth();
-  const { trackButtonClick } = useAnalytics();
+  const { trackButtonClick, trackEvent } = useAnalytics();
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [appliedUniversities, setAppliedUniversities] = useState<Array<University & { rank: number }>>([]);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
@@ -53,6 +53,11 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           };
           
           setProfileUser(userProfile);
+          
+          // 다른 사용자의 프로필을 조회하는 경우 GA 이벤트 전송
+          if (currentUser && currentUser.id !== userData.id) {
+            trackEvent(`프로필조회_사용자${userData.id}`, 'profile', `조회자_${currentUser.id}`);
+          }
           
           // applications 데이터를 대학교 정보와 함께 설정
           if (userData.applications && userData.applications.length > 0) {
