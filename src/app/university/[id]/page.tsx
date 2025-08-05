@@ -22,6 +22,8 @@ export default function UniversityPage({ params }: UniversityPageProps) {
   const [university, setUniversity] = useState<UniversityDetail | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
+  const [sortType, setSortType] = useState<'choice' | 'grade' | 'convertedScore'>('choice');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
 
   const getColorForValue = (value: string): string => {
     const colors = [
@@ -47,6 +49,41 @@ export default function UniversityPage({ params }: UniversityPageProps) {
 
     const hash = [...value].reduce((acc, char) => acc + char.charCodeAt(0), 0);
     return colors[hash % colors.length];
+  };
+
+  const getSortedApplicants = (applicants: UniversityApplicant[]) => {
+    const sorted = [...applicants].sort((a, b) => {
+      let valueA, valueB;
+      
+      switch (sortType) {
+        case 'grade':
+          valueA = a.grade;
+          valueB = b.grade;
+          break;
+        case 'convertedScore':
+          valueA = calculateConvertedScore(a);
+          valueB = calculateConvertedScore(b);
+          break;
+        case 'choice':
+        default:
+          valueA = a.choice;
+          valueB = b.choice;
+          break;
+      }
+      
+      return sortOrder === 'asc' ? valueA - valueB : valueB - valueA;
+    });
+    
+    return sorted;
+  };
+
+  const handleSort = (type: 'choice' | 'grade' | 'convertedScore') => {
+    if (sortType === type) {
+      setSortOrder(sortOrder === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortType(type);
+      setSortOrder('desc');
+    }
   };
 
   useEffect(() => {
@@ -150,16 +187,65 @@ export default function UniversityPage({ params }: UniversityPageProps) {
               <h2 className="text-xl font-semibold text-gray-900">
                 지원자 목록 ({university.applicants.length}명)
               </h2>
-              <p className="text-sm text-gray-600 mt-1">
+              <p className="text-sm text-gray-600 mt-1 mb-4">
                 모든 지원자들의 성적 정보를 확인할 수 있습니다.
               </p>
+              
+              {/* 정렬 버튼들 */}
+              <div className="flex flex-wrap gap-2">
+                <button
+                  onClick={() => handleSort('choice')}
+                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                    sortType === 'choice' 
+                      ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  지망순위
+                  {sortType === 'choice' && (
+                    <span className="ml-1">
+                      {sortOrder === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleSort('convertedScore')}
+                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                    sortType === 'convertedScore' 
+                      ? 'bg-purple-100 text-purple-700 border border-purple-300' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  환산점수
+                  {sortType === 'convertedScore' && (
+                    <span className="ml-1">
+                      {sortOrder === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+                <button
+                  onClick={() => handleSort('grade')}
+                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                    sortType === 'grade' 
+                      ? 'bg-green-100 text-green-700 border border-green-300' 
+                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                  }`}
+                >
+                  학점
+                  {sortType === 'grade' && (
+                    <span className="ml-1">
+                      {sortOrder === 'asc' ? '↑' : '↓'}
+                    </span>
+                  )}
+                </button>
+              </div>
             </div>
             
             {university.applicants.length > 0 ? (
               <>
                 {/* 모바일 버전: 카드 형태 */}
                 <div className="sm:hidden divide-y divide-gray-200">
-                  {sortApplicantsByRank(university.applicants).map((applicant) => (
+                  {getSortedApplicants(university.applicants).map((applicant) => (
                     <div
                       key={applicant.id}
                       className={`p-4 cursor-pointer ${
@@ -234,7 +320,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {sortApplicantsByRank(university.applicants)
+                      {getSortedApplicants(university.applicants)
                         .map((applicant) => (
                         <tr
                           key={applicant.id}
