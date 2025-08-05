@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import UniversityItem from '@/components/UniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
 import { usersAPI } from '@/api';
+import { useAnalytics } from '@/hooks/useAnalytics';
 import { parseLangString } from '@/utils/languageParser';
 
 interface ProfilePageProps {
@@ -19,6 +20,7 @@ interface ProfilePageProps {
 export default function ProfilePage({ params }: ProfilePageProps) {
   const router = useRouter();
   const { user: currentUser, loading } = useAuth();
+  const { trackButtonClick } = useAnalytics();
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [appliedUniversities, setAppliedUniversities] = useState<Array<University & { rank: number }>>([]);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
@@ -230,7 +232,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     {currentUser && currentUser.id === profileUser.id && (
                       <div className="mt-4">
                         <button
-                          onClick={() => router.push('/applications/edit')}
+                          onClick={() => {
+                            trackButtonClick('지원 대학교 변경으로 이동', 'go_to_profile_mobile_edit');
+                            router.push('/applications/edit');
+                          }}
                           className="w-full inline-flex items-center justify-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
                         >
                           지원 대학교 변경
@@ -389,7 +394,10 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   {currentUser && currentUser.id === profileUser.id && (
                     <div className="cursor-pointer mt-4 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-3 sm:flex">
                       <button
-                        onClick={() => router.push('/applications/edit')}
+                        onClick={() => {
+                          trackButtonClick('지원 대학교 변경으로 이동', 'go_to_profile_desktop_edit');
+                          router.push('/applications/edit');
+                        }}
                         className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 hover:cursor-pointer transition-colors"
                       >
                         지원 대학교 변경

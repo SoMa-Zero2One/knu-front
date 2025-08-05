@@ -4,6 +4,7 @@ import { event } from '@/lib/gtag';
 
 export const useAnalytics = () => {
   const trackEvent = (action: string, category: string, label?: string, value?: number) => {
+    console.log('GA Event:', { action, category, label, value });
     event(action, {
       event_category: category,
       event_label: label,
@@ -11,8 +12,8 @@ export const useAnalytics = () => {
     });
   };
 
-  const trackButtonClick = (buttonName: string, location?: string) => {
-    trackEvent('click', 'button', `${buttonName}${location ? ` - ${location}` : ''}`, 1);
+  const trackButtonClick = (buttonName: string, eventName?: string) => {
+    trackEvent(eventName || 'click', 'button', buttonName, 1);
   };
 
   const trackNavigation = (from: string, to: string) => {
