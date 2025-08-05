@@ -54,6 +54,16 @@ export default function UniversityItem({ university, isMobile = false, showRank 
         onClick={handleClick}
       >
         <div className="flex items-start space-x-3">
+          {showRank && university.rank && (
+            <span className={`inline-flex items-center justify-center w-6 h-6 rounded-full text-xs font-bold text-white flex-shrink-0 ${
+              university.rank === 1 ? 'bg-yellow-500' :
+              university.rank === 2 ? 'bg-gray-400' :
+              university.rank === 3 ? 'bg-amber-600' :
+              'bg-blue-500'
+            }`}>
+              {university.rank}
+            </span>
+          )}
           <Twemoji options={{ className: 'twemoji text-2xl' }}>
             <span>{getCountryFlag(university.country)}</span>
           </Twemoji>

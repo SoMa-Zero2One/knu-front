@@ -245,40 +245,58 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                   </div>
                   
                   {appliedUniversities.length > 0 ? (
-                    <div className="overflow-x-auto">
-                      <table className="min-w-full divide-y divide-gray-200">
-                        <thead className="bg-gray-50">
-                          <tr>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              지망순위
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              대학교
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              국가
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              총 지원자
-                            </th>
-                            <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                              모집인원
-                            </th>
-                          </tr>
-                        </thead>
-                        <tbody className="bg-white divide-y divide-gray-200">
-                          {appliedUniversities
-                            .sort((a, b) => a.rank - b.rank)
-                            .map((university) => (
-                              <UniversityItem
-                                key={university.id}
-                                university={university}
-                                showRank={true}
-                              />
-                            ))}
-                        </tbody>
-                      </table>
-                    </div>
+                    <>
+                      {/* 모바일 버전: 카드 형태 */}
+                      <div className="sm:hidden space-y-2">
+                        {appliedUniversities
+                          .sort((a, b) => a.rank - b.rank)
+                          .map((university) => (
+                            <UniversityItem
+                              key={university.id}
+                              university={university}
+                              showRank={true}
+                              isMobile={true}
+                            />
+                          ))}
+                      </div>
+                      
+                      {/* 데스크톱 버전: 테이블 형태 */}
+                      <div className="hidden sm:block overflow-x-auto">
+                        <table className="min-w-full divide-y divide-gray-200">
+                          <thead className="bg-gray-50">
+                            <tr>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                지망순위
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                대학교
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                국가
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                총 지원자
+                              </th>
+                              <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                                모집인원
+                              </th>
+                            </tr>
+                          </thead>
+                          <tbody className="bg-white divide-y divide-gray-200">
+                            {appliedUniversities
+                              .sort((a, b) => a.rank - b.rank)
+                              .map((university) => (
+                                <UniversityItem
+                                  key={university.id}
+                                  university={university}
+                                  showRank={true}
+                                  isMobile={false}
+                                />
+                              ))}
+                          </tbody>
+                        </table>
+                      </div>
+                    </>
                   ) : (
                     <div className="p-8 text-center">
                       <div className="text-gray-400 text-6xl mb-4">🏫</div>
