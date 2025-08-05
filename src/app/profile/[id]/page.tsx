@@ -163,7 +163,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     {profileUser.gpa ? (
                       <div className="bg-blue-50 rounded-lg p-3">
                         <p className="text-lg font-bold text-blue-900">
-                          {profileUser.gpa.toFixed(2)} / 4.3
+                          {profileUser.gpa.toFixed(2)} / 4.5
                         </p>
                       </div>
                     ) : (
@@ -361,7 +361,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 {profileUser.gpa ? (
                   <div className="bg-blue-50 rounded-lg p-3">
                     <p className="text-lg font-bold text-blue-900">
-                      {profileUser.gpa.toFixed(2)} / 4.3
+                      {profileUser.gpa.toFixed(2)} / 4.5
                     </p>
                   </div>
                 ) : (
