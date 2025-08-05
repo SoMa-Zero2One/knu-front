@@ -7,10 +7,12 @@ import { University, AppliedUniversity } from '@/types';
 import { getCountryFlag } from '@/utils/countryFlags';
 import Header from '@/components/Header';
 import { usersAPI, universitiesAPI } from '@/api';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function EditApplicationsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
+  const { trackFormSubmit } = useAnalytics();
   const [selectedUniversities, setSelectedUniversities] = useState<AppliedUniversity[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -126,6 +128,9 @@ export default function EditApplicationsPage() {
       return;
     }
     
+    // GA 이벤트 전송
+    trackFormSubmit('지원 대학교 변경 저장', 'submit_applications_edit');
+    
     setIsSubmitting(true);
     
     try {
@@ -157,6 +162,7 @@ export default function EditApplicationsPage() {
     } finally {
       setIsSubmitting(false);
     }
+
   };
 
   const hasChanges = JSON.stringify(selectedUniversities.sort((a, b) => a.rank - b.rank)) !== JSON.stringify(userData.appliedUniversities.sort((a, b) => a.rank - b.rank));
@@ -223,7 +229,6 @@ export default function EditApplicationsPage() {
             <div className="space-y-2">
               <p className="text-red-700">❌ 편집할 수 없습니다.</p>
               <p className="text-sm text-gray-600">• 편집 횟수를 모두 사용했습니다.</p>
-              <p className="text-xs text-blue-600 mt-2">ℹ️ 마감 3일 전부터는 편집 횟수가 제한됩니다.</p>
             </div>
           )}
         </div>

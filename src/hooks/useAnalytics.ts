@@ -16,12 +16,12 @@ export const useAnalytics = () => {
     trackEvent(eventName || 'click', 'button', buttonName, 1);
   };
 
-  const trackNavigation = (from: string, to: string) => {
-    trackEvent('navigate', 'navigation', `${from} -> ${to}`, 1);
+  const trackNavigation = (label: string, eventName?: string) => {
+    trackEvent(eventName || 'navigate', 'navigation', label, 1);
   };
 
-  const trackFormSubmit = (formName: string) => {
-    trackEvent('submit', 'form', formName, 1);
+  const trackFormSubmit = (label: string, eventName?: string) => {
+    trackEvent(eventName || 'submit', 'form', label, 1);
   };
 
   return {
