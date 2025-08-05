@@ -2,6 +2,7 @@
 
 import { useRouter, usePathname } from 'next/navigation';
 import { useAuth } from '@/contexts/AuthContext';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface BottomNavigationProps {
   onBackClick?: () => void;
@@ -12,6 +13,7 @@ export default function BottomNavigation({ onBackClick, backUrl }: BottomNavigat
   const router = useRouter();
   const pathname = usePathname();
   const { user } = useAuth();
+  const { trackEvent } = useAnalytics();
 
   const handleBackClick = () => {
     if (onBackClick) {
@@ -31,6 +33,11 @@ export default function BottomNavigation({ onBackClick, backUrl }: BottomNavigat
     if (user) {
       router.push(`/profile/${user.id}`);
     }
+  };
+
+  const handleFeedbackClick = () => {
+    trackEvent(`피드백_클릭_${user?.nickname}`, 'feedback');
+    window.open('https://forms.gle/jD29BxgSNBthL9Sz6', '_blank');
   };
 
   const isHomePage = pathname === '/dashboard';
@@ -77,6 +84,17 @@ export default function BottomNavigation({ onBackClick, backUrl }: BottomNavigat
             <span className="text-xs mt-1">내 프로필</span>
           </button>
         )}
+
+        {/* 피드백 */}
+        <button
+          onClick={handleFeedbackClick}
+          className="flex flex-col items-center justify-center p-2 text-black hover:text-gray-700"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+          </svg>
+          <span className="text-xs mt-1">피드백</span>
+        </button>
       </div>
     </nav>
   );
