@@ -6,11 +6,12 @@ import { University } from '@/types';
 import { getCountryFlag } from '@/utils/countryFlags';
 
 interface UniversityItemProps {
-  university: University;
+  university: University & { rank?: number };
   isMobile?: boolean;
+  showRank?: boolean;
 }
 
-export default function UniversityItem({ university, isMobile = false }: UniversityItemProps) {
+export default function UniversityItem({ university, isMobile = false, showRank = false }: UniversityItemProps) {
   const getColorForValue = (value: string): string => {
 
   const colors = [
@@ -81,9 +82,21 @@ export default function UniversityItem({ university, isMobile = false }: Univers
 
   return (
     <tr
-      className="transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl cursor-pointer"
+      className={`cursor-pointer ${showRank ? 'hover:bg-gray-50' : 'transition-transform duration-300 hover:-translate-y-1 hover:shadow-xl'}`}
       onClick={handleClick}
     >
+      {showRank && university.rank && (
+        <td className="px-6 py-4 whitespace-nowrap text-center">
+          <span className={`inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white ${
+            university.rank === 1 ? 'bg-yellow-500' :
+            university.rank === 2 ? 'bg-gray-400' :
+            university.rank === 3 ? 'bg-amber-600' :
+            'bg-blue-500'
+          }`}>
+            {university.rank}
+          </span>
+        </td>
+      )}
       <td className="px-6 py-4 whitespace-nowrap">
         <div className="flex items-center">
           <Twemoji options={{ className: 'twemoji text-2xl mr-3' }}>
