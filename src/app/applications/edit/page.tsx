@@ -165,7 +165,18 @@ export default function EditApplicationsPage() {
 
   };
 
-  const hasChanges = JSON.stringify(selectedUniversities.sort((a, b) => a.rank - b.rank)) !== JSON.stringify(userData.appliedUniversities.sort((a, b) => a.rank - b.rank));
+  const hasChanges = (() => {
+    if (!userData?.appliedUniversities) return selectedUniversities.length > 0;
+    
+    // 원본 데이터를 selectedUniversities와 같은 형태로 변환
+    const originalAppliedUniversities = userData.appliedUniversities.map((app: any) => ({
+      universityId: app.universityId.toString(),
+      rank: app.choice
+    }));
+    
+    return JSON.stringify(selectedUniversities.sort((a, b) => a.rank - b.rank)) !== 
+           JSON.stringify(originalAppliedUniversities.sort((a, b) => a.rank - b.rank));
+  })();
 
   // 검색 필터링된 대학교 목록 (선택된 대학 우선 정렬)
   const filteredUniversities = (() => {
@@ -415,7 +426,7 @@ export default function EditApplicationsPage() {
         <div className="mt-8 pt-6 border-t flex justify-center space-x-4">
           <button
             onClick={() => router.back()}
-            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            className="px-6 py-3 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer"
           >
             취소
           </button>
@@ -425,7 +436,7 @@ export default function EditApplicationsPage() {
             disabled={!canEdit || !hasChanges || isSubmitting || selectedUniversities.length === 0}
             className={`px-6 py-3 rounded-lg font-medium transition-colors ${
               canEdit && hasChanges && !isSubmitting && selectedUniversities.length > 0
-                ? 'bg-blue-600 text-white hover:bg-blue-700'
+                ? 'bg-blue-600 text-white hover:bg-blue-700 cursor-pointer'
                 : 'bg-gray-300 text-gray-500 cursor-not-allowed'
             }`}
           >
