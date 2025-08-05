@@ -1,24 +1,178 @@
-import { UniversityApplicant } from '@/types';
+import { UniversityApplicant, LanguageScore, LanguageTestType } from '@/types';
+import { scoreConversionTable } from './scoreConversionTable';
+import { parseLangString } from './languageParser';
+
+/**
+ * 어학 성적에서 환산점수를 계산하는 함수
+ * @param languageScores 파싱된 어학 성적 배열
+ * @returns 환산점수
+ */
+function calculateLanguageScore(languageScores: LanguageScore[]): number {
+  if (!languageScores || languageScores.length === 0) return 0;
+  
+  let maxScore = 0;
+  
+  for (const langScore of languageScores) {
+    const score = getScoreFromTable(langScore);
+    maxScore = Math.max(maxScore, score);
+  }
+  
+  return maxScore;
+}
+
+/**
+ * 개별 어학 성적을 환산표에서 찾아 점수를 반환
+ * @param langScore 어학 성적 객체
+ * @returns 환산점수
+ */
+function getScoreFromTable(langScore: LanguageScore): number {
+  const { type, level, score } = langScore;
+  
+  // 영어 성적 처리
+  if (['TOEIC', 'TOEFL_IBT', 'TOEFL_ITP', 'IELTS', 'CEFR'].includes(type)) {
+    return getEnglishScore(type, level, score);
+  }
+  
+  // 제2외국어 성적 처리
+  if (['JLPT', 'HSK', 'DELF', 'ZD', 'TORFL', 'DELE'].includes(type)) {
+    return getSecondLanguageScore(type, level, score);
+  }
+  
+  return 0;
+}
+
+/**
+ * 영어 성적 환산점수 계산
+ */
+function getEnglishScore(type: LanguageTestType, level: string | undefined, score: string | null): number {
+  if (!score) return 0;
+  
+  const numScore = parseInt(score);
+  
+  for (const entry of scoreConversionTable.영어) {
+    let match = false;
+    
+    switch (type) {
+      case 'TOEIC':
+        match = isScoreInRange(numScore, entry.TOEIC);
+        break;
+      case 'TOEFL_IBT':
+      case 'TOEFL_ITP':
+        match = isScoreInRange(numScore, entry.TOEFL);
+        break;
+      case 'IELTS':
+        match = numScore >= parseFloat(entry.IELTS);
+        break;
+      case 'CEFR':
+        if (level) {
+          match = entry.CEFR.includes(level);
+        }
+        break;
+    }
+    
+    if (match) {
+      return entry.점수;
+    }
+  }
+  
+  return 0;
+}
+
+/**
+ * 제2외국어 성적 환산점수 계산
+ */
+function getSecondLanguageScore(type: LanguageTestType, level: string | undefined, score: string | null): number {
+  for (const entry of scoreConversionTable.제2외국어) {
+    let match = false;
+    
+    switch (type) {
+      case 'JLPT':
+        if (level && score) {
+          const numScore = parseInt(score);
+          const jlptEntry = entry["일본어(JLPT)"];
+          match = jlptEntry.includes(level) && isScoreInRange(numScore, jlptEntry);
+        } else if (level) {
+          match = entry["일본어(JLPT)"].includes(level);
+        }
+        break;
+      case 'HSK':
+        if (level) {
+          match = entry["중국어(HSK)"] === level;
+        }
+        break;
+      case 'DELF':
+        if (level) {
+          match = entry["프랑스어(DELF)"] === level;
+        }
+        break;
+      case 'ZD':
+        if (level) {
+          match = entry["독일어(ZD)"] === level;
+        }
+        break;
+      case 'TORFL':
+        if (level) {
+          match = entry["러시아어(TORFL)"] === level;
+        }
+        break;
+      case 'DELE':
+        if (level) {
+          match = entry["스페인어(DELE)"] === level;
+        }
+        break;
+    }
+    
+    if (match) {
+      return entry.점수;
+    }
+  }
+  
+  return 0;
+}
+
+/**
+ * 점수가 범위 안에 있는지 확인하는 헬퍼 함수
+ * @param score 확인할 점수
+ * @param range 범위 문자열 (예: "900~944", "95~120")
+ * @returns 범위 안에 있으면 true
+ */
+function isScoreInRange(score: number, range: string): boolean {
+  const rangeMatch = range.match(/(\d+)~(\d+)/);
+  if (rangeMatch) {
+    const min = parseInt(rangeMatch[1]);
+    const max = parseInt(rangeMatch[2]);
+    return score >= min && score <= max;
+  }
+  
+  // 단일 값인 경우 (예: "7.0")
+  const singleValue = parseFloat(range);
+  if (!isNaN(singleValue)) {
+    return score >= singleValue;
+  }
+  
+  return false;
+}
 
 /**
  * 환산점수 계산 함수
- * TODO: 실제 계산 로직은 나중에 구현
  * @param applicant 지원자 정보
  * @returns 환산점수
  */
 export function calculateConvertedScore(applicant: UniversityApplicant): number {
-  // 임시 계산 로직 (실제 로직으로 대체 예정)
-  // 학점 * 25 + 어학점수 보정값
-  const baseScore = applicant.grade * 25;
+  // 어학 성적 파싱 및 점수 계산
+  const languageScores = parseLangString(applicant.lang || '');
+  const langScore = calculateLanguageScore(languageScores);
   
-  // 어학 성적에 따른 보정값 (임시)
-  let langBonus = 0;
-  if (applicant.lang) {
-    // 간단한 보정값 계산 (실제로는 더 복잡한 로직 필요)
-    langBonus = 10; // 기본 보정값
-  }
+  // 프로그램 타입 결정 (영어 성적이 있으면 영어 프로그램, 아니면 제2외국어 프로그램)
+  const hasEnglishScore = languageScores.some(score => 
+    ['TOEIC', 'TOEFL_IBT', 'TOEFL_ITP', 'IELTS', 'CEFR'].includes(score.type)
+  );
   
-  return Math.round(baseScore + langBonus);
+  // 학점 점수 계산
+  const gradeMultiplier = hasEnglishScore ? (50 / 4.5) : (40 / 4.5);
+  const baseScore = applicant.grade * gradeMultiplier;
+  
+  return Math.round(baseScore + langScore);
 }
 
 /**

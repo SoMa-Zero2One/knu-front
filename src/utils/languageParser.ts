@@ -22,36 +22,84 @@ export const parseLangString = (langString: string): LanguageScore[] => {
         level = jlptMatch[1].toUpperCase(); // N1, N2 등
         score = jlptMatch[2] || null; // 세부 성적이 있으면 저장, 없으면 null
       }
-    } else if (lowerScoreStr.includes('hsk')) {
+    } else if (lowerScoreStr.includes('hsk') || lowerScoreStr.includes('중국어')) {
       type = 'HSK';
-      // HSK 4급 200, HSK 5급 형태 처리
-      const hskMatch = scoreStr.match(/hsk\s+(\d+)급?(?:\s+(\d+))?/i);
+      // HSK 4급 200, HSK 5급, 중국어 4급 형태 처리
+      const hskMatch = scoreStr.match(/(?:hsk|중국어)\s+(\d+)급?(?:\s+(\d+))?/i);
       if (hskMatch) {
         level = `${hskMatch[1]}급`; // 4급, 5급 등
         score = hskMatch[2] || null; // 세부 성적이 있으면 저장, 없으면 null
       }
+    } else if (lowerScoreStr.includes('jlpt') || lowerScoreStr.includes('일본어')) {
+      type = 'JLPT';
+      // JLPT N2 180, 일본어 N2 형태 처리
+      const jlptMatch = scoreStr.match(/(?:jlpt|일본어)\s+(n[1-5])(?:\s+(\d+))?/i);
+      if (jlptMatch) {
+        level = jlptMatch[1].toUpperCase(); // N1, N2 등
+        score = jlptMatch[2] || null;
+      }
+    } else if (lowerScoreStr.includes('cefr') || lowerScoreStr.includes('영작문') || lowerScoreStr.includes('진단')) {
+      type = 'CEFR';
+      // CEFR B2, C1, 영작문 B2, 진단평가 B2 형태 처리
+      const cefrMatch = scoreStr.match(/(?:cefr|영작문|진단).*?([a-c][1-2])(?:\s+(\d+))?/i);
+      if (cefrMatch) {
+        level = cefrMatch[1].toUpperCase(); // B2, C1 등
+        score = cefrMatch[2] || null;
+      }
+    } else if (lowerScoreStr.includes('delf') || lowerScoreStr.includes('프랑스어')) {
+      type = 'DELF';
+      // DELF B2, C1, 프랑스어 B2 형태 처리
+      const delfMatch = scoreStr.match(/(?:delf|프랑스어)\s+([a-c][1-2])(?:\s+(\d+))?/i);
+      if (delfMatch) {
+        level = delfMatch[1].toUpperCase();
+        score = delfMatch[2] || null;
+      }
+    } else if (lowerScoreStr.includes('zd') || lowerScoreStr.includes('독일어')) {
+      type = 'ZD';
+      // ZD B2, C1, 독일어 B2 형태 처리
+      const zdMatch = scoreStr.match(/(?:zd|독일어)\s+([a-c][1-2])(?:\s+(\d+))?/i);
+      if (zdMatch) {
+        level = zdMatch[1].toUpperCase();
+        score = zdMatch[2] || null;
+      }
+    } else if (lowerScoreStr.includes('torfl') || lowerScoreStr.includes('러시아어')) {
+      type = 'TORFL';
+      // TORFL 기초, 기본, 1단계, 러시아어 기초 등 처리
+      const torflMatch = scoreStr.match(/(?:torfl|러시아어)\s+(기초|기본|\d+단계)(?:\s+(\d+))?/i);
+      if (torflMatch) {
+        level = torflMatch[1];
+        score = torflMatch[2] || null;
+      }
+    } else if (lowerScoreStr.includes('dele') || lowerScoreStr.includes('스페인어')) {
+      type = 'DELE';
+      // DELE B2, C1, 스페인어 B2 형태 처리
+      const deleMatch = scoreStr.match(/(?:dele|스페인어)\s+([a-c][1-2])(?:\s+(\d+))?/i);
+      if (deleMatch) {
+        level = deleMatch[1].toUpperCase();
+        score = deleMatch[2] || null;
+      }
     } else {
       // TOEFL, TOEIC, IELTS 등 - 점수가 있을 수도 없을 수도 있음
       // 먼저 점수가 있는 패턴을 시도
-      const withScoreMatch = scoreStr.match(/(\w+)\s+(\d+)/i);
+      const withScoreMatch = scoreStr.match(/([\w가-힣]+)\s+(\d+)/i);
       if (withScoreMatch) {
         const [, testName, scoreValue] = withScoreMatch;
         score = scoreValue;
         
-        if (lowerScoreStr.includes('toefl')) {
+        if (lowerScoreStr.includes('toefl') || lowerScoreStr.includes('토플')) {
           type = 'TOEFL_IBT';
         } else if (lowerScoreStr.includes('토익') || lowerScoreStr.includes('toeic')) {
           type = 'TOEIC';
-        } else if (lowerScoreStr.includes('ielts')) {
+        } else if (lowerScoreStr.includes('ielts') || lowerScoreStr.includes('아이엘츠')) {
           type = 'IELTS';
         }
       } else {
-        // 점수가 없는 경우 (예: "TOEFL", "TOEIC", "IELTS")
-        if (lowerScoreStr.includes('toefl')) {
+        // 점수가 없는 경우 (예: "TOEFL", "토플", "TOEIC", "토익", "IELTS", "아이엘츠")
+        if (lowerScoreStr.includes('toefl') || lowerScoreStr.includes('토플')) {
           type = 'TOEFL_IBT';
         } else if (lowerScoreStr.includes('토익') || lowerScoreStr.includes('toeic')) {
           type = 'TOEIC';
-        } else if (lowerScoreStr.includes('ielts')) {
+        } else if (lowerScoreStr.includes('ielts') || lowerScoreStr.includes('아이엘츠')) {
           type = 'IELTS';
         }
       }

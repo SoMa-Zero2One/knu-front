@@ -1,5 +1,5 @@
 // 어학 성적 종류
-export type LanguageTestType = 'JLPT' | 'HSK' | 'TOEIC' | 'TOEFL_IBT' | 'TOEFL_ITP' | 'IELTS';
+export type LanguageTestType = 'JLPT' | 'HSK' | 'TOEIC' | 'TOEFL_IBT' | 'TOEFL_ITP' | 'IELTS' | 'CEFR' | 'DELF' | 'ZD' | 'TORFL' | 'DELE';
 
 // 어학 성적 인터페이스
 export interface LanguageScore {
@@ -7,6 +7,30 @@ export interface LanguageScore {
   type: LanguageTestType;
   level?: string; // JLPT N2, HSK 4급 등의 급수
   score: string | null; // 세부 성적 (없으면 null)
+}
+
+// 환산점수 표 구조
+export interface ScoreConversionTable {
+  영어: EnglishScoreTable[];
+  제2외국어: SecondLanguageScoreTable[];
+}
+
+export interface EnglishScoreTable {
+  점수: number;
+  CEFR: string;
+  TOEIC: string;
+  TOEFL: string;
+  IELTS: string;
+}
+
+export interface SecondLanguageScoreTable {
+  점수: number;
+  "일본어(JLPT)": string;
+  "중국어(HSK)": string;
+  "프랑스어(DELF)": string;
+  "독일어(ZD)": string;
+  "러시아어(TORFL)": string;
+  "스페인어(DELE)": string;
 }
 
 
