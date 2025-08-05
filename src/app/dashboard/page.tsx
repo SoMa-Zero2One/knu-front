@@ -7,14 +7,18 @@ import Header from '@/components/Header';
 import UniversityItem from '@/components/UniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
 import { User, University } from '@/types';
-import { universitiesAPI } from '@/api';
+import { universitiesAPI, usersAPI } from '@/api';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function DashboardPage() {
   const { user, loading, token } = useAuth();
   const router = useRouter();
+  const { trackButtonClick } = useAnalytics();
 
   const [universities, setUniversities] = useState<University[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
+  const [filterType, setFilterType] = useState<'all' | 'applied' | 'hasApplicants'>('hasApplicants');
+  const [userAppliedUniversities, setUserAppliedUniversities] = useState<Set<number>>(new Set());
   
   // 백엔드에서 학교 정보 가져오기
   useEffect(() => {
@@ -32,22 +36,54 @@ export default function DashboardPage() {
     }
   }, [token]);
 
+  // 사용자의 지원 대학교 정보 가져오기
+  useEffect(() => {
+    const fetchUserApplications = async () => {
+      if (user) {
+        try {
+          const userData = await usersAPI.getUserById(user.id);
+          if (userData.applications) {
+            const appliedIds = new Set(userData.applications.map((app: any) => parseInt(app.universityId)));
+            setUserAppliedUniversities(appliedIds);
+          }
+        } catch (error) {
+          console.error('사용자 지원 정보 가져오기 오류:', error);
+        }
+      }
+    };
+
+    fetchUserApplications();
+  }, [user]);
+
     useEffect(() => {
     if (!loading && !user) {
       router.push('/');
     }
   }, [user, loading, router]);
 
-  // 검색 필터링 및 정렬된 대학교 목록 (국가순 → 대학 이름순)
+  // 검색 및 필터링, 정렬된 대학교 목록
   const filteredUniversities = universities
     .filter(university => {
-      if (!searchQuery) return true;
+      // 검색 필터
+      if (searchQuery) {
+        const query = searchQuery.toLowerCase();
+        const matchesSearch = (
+          university.name.toLowerCase().includes(query) ||
+          university.country.toLowerCase().includes(query)
+        );
+        if (!matchesSearch) return false;
+      }
       
-      const query = searchQuery.toLowerCase();
-      return (
-        university.name.toLowerCase().includes(query) ||
-        university.country.toLowerCase().includes(query)
-      );
+      // 타입별 필터
+      switch (filterType) {
+        case 'applied':
+          return userAppliedUniversities.has(university.id);
+        case 'hasApplicants':
+          return university.applicantCount > 0;
+        case 'all':
+        default:
+          return true;
+      }
     })
     .sort((a, b) => {
       // 먼저 국가순으로 정렬
@@ -109,6 +145,53 @@ export default function DashboardPage() {
                 "{searchQuery}" 검색 결과: {filteredUniversities.length}개 대학교
               </p>
             )}
+          </div>
+        </div>
+
+        {/* 필터링 버튼 */}
+        <div className="mb-6">
+          <div className="bg-white rounded-lg shadow p-4">
+            <div className="flex flex-wrap gap-2 sm:gap-3">
+              <button
+                onClick={() => {
+                  trackButtonClick('지원자가 있는 대학만 보기', 'filter_dashboard_has_applicants');
+                  setFilterType('hasApplicants');
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  filterType === 'hasApplicants'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                지원자가 있는 대학만 ({universities.filter(u => u.applicantCount > 0).length})
+              </button>
+              <button
+                onClick={() => {
+                  trackButtonClick('모든 대학 보기', 'filter_dashboard_all');
+                  setFilterType('all');
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  filterType === 'all'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                모든 대학 ({universities.length})
+              </button>
+              <button
+                onClick={() => {
+                  trackButtonClick('지망한 대학만 보기', 'filter_dashboard_applied');
+                  setFilterType('applied');
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  filterType === 'applied'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                지망한 대학만 ({userAppliedUniversities.size})
+              </button>
+            </div>
           </div>
         </div>
 
