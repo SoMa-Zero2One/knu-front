@@ -6,9 +6,11 @@ import { useAuth } from '@/contexts/AuthContext';
 import { UniversityDetail, UniversityApplicant } from '@/types';
 import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
+import UnauthorizedModal from '@/components/UnauthorizedModal';
 import { getCountryFlag } from '@/utils/countryFlags';
 import { calculateConvertedScore, sortApplicantsByRank } from '@/utils/scoreCalculation';
 import { universitiesAPI } from '@/api';
+import { useAnalytics } from '@/hooks/useAnalytics';
 
 interface UniversityPageProps {
   params: Promise<{
@@ -19,11 +21,16 @@ interface UniversityPageProps {
 export default function UniversityPage({ params }: UniversityPageProps) {
   const router = useRouter();
   const { user, loading, token } = useAuth();
+  const { trackEvent } = useAnalytics();
   const [university, setUniversity] = useState<UniversityDetail | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
   const [sortType, setSortType] = useState<'choice' | 'grade' | 'convertedScore'>('choice');
   const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [showUnauthorizedModal, setShowUnauthorizedModal] = useState(false);
+  const [unauthorizedUniversityName, setUnauthorizedUniversityName] = useState('');
+  const [isUnauthorized, setIsUnauthorized] = useState(false);
+  const [unauthorizedUniversityData, setUnauthorizedUniversityData] = useState<any>(null);
 
   const getColorForValue = (value: string): string => {
     const colors = [
@@ -99,11 +106,34 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     const fetchUniversityDetail = async () => {
       if (!resolvedParams?.id || !token) return;
 
+
       try {
         const universityData = await universitiesAPI.getUniversityById(resolvedParams.id);
         setUniversity(universityData);
       } catch (error) {
         console.error('대학교 상세 정보 가져오기 오류:', error);
+        
+        // 403 에러인 경우 기본 대학 정보는 표시하고 권한 없음 상태로 설정
+        if (error instanceof Error && error.message.includes('403')) {
+          try {
+            // 대학교 목록에서 기본 정보 가져오기
+            const universities = await universitiesAPI.getUniversities();
+            const targetUniversity = universities.find(u => u.id === resolvedParams.id);
+            if (targetUniversity) {
+              setUnauthorizedUniversityData({
+                ...targetUniversity,
+                applicants: []
+              });
+              setUnauthorizedUniversityName(targetUniversity.name);
+            } else {
+              setUnauthorizedUniversityName('해당 대학교');
+            }
+            setIsUnauthorized(true);
+          } catch {
+            setUnauthorizedUniversityName('해당 대학교');
+            setIsUnauthorized(true);
+          }
+        }
       } finally {
         setDataLoading(false);
       }
@@ -130,7 +160,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
     return null;
   }
 
-  if (!university) {
+  if (!university && !isUnauthorized) {
     return (
       <div className="min-h-screen bg-transparent flex items-center justify-center">
         <div className="text-center">
@@ -148,16 +178,27 @@ export default function UniversityPage({ params }: UniversityPageProps) {
   }
 
 
+  const displayUniversity = university || unauthorizedUniversityData;
+
   return (
     <div className="min-h-screen bg-transparent">
-      <Header 
-        title={university.name}
-        showBackButton={true}
-        backButtonText="← 뒤로 가기"
-        showHomeButton={true}
-        universityFlag={getCountryFlag(university.country)}
-        universityName={university.name}
+      {/* 403 에러 모달 */}
+      <UnauthorizedModal
+        isOpen={showUnauthorizedModal}
+        onClose={() => setShowUnauthorizedModal(false)}
+        universityName={unauthorizedUniversityName}
       />
+
+      {displayUniversity && (
+        <>
+          <Header 
+            title={displayUniversity.name}
+            showBackButton={true}
+            backButtonText="← 뒤로 가기"
+            showHomeButton={true}
+            universityFlag={getCountryFlag(displayUniversity.country)}
+            universityName={displayUniversity.name}
+          />
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8">
         {/* 대학교 정보 */}
@@ -166,86 +207,122 @@ export default function UniversityPage({ params }: UniversityPageProps) {
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">국가</h3>
               <div className="flex items-center justify-center space-x-2">
-                <span className="text-2xl">{getCountryFlag(university.country)}</span>
-                <p className="text-2xl text-blue-600 font-semibold">{university.country}</p>
+                <span className="text-2xl">{getCountryFlag(displayUniversity.country)}</span>
+                <p className="text-2xl text-blue-600 font-semibold">{displayUniversity.country}</p>
               </div>
             </div>
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">총 지원자 수</h3>
-              <p className="text-3xl font-bold text-blue-600">{university.totalApplicants}명</p>
+              <p className="text-3xl font-bold text-blue-600">{displayUniversity.totalApplicants}명</p>
             </div>
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">모집인원</h3>
-              <p className="text-3xl font-bold text-green-600">{university.slot}명</p>
+              <p className="text-3xl font-bold text-green-600">{displayUniversity.slot}명</p>
             </div>
           </div>
         </div>
 
-        {/* 지원자 목록 */}
+        {/* 지원자 목록 또는 접근 제한 안내 */}
           <div className="bg-white rounded-lg shadow">
             <div className="p-6 border-b">
-              <h2 className="text-xl font-semibold text-gray-900">
-                지원자 목록 ({university.applicants.length}명)
-              </h2>
-              <p className="text-sm text-gray-600 mt-1 mb-4">
-                모든 지원자들의 성적 정보를 확인할 수 있습니다.
-              </p>
+              {isUnauthorized ? (
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    지원자 목록
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1 mb-4">
+                    지원하신 대학의 세부 사항만 확인하실 수 있습니다.
+                  </p>
+                </div>
+              ) : (
+                <div>
+                  <h2 className="text-xl font-semibold text-gray-900">
+                    지원자 목록 ({displayUniversity.applicants.length}명)
+                  </h2>
+                  <p className="text-sm text-gray-600 mt-1 mb-4">
+                    모든 지원자들의 성적 정보를 확인할 수 있습니다.
+                  </p>
+                </div>
+              )}
               
-              {/* 정렬 버튼들 */}
-              <div className="flex flex-wrap gap-2">
-                <button
-                  onClick={() => handleSort('choice')}
-                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                    sortType === 'choice' 
-                      ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  지망순위
-                  {sortType === 'choice' && (
-                    <span className="ml-1">
-                      {sortOrder === 'asc' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </button>
-                <button
-                  onClick={() => handleSort('convertedScore')}
-                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                    sortType === 'convertedScore' 
-                      ? 'bg-purple-100 text-purple-700 border border-purple-300' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  환산점수
-                  {sortType === 'convertedScore' && (
-                    <span className="ml-1">
-                      {sortOrder === 'asc' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </button>
-                <button
-                  onClick={() => handleSort('grade')}
-                  className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                    sortType === 'grade' 
-                      ? 'bg-green-100 text-green-700 border border-green-300' 
-                      : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                  }`}
-                >
-                  학점
-                  {sortType === 'grade' && (
-                    <span className="ml-1">
-                      {sortOrder === 'asc' ? '↑' : '↓'}
-                    </span>
-                  )}
-                </button>
-              </div>
+              {/* 권한이 있는 경우만 정렬 버튼 표시 */}
+              {!isUnauthorized && (
+                <div className="flex flex-wrap gap-2">
+                  <button
+                    onClick={() => handleSort('choice')}
+                    className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                      sortType === 'choice' 
+                        ? 'bg-blue-100 text-blue-700 border border-blue-300' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    지망순위
+                    {sortType === 'choice' && (
+                      <span className="ml-1">
+                        {sortOrder === 'asc' ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleSort('convertedScore')}
+                    className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                      sortType === 'convertedScore' 
+                        ? 'bg-purple-100 text-purple-700 border border-purple-300' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    환산점수
+                    {sortType === 'convertedScore' && (
+                      <span className="ml-1">
+                        {sortOrder === 'asc' ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </button>
+                  <button
+                    onClick={() => handleSort('grade')}
+                    className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                      sortType === 'grade' 
+                        ? 'bg-green-100 text-green-700 border border-green-300' 
+                        : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                    }`}
+                  >
+                    학점
+                    {sortType === 'grade' && (
+                      <span className="ml-1">
+                        {sortOrder === 'asc' ? '↑' : '↓'}
+                      </span>
+                    )}
+                  </button>
+                </div>
+              )}
             </div>
             
-            {university.applicants.length > 0 ? (
+            {isUnauthorized ? (
+              /* 권한 없음 안내 */
+              <div className="p-8 text-center">
+                <div className="text-orange-500 text-6xl mb-4">🔒</div>
+                <h3 className="text-lg font-semibold text-gray-900 mb-2">
+                  접근 권한이 필요합니다
+                </h3>
+                <p className="text-gray-600 mb-6 leading-relaxed">
+                  <strong>{displayUniversity.name}</strong>는 지원하지 않은 대학입니다.<br />
+                  지원 대학을 변경한 후 세부내용을 확인해주세요.
+                </p>
+                <button
+                  onClick={() => {
+                    trackEvent('unauthorized_university_edit_attempt', 'access_control', `${displayUniversity.name}_${user.nickname}`);
+                    router.push('/applications/edit');
+                  }}
+                  className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer"
+                >
+                  지원 대학 수정하기
+                </button>
+              </div>
+            ) : displayUniversity.applicants.length > 0 ? (
               <>
                 {/* 모바일 버전: 카드 형태 */}
                 <div className="sm:hidden divide-y divide-gray-200">
-                  {getSortedApplicants(university.applicants).map((applicant) => (
+                  {getSortedApplicants(displayUniversity.applicants).map((applicant) => (
                     <div
                       key={applicant.id}
                       className={`p-4 cursor-pointer ${
@@ -320,7 +397,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                       </tr>
                     </thead>
                     <tbody className="bg-white divide-y divide-gray-200">
-                      {getSortedApplicants(university.applicants)
+                      {getSortedApplicants(displayUniversity.applicants)
                         .map((applicant) => (
                         <tr
                           key={applicant.id}
@@ -396,9 +473,11 @@ export default function UniversityPage({ params }: UniversityPageProps) {
               </div>
             )}
           </div>
-      </div>
-      
-      <BottomNavigation />
+        </div>
+        
+        <BottomNavigation />
+        </>
+      )}
     </div>
   );
 } 
