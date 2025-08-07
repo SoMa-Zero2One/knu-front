@@ -28,6 +28,11 @@ function calculateLanguageScore(languageScores: LanguageScore[]): number {
 function getScoreFromTable(langScore: LanguageScore): number {
   const { type, level, score } = langScore;
   
+  // UNKNOWN 타입인 경우 0점 반환
+  if (type === 'UNKNOWN') {
+    return 0;
+  }
+  
   // 영어 성적 처리
   if (['TOEIC', 'TOEFL_IBT', 'TOEFL_ITP', 'IELTS', 'CEFR'].includes(type)) {
     return getEnglishScore(type, level, score);
@@ -162,6 +167,11 @@ export function calculateConvertedScore(applicant: UniversityApplicant): number 
   // 어학 성적 파싱 및 점수 계산
   const languageScores = parseLangString(applicant.lang || '');
   const langScore = calculateLanguageScore(languageScores);
+  
+  // 어학점수가 0점이면 전체 환산점수를 0점으로 처리
+  if (langScore === 0) {
+    return 0;
+  }
   
   // 프로그램 타입 결정 (영어 성적이 있으면 영어 프로그램, 아니면 제2외국어 프로그램)
   const hasEnglishScore = languageScores.some(score => 

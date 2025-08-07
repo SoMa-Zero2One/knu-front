@@ -9,6 +9,7 @@ import BottomNavigation from '@/components/BottomNavigation';
 import UnauthorizedModal from '@/components/UnauthorizedModal';
 import { getCountryFlag } from '@/utils/countryFlags';
 import { calculateConvertedScore, sortApplicantsByRank } from '@/utils/scoreCalculation';
+import { parseLangString } from '@/utils/languageParser';
 import { universitiesAPI } from '@/api';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
@@ -358,15 +359,36 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                           </div>
                           
                           <div className="flex flex-wrap gap-1 items-center">
-                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue('환산점수')}`}>
-                              환산점수 {calculateConvertedScore(applicant)}점
-                            </span>
+{(() => {
+                              const convertedScore = calculateConvertedScore(applicant);
+                              const languageScores = parseLangString(applicant.lang);
+                              const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
+                              
+                              return (
+                                <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue('환산점수')}`}>
+                                  환산점수 {convertedScore}점
+                                  {convertedScore === 0 && hasUnknown && ' (관리자 처리 예정)'}
+                                </span>
+                              );
+                            })()}
                             <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(applicant.grade.toString())}`}>
                               학점 {applicant.grade.toFixed(2)}
                             </span>
-                            <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(applicant.lang)}`}>
-                              {applicant.lang}
-                            </span>
+{(() => {
+                              const languageScores = parseLangString(applicant.lang);
+                              const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
+                              
+                              return (
+                                <div className="flex items-center space-x-1">
+                                  <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                                    hasUnknown ? 'bg-red-100 text-red-800' : getColorForValue(applicant.lang)
+                                  }`}>
+                                    {hasUnknown && '⚠️ '}
+                                    {applicant.lang}
+                                  </span>
+                                </div>
+                              );
+                            })()}
                           </div>
                         </div>
                       </div>
@@ -438,9 +460,20 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              <span className="font-semibold text-purple-600">
-                                {calculateConvertedScore(applicant)}점
-                              </span>
+                              {(() => {
+                                const convertedScore = calculateConvertedScore(applicant);
+                                const languageScores = parseLangString(applicant.lang);
+                                const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
+                                
+                                return (
+                                  <span className="font-semibold text-purple-600">
+                                    {convertedScore}점
+                                    {convertedScore === 0 && hasUnknown && (
+                                      <span className="text-xs text-red-600 ml-1">(관리자 처리 예정)</span>
+                                    )}
+                                  </span>
+                                );
+                              })()}
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -451,9 +484,19 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-green-100 text-green-800">
-                              {applicant.lang}
-                            </span>
+                            {(() => {
+                              const languageScores = parseLangString(applicant.lang);
+                              const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
+                              
+                              return (
+                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+                                  hasUnknown ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
+                                }`}>
+                                  {hasUnknown && '⚠️ '}
+                                  {applicant.lang}
+                                </span>
+                              );
+                            })()}
                           </td>
                         </tr>
                       ))}
