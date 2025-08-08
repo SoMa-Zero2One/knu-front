@@ -88,10 +88,16 @@ export const parseLangString = (langString: string): LanguageScore[] => {
       }
     } else if (lowerScoreStr.includes('torfl') || lowerScoreStr.includes('러시아어')) {
       type = 'TORFL';
-      // TORFL 기초, 기본, 1단계, 러시아어 기초 등 처리
-      const torflMatch = scoreStr.match(/(?:torfl|러시아어)\s+(기초|기본|\d+단계)(?:\s+(\d+))?/i);
+      // TORFL 기초, 기본, 1단계, 1, 러시아어 기초 등 처리
+      const torflMatch = scoreStr.match(/(?:torfl|러시아어)\s+(기초|기본|\d+단계|\d+)(?:\s+(\d+))?/i);
       if (torflMatch) {
-        level = torflMatch[1];
+        const matchedLevel = torflMatch[1];
+        // 숫자만 있는 경우 "N단계" 형태로 변환
+        if (/^\d+$/.test(matchedLevel)) {
+          level = `${matchedLevel}단계`;
+        } else {
+          level = matchedLevel;
+        }
         score = torflMatch[2] || null;
       } else {
         // TORFL 패턴이 맞지 않으면 UNKNOWN으로 설정
