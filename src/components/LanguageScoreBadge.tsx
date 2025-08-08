@@ -13,6 +13,23 @@ export default function LanguageScoreBadge({
   const languageScores = parseLangString(langString);
   const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
   
+  // 정규화된 타입으로 표시할 문자열 생성
+  const displayString = languageScores.map(score => {
+    if (score.type === 'UNKNOWN') {
+      return score.originalString || '';
+    }
+    
+    // 레벨과 점수가 있는 경우 함께 표시
+    let result = score.type;
+    if (score.level) {
+      result += ` ${score.level}`;
+    }
+    if (score.score) {
+      result += ` ${score.score}`;
+    }
+    return result;
+  }).join(', ');
+  
   if (variant === 'mobile') {
     return (
       <div className="flex items-center space-x-1">
@@ -20,7 +37,7 @@ export default function LanguageScoreBadge({
           hasUnknown ? 'bg-red-100 text-red-800' : getColorForValue(langString)
         }`}>
           {hasUnknown && '⚠️ '}
-          {langString}
+          {displayString}
         </span>
       </div>
     );
@@ -31,7 +48,7 @@ export default function LanguageScoreBadge({
       hasUnknown ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
     }`}>
       {hasUnknown && '⚠️ '}
-      {langString}
+      {displayString}
     </span>
   );
 }

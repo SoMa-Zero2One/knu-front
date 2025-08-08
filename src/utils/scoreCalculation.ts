@@ -182,7 +182,7 @@ export function calculateConvertedScore(applicant: UniversityApplicant): number 
   const gradeMultiplier = hasEnglishScore ? (50 / 4.5) : (40 / 4.5);
   const baseScore = applicant.grade * gradeMultiplier;
   
-  return Math.round(baseScore + langScore);
+  return Math.round((baseScore + langScore) * 100) / 100;
 }
 
 /**
