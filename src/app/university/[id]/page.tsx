@@ -8,6 +8,7 @@ import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import UnauthorizedModal from '@/components/UnauthorizedModal';
 import { getCountryFlag } from '@/utils/countryFlags';
+import Twemoji from 'react-twemoji';
 import { calculateConvertedScore, sortApplicantsByRank } from '@/utils/scoreCalculation';
 import { parseLangString } from '@/utils/languageParser';
 import ConvertedScoreDisplay from '@/components/ConvertedScoreDisplay';
@@ -186,7 +187,9 @@ export default function UniversityPage({ params }: UniversityPageProps) {
             <div className="text-center">
               <h3 className="text-lg font-semibold text-gray-900 mb-2">국가</h3>
               <div className="flex items-center justify-center space-x-2">
-                <span className="text-2xl">{getCountryFlag(displayUniversity.country)}</span>
+                <Twemoji options={{ className: 'twemoji text-2xl' }}>
+                  <span>{getCountryFlag(displayUniversity.country)}</span>
+                </Twemoji>
                 <p className="text-2xl text-blue-600 font-semibold">{displayUniversity.country}</p>
               </div>
             </div>
