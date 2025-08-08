@@ -6,6 +6,7 @@ import { useRouter } from 'next/navigation';
 import { University, AppliedUniversity } from '@/types';
 import { getCountryFlag } from '@/utils/countryFlags';
 import Header from '@/components/Header';
+import BottomNavigation from '@/components/BottomNavigation';
 import { usersAPI, universitiesAPI } from '@/api';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
@@ -224,7 +225,7 @@ export default function EditApplicationsPage() {
         backUrl={`/profile/${user.id}`}
       />
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8">
         {/* 안내 메시지 */}
         <div className="bg-white rounded-lg shadow p-6 mb-6">
           <h2 className="text-lg font-semibold text-gray-900 mb-4">📝 편집 안내</h2>
@@ -234,7 +235,10 @@ export default function EditApplicationsPage() {
               <p className="text-green-700">✅ 편집 가능한 상태입니다.</p>
               <p className="text-sm text-gray-600">• 남은 편집 횟수: <span className="font-semibold">{remainingEdits}회</span></p>
               <p className="text-sm text-gray-600">• 원하는 대학교를 선택하고 저장하세요.</p>
-              <p className="text-xs text-blue-600 mt-2">ℹ️ 마감 3일 전에 편집 횟수가 4회로 초기화됩니다.</p>
+              <p className="text-xs text-blue-600 mt-2">
+                ℹ️ 마감 3일 전에 편집 횟수가 4회로 초기화되며, 그 이후부터는 지원한 학교의 세부 정보만 볼 수 있습니다.<br />
+                수정횟수가 부족한 경우 zero2one.soma@gmail.com으로 연락주세요.
+              </p>
             </div>
           ) : (
             <div className="space-y-2">
@@ -331,7 +335,7 @@ export default function EditApplicationsPage() {
                     placeholder="대학교 이름 또는 국가로 검색..."
                     value={searchQuery}
                     onChange={(e) => setSearchQuery(e.target.value)}
-                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors"
+                    className="w-full px-4 py-2 pl-10 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 transition-colors text-black"
                   />
                   <svg
                     className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400"
@@ -455,6 +459,7 @@ export default function EditApplicationsPage() {
         </div>
       </main>
 
+      <BottomNavigation />
     </div>
   );
 } 
