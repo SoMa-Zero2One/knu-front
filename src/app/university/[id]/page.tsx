@@ -10,6 +10,9 @@ import UnauthorizedModal from '@/components/UnauthorizedModal';
 import { getCountryFlag } from '@/utils/countryFlags';
 import { calculateConvertedScore, sortApplicantsByRank } from '@/utils/scoreCalculation';
 import { parseLangString } from '@/utils/languageParser';
+import ConvertedScoreDisplay from '@/components/ConvertedScoreDisplay';
+import LanguageScoreBadge from '@/components/LanguageScoreBadge';
+import { getColorForValue } from '@/utils/colorUtils';
 import { universitiesAPI } from '@/api';
 import { useAnalytics } from '@/hooks/useAnalytics';
 
@@ -33,31 +36,6 @@ export default function UniversityPage({ params }: UniversityPageProps) {
   const [isUnauthorized, setIsUnauthorized] = useState(false);
   const [unauthorizedUniversityData, setUnauthorizedUniversityData] = useState<any>(null);
 
-  const getColorForValue = (value: string): string => {
-    const colors = [
-      'bg-blue-100 text-blue-700',
-      'bg-red-100 text-red-700',
-      'bg-green-100 text-green-700',
-      'bg-yellow-100 text-yellow-700',
-      'bg-purple-100 text-purple-700',
-      'bg-indigo-100 text-indigo-700',
-      'bg-gray-100 text-gray-700',
-      'bg-orange-100 text-orange-700',
-      'bg-teal-100 text-teal-700',
-      'bg-cyan-100 text-cyan-700',
-      'bg-lime-100 text-lime-700',
-      'bg-emerald-100 text-emerald-700',
-      'bg-sky-100 text-sky-700',
-      'bg-violet-100 text-violet-700',
-      'bg-fuchsia-100 text-fuchsia-700',
-      'bg-amber-100 text-amber-700',
-      'bg-slate-100 text-slate-700',
-      'bg-zinc-100 text-zinc-700',
-    ];
-
-    const hash = [...value].reduce((acc, char) => acc + char.charCodeAt(0), 0);
-    return colors[hash % colors.length];
-  };
 
   const getSortedApplicants = (applicants: UniversityApplicant[]) => {
     const sorted = [...applicants].sort((a, b) => {
@@ -359,36 +337,18 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                           </div>
                           
                           <div className="flex flex-wrap gap-1 items-center">
-{(() => {
-                              const convertedScore = calculateConvertedScore(applicant);
-                              const languageScores = parseLangString(applicant.lang);
-                              const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
-                              
-                              return (
-                                <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue('환산점수')}`}>
-                                  환산점수 {convertedScore}점
-                                  {convertedScore === 0 && hasUnknown && ' (관리자 처리 예정)'}
-                                </span>
-                              );
-                            })()}
+<ConvertedScoreDisplay 
+                              applicant={applicant}
+                              variant="mobile"
+                              className={getColorForValue('환산점수')}
+                            />
                             <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(applicant.grade.toString())}`}>
                               학점 {applicant.grade.toFixed(2)}
                             </span>
-{(() => {
-                              const languageScores = parseLangString(applicant.lang);
-                              const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
-                              
-                              return (
-                                <div className="flex items-center space-x-1">
-                                  <span className={`px-2 py-1 rounded-md text-xs font-medium ${
-                                    hasUnknown ? 'bg-red-100 text-red-800' : getColorForValue(applicant.lang)
-                                  }`}>
-                                    {hasUnknown && '⚠️ '}
-                                    {applicant.lang}
-                                  </span>
-                                </div>
-                              );
-                            })()}
+<LanguageScoreBadge 
+                              langString={applicant.lang}
+                              variant="mobile"
+                            />
                           </div>
                         </div>
                       </div>
@@ -460,20 +420,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="text-sm text-gray-900">
-                              {(() => {
-                                const convertedScore = calculateConvertedScore(applicant);
-                                const languageScores = parseLangString(applicant.lang);
-                                const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
-                                
-                                return (
-                                  <span className="font-semibold text-purple-600">
-                                    {convertedScore}점
-                                    {convertedScore === 0 && hasUnknown && (
-                                      <span className="text-xs text-red-600 ml-1">(관리자 처리 예정)</span>
-                                    )}
-                                  </span>
-                                );
-                              })()}
+                              <ConvertedScoreDisplay applicant={applicant} />
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
@@ -484,19 +431,7 @@ export default function UniversityPage({ params }: UniversityPageProps) {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            {(() => {
-                              const languageScores = parseLangString(applicant.lang);
-                              const hasUnknown = languageScores.some(score => score.type === 'UNKNOWN');
-                              
-                              return (
-                                <span className={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
-                                  hasUnknown ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'
-                                }`}>
-                                  {hasUnknown && '⚠️ '}
-                                  {applicant.lang}
-                                </span>
-                              );
-                            })()}
+                            <LanguageScoreBadge langString={applicant.lang} />
                           </td>
                         </tr>
                       ))}

@@ -7,6 +7,7 @@ import { User, University, LanguageScore, LanguageTestType } from '@/types';
 import Header from '@/components/Header';
 import UniversityItem from '@/components/UniversityItem';
 import BottomNavigation from '@/components/BottomNavigation';
+import LanguageScoreCard from '@/components/LanguageScoreCard';
 import { usersAPI } from '@/api';
 import { useAnalytics } from '@/hooks/useAnalytics';
 import { parseLangString } from '@/utils/languageParser';
@@ -182,24 +183,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     {profileUser.languageScores.length > 0 ? (
                       <div className="space-y-2">
                         {profileUser.languageScores.map((score) => (
-                          <div key={score.id} className="bg-green-50 rounded-lg p-3">
-                            <div className="flex justify-between items-center">
-                              <span className="font-medium text-green-900">
-                                {score.type === 'UNKNOWN' ? '⚠️ 인식되지 않은 어학성적' : score.type}
-                              </span>
-                              <span className="font-semibold text-green-700">
-                                {score.type === 'UNKNOWN' 
-                                  ? score.originalString 
-                                  : (score.level ? `${score.level}${score.score ? ` (${score.score})` : ''}` : score.score)
-                                }
-                              </span>
-                            </div>
-                            {score.type === 'UNKNOWN' && (
-                              <div className="mt-1 text-xs text-red-600">
-                                관리자 처리 예정
-                              </div>
-                            )}
-                          </div>
+                          <LanguageScoreCard key={score.id} score={score} />
                         ))}
                       </div>
                     ) : (
@@ -388,24 +372,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                 {profileUser.languageScores.length > 0 ? (
                   <div className="space-y-2">
                     {profileUser.languageScores.map((score) => (
-                      <div key={score.id} className="bg-green-50 rounded-lg p-3">
-                        <div className="flex justify-between items-center">
-                          <span className="font-medium text-green-900">
-                            {score.type === 'UNKNOWN' ? '⚠️ 인식되지 않은 어학성적' : score.type}
-                          </span>
-                          <span className="font-semibold text-green-700">
-                            {score.type === 'UNKNOWN' 
-                              ? score.originalString 
-                              : (score.level ? `${score.level}${score.score ? ` (${score.score})` : ''}` : score.score)
-                            }
-                          </span>
-                        </div>
-                        {score.type === 'UNKNOWN' && (
-                          <div className="mt-1 text-xs text-red-600">
-                            관리자 처리 예정
-                          </div>
-                        )}
-                      </div>
+                      <LanguageScoreCard key={score.id} score={score} />
                     ))}
                   </div>
                 ) : (
