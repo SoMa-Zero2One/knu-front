@@ -21,7 +21,7 @@ interface ProfilePageProps {
 export default function ProfilePage({ params }: ProfilePageProps) {
   const router = useRouter();
   const { user: currentUser, loading } = useAuth();
-  const { trackButtonClick, trackEvent } = useAnalytics();
+  const { trackEvent } = useAnalytics();
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [appliedUniversities, setAppliedUniversities] = useState<Array<University & { rank: number }>>([]);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
@@ -63,7 +63,7 @@ export default function ProfilePage({ params }: ProfilePageProps) {
               
             const labelWithUser = `${userData.nickname} 프로필 조회`;
             
-            trackEvent(labelWithUser, `사용자조회_${safeNickname}`);
+            trackEvent(labelWithUser, 'profile_interaction', safeNickname);
           }
           
           // applications 데이터를 대학교 정보와 함께 설정
@@ -236,7 +236,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                       <div className="mt-4">
                         <button
                           onClick={() => {
-                            trackButtonClick('지원 대학교 변경으로 이동', '지원대학교_변경페이지_이동');
                             router.push('/applications/edit');
                           }}
                           className="w-full inline-flex items-center justify-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 transition-colors"
@@ -407,7 +406,6 @@ export default function ProfilePage({ params }: ProfilePageProps) {
                     <div className="cursor-pointer mt-4 sm:mt-0 space-y-2 sm:space-y-0 sm:space-x-3 sm:flex">
                       <button
                         onClick={() => {
-                          trackButtonClick('지원 대학교 변경으로 이동', '지원대학교_변경페이지_이동');
                           router.push('/applications/edit');
                         }}
                         className="w-full sm:w-auto inline-flex items-center px-4 py-2 border border-purple-300 rounded-md shadow-sm text-sm font-medium text-purple-700 bg-purple-50 hover:bg-purple-100 hover:cursor-pointer transition-colors"

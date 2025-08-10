@@ -13,7 +13,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 export default function EditApplicationsPage() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { trackFormSubmit } = useAnalytics();
+  const { trackFormSubmit, trackEvent } = useAnalytics();
   const [selectedUniversities, setSelectedUniversities] = useState<AppliedUniversity[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -26,6 +26,13 @@ export default function EditApplicationsPage() {
     const fetchUserData = async () => {
       if (user) {
         try {
+          // 지원 대학교 변경 페이지 접근 이벤트 추적
+          const safeNickname = user?.nickname
+            ?.replace(/\s+/g, '')
+            ?.replace(/[^\w가-힣]/g, '') || user?.id;
+          
+          trackEvent('지원 대학교 변경 페이지 접근', 'applications_interaction', safeNickname);
+          
           // 현재 사용자 데이터 가져오기
           const userData = await usersAPI.getUserById(user.id);
           

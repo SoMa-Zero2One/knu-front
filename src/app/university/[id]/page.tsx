@@ -91,6 +91,22 @@ export default function UniversityPage({ params }: UniversityPageProps) {
       try {
         const universityData = await universitiesAPI.getUniversityById(resolvedParams.id);
         setUniversity(universityData);
+        
+        // 대학교 페이지 조회 이벤트 추적
+        if (user) {
+          const safeNickname = user?.nickname
+            ?.replace(/\s+/g, '')
+            ?.replace(/[^\w가-힣]/g, '') || user?.id;
+          
+          const safeUniversityName = universityData.name
+            ?.replace(/\s+/g, '')
+            ?.replace(/[^\w가-힣]/g, '') || universityData.id;
+          
+          const isApplicant = universityData?.applicants?.some(applicant => applicant.id === user.id);
+          const applicantStatus = isApplicant ? 1 : 0;
+            
+          trackEvent(`${safeUniversityName} 대학교 상세 조회`, 'university_interaction', `${safeNickname}_${applicantStatus}`);
+        }
       } catch (error) {
         console.error('대학교 상세 정보 가져오기 오류:', error);
         
