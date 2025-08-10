@@ -10,6 +10,13 @@ const getAuthHeaders = () => {
   };
 };
 
+const getAuthHeadersWithToken = (token: string) => {
+  return {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
 export interface UserProfile {
   id: string;
   nickname: string;
@@ -71,5 +78,18 @@ export const usersAPI = {
     if (!response.ok) {
       throw new Error(`Failed to update applications: ${response.status}`);
     }
+  },
+
+  // 토큰을 직접 받는 버전 (서버 사이드용)
+  async getUserByIdWithToken(id: string, token: string): Promise<UserProfile> {
+    const response = await fetch(`${API_BASE_URL}/users/${id}`, {
+      headers: getAuthHeadersWithToken(token),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch user: ${response.status}`);
+    }
+
+    return response.json();
   }
 };

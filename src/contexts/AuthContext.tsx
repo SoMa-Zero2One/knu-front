@@ -34,6 +34,17 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (typeof window !== 'undefined') {
           localStorage.setItem('auth_token', accessToken);
           localStorage.setItem('user_info', JSON.stringify({ id, nickname }));
+          
+          // 쿠키에도 토큰 저장
+          try {
+            await fetch('/api/auth/session', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({ token: accessToken, maxAge: 60 * 60 * 24 }) // 24시간
+            });
+          } catch (error) {
+            console.error('쿠키 설정 오류:', error);
+          }
         }
         // 로그인 성공 후 dashboard로 리다이렉트
         router.push('/dashboard');
@@ -78,12 +89,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     initAuth();
   }, [router, pathname]);
 
-  const logout = () => {
+  const logout = async () => {
     setUser(null);
     setToken(null);
     if (typeof window !== 'undefined') {
       localStorage.removeItem('auth_token');
       localStorage.removeItem('user_info');
+      
+      // 쿠키도 삭제
+      try {
+        await fetch('/api/auth/logout', {
+          method: 'POST',
+        });
+      } catch (error) {
+        console.error('쿠키 삭제 오류:', error);
+      }
     }
   };
 

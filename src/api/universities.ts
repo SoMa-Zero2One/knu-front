@@ -10,6 +10,13 @@ const getAuthHeaders = () => {
   };
 };
 
+const getAuthHeadersWithToken = (token: string) => {
+  return {
+    'Authorization': `Bearer ${token}`,
+    'Content-Type': 'application/json',
+  };
+};
+
 export const universitiesAPI = {
   async getUniversities(): Promise<University[]> {
     const response = await fetch(`${API_BASE_URL}/universities`, {
@@ -30,6 +37,31 @@ export const universitiesAPI = {
 
     if (!response.ok) {
       throw new Error(`Failed to fetch university: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  // 토큰을 직접 받는 버전 (서버 사이드용)
+  async getUniversityByIdWithToken(id: string, token: string): Promise<UniversityDetail> {
+    const response = await fetch(`${API_BASE_URL}/universities/${id}`, {
+      headers: getAuthHeadersWithToken(token),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch university: ${response.status}`);
+    }
+
+    return response.json();
+  },
+
+  async getUniversitiesWithToken(token: string): Promise<University[]> {
+    const response = await fetch(`${API_BASE_URL}/universities`, {
+      headers: getAuthHeadersWithToken(token),
+    });
+
+    if (!response.ok) {
+      throw new Error(`Failed to fetch universities: ${response.status}`);
     }
 
     return response.json();
