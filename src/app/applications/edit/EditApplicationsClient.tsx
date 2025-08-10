@@ -13,7 +13,7 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 export default function EditApplicationsClient() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const { trackFormSubmit, trackEvent } = useAnalytics();
+  const { trackEvent } = useAnalytics();
   const [selectedUniversities, setSelectedUniversities] = useState<AppliedUniversity[]>([]);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error', text: string } | null>(null);
@@ -131,8 +131,11 @@ export default function EditApplicationsClient() {
     setMessage(null);
     
     try {
+      const safeNickname = user?.nickname
+            ?.replace(/\s+/g, '')
+            ?.replace(/[^\w가-힣]/g, '') || user?.id;
       // 지원 대학교 변경 시도 이벤트 추적
-      trackFormSubmit('지원 대학교 변경 시도');
+      trackEvent('지원_대학교_변경_시도', 'form', safeNickname);
       
       const applicationsData = selectedUniversities.map(u => ({
         universityId: parseInt(u.universityId),
@@ -143,13 +146,10 @@ export default function EditApplicationsClient() {
       
       setMessage({ type: 'success', text: '지원 대학교가 성공적으로 변경되었습니다.' });
       
-      // 성공 이벤트 추적
-      trackFormSubmit('지원 대학교 변경 성공', '지원대학교_변경_완료');
-      
       // 3초 후 프로필 페이지로 이동
       setTimeout(() => {
         router.push(`/profile/${user.id}`);
-      }, 3000);
+      }, 1500);
     } catch (error) {
       console.error('지원 대학교 변경 오류:', error);
       setMessage({ 
@@ -157,8 +157,6 @@ export default function EditApplicationsClient() {
         text: error instanceof Error ? error.message : '오류가 발생했습니다. 다시 시도해주세요.' 
       });
       
-      // 실패 이벤트 추적
-      trackFormSubmit('지원 대학교 변경 실패', '지원대학교_변경_오류');
     } finally {
       setIsSubmitting(false);
     }

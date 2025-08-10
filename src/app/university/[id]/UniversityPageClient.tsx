@@ -89,17 +89,17 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
         // 대학교 페이지 조회 이벤트 추적
         if (user) {
           const safeNickname = user?.nickname
-            ?.replace(/\s+/g, '')
-            ?.replace(/[^\w가-힣]/g, '') || user?.id;
+            ?.replace(/\s+/g, '_')
+            ?.replace(/[^\w가-힣_]/g, '') || user?.id;
           
           const safeUniversityName = universityData.name
-            ?.replace(/\s+/g, '')
-            ?.replace(/[^\w가-힣]/g, '') || universityData.id;
+            ?.replace(/\s+/g, '_')
+            ?.replace(/[^\w가-힣_]/g, '') || universityData.id;
           
           const isApplicant = universityData?.applicants?.some(applicant => applicant.id === user.id);
           const applicantStatus = isApplicant ? 1 : 0;
             
-          trackEvent(`${safeUniversityName} 대학교 상세 조회`, 'university_interaction', `${safeNickname}_${applicantStatus}`);
+          trackEvent(`${safeUniversityName}_대학교_상세_조회`, 'university_interaction', `${safeNickname}_${applicantStatus}`);
         }
       } catch (error) {
         console.error('대학교 상세 정보 가져오기 오류:', error);
@@ -240,7 +240,14 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                 {!isUnauthorized && (
                   <div className="flex flex-wrap gap-2">
                     <button
-                      onClick={() => handleSort('choice')}
+                      onClick={() => {
+                        const safeNickname = user?.nickname
+                          ?.replace(/\s+/g, '_')
+                          ?.replace(/[^\w가-힣_]/g, '') || user?.id;
+                        console.log('Tracking button click:', '지망순위순_정렬', safeNickname);
+                        trackEvent('지망순위순_정렬', 'button', safeNickname);
+                        handleSort('choice');
+                      }}
                       className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                         sortType === 'choice' 
                           ? 'bg-blue-100 text-blue-700 border border-blue-300' 
@@ -255,7 +262,13 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                       )}
                     </button>
                     <button
-                      onClick={() => handleSort('convertedScore')}
+                      onClick={() => {
+                        const safeNickname = user?.nickname
+                          ?.replace(/\s+/g, '_')
+                          ?.replace(/[^\w가-힣_]/g, '') || user?.id;
+                        trackEvent('환산점수순_정렬', 'button', safeNickname);
+                        handleSort('convertedScore');
+                      }}
                       className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                         sortType === 'convertedScore' 
                           ? 'bg-purple-100 text-purple-700 border border-purple-300' 
@@ -270,7 +283,13 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                       )}
                     </button>
                     <button
-                      onClick={() => handleSort('grade')}
+                      onClick={() => {
+                        const safeNickname = user?.nickname
+                          ?.replace(/\s+/g, '_')
+                          ?.replace(/[^\w가-힣_]/g, '') || user?.id;
+                        trackEvent('학점순_정렬', 'button', safeNickname);
+                        handleSort('grade');
+                      }}
                       className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
                         sortType === 'grade' 
                           ? 'bg-green-100 text-green-700 border border-green-300' 
@@ -301,7 +320,7 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                   </p>
                   <button
                     onClick={() => {
-                      trackEvent('unauthorized_university_edit_attempt', 'access_control', `${displayUniversity.name}_${user.nickname}`);
+                      trackEvent('unauthorized_university_edit_attempt', 'access_control', `${displayUniversity.name.replace(/\s+/g, '_')}_${user.nickname?.replace(/\s+/g, '_')}`);
                       router.push('/applications/edit');
                     }}
                     className="bg-blue-600 text-white py-3 px-6 rounded-lg hover:bg-blue-700 transition-colors font-medium cursor-pointer"
