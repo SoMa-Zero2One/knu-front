@@ -2,7 +2,6 @@
 
 import { useRouter } from 'next/navigation';
 import { UniversityApplicant } from '@/types';
-import { useAnalytics } from '@/hooks/useAnalytics';
 import { useAuth } from '@/contexts/AuthContext';
 import ConvertedScoreDisplay from '@/components/ConvertedScoreDisplay';
 import LanguageScoreBadge from '@/components/LanguageScoreBadge';
@@ -16,21 +15,9 @@ interface ApplicantItemProps {
 
 export default function ApplicantItem({ applicant, isMobile = false, universityName }: ApplicantItemProps) {
   const router = useRouter();
-  const { trackButtonClick } = useAnalytics();
   const { user } = useAuth();
 
   const handleClick = () => {
-    const safeNickname = user?.nickname
-      ?.replace(/\s+/g, '')
-      ?.replace(/[^\w가-힣]/g, '') || user?.id;
-    
-    const safeApplicantNickname = applicant.nickname
-      ?.replace(/\s+/g, '')
-      ?.replace(/[^\w가-힣]/g, '') || applicant.id;
-      
-    const labelWithUser = `${safeApplicantNickname} 프로필 조회`;
-    
-    trackButtonClick(`사용자조회_${safeNickname}`, labelWithUser);
     router.push(`/profile/${applicant.id}`);
   };
 

@@ -57,7 +57,13 @@ export default function ProfilePage({ params }: ProfilePageProps) {
           
           // 다른 사용자의 프로필을 조회하는 경우 GA 이벤트 전송
           if (currentUser && currentUser.id !== userData.id) {
-            trackEvent('nickname_profile_view', 'profile_interaction', `${userData.nickname}_viewed_by_${currentUser.nickname}`);
+            const safeNickname = currentUser?.nickname
+              ?.replace(/\s+/g, '')
+              ?.replace(/[^\w가-힣]/g, '') || currentUser?.id;
+              
+            const labelWithUser = `${userData.nickname} 프로필 조회`;
+            
+            trackEvent(labelWithUser, `사용자조회_${safeNickname}`);
           }
           
           // applications 데이터를 대학교 정보와 함께 설정
