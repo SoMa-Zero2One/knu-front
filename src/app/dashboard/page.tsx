@@ -12,8 +12,8 @@ import { useAnalytics } from '@/hooks/useAnalytics';
 
 export default function DashboardPage() {
   const { user, loading, token } = useAuth();
+  const { trackEvent } = useAnalytics();
   const router = useRouter();
-  const { trackButtonClick } = useAnalytics();
 
   const [universities, setUniversities] = useState<University[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
@@ -154,7 +154,7 @@ export default function DashboardPage() {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <button
                 onClick={() => {
-                  trackButtonClick('지원자가 있는 대학만 보기', '대시보드_지원자있는대학_필터');
+                  trackEvent('지원자가 있는 대학만', 'dashboard_filter', user?.nickname || 'unknown');
                   setFilterType('hasApplicants');
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
@@ -167,7 +167,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => {
-                  trackButtonClick('모든 대학 보기', '대시보드_모든대학_필터');
+                  trackEvent('모든 대학', 'dashboard_filter', user?.nickname || 'unknown');
                   setFilterType('all');
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
@@ -180,7 +180,7 @@ export default function DashboardPage() {
               </button>
               <button
                 onClick={() => {
-                  trackButtonClick('지망한 대학만 보기', '대시보드_지망대학_필터');
+                  trackEvent('지망한 대학만', 'dashboard_filter', user?.nickname || 'unknown');
                   setFilterType('applied');
                 }}
                 className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
