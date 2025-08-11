@@ -84,22 +84,40 @@ export default function EditApplicationsClient() {
 }, [user, loading, router]);
 
   const getFilteredUniversities = () => {
-    if (!searchQuery) return allUniversities;
+    let filtered = allUniversities;
     
-    return allUniversities.filter((university) =>
-      university.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      university.country.toLowerCase().includes(searchQuery.toLowerCase())
-    );
+    if (searchQuery) {
+      filtered = allUniversities.filter((university) =>
+        university.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+        university.country.toLowerCase().includes(searchQuery.toLowerCase())
+      );
+    }
+    
+    return filtered.sort((a, b) => {
+      const aSelected = selectedUniversities.some(u => u.universityId === a.id);
+      const bSelected = selectedUniversities.some(u => u.universityId === b.id);
+      
+      if (aSelected && !bSelected) return -1;
+      if (!aSelected && bSelected) return 1;
+      
+      return a.name.localeCompare(b.name);
+    });
   };
 
   const handleUniversitySelect = (universityId: string) => {
+    // 변경 가능 횟수가 0 이하인 경우 선택 불가
+    if (modifyCount !== null && modifyCount >= 3) {
+      setMessage({ type: 'error', text: '변경 가능 횟수가 없습니다.' });
+      return;
+    }
+
     const isAlreadySelected = selectedUniversities.some(u => u.universityId === universityId);
     
     if (isAlreadySelected) {
       setSelectedUniversities(selectedUniversities.filter(u => u.universityId !== universityId));
     } else {
       if (selectedUniversities.length >= 5) {
-        alert('최대 5개 대학교까지만 지원할 수 있습니다.');
+        setMessage({ type: 'error', text: '최대 5개 대학교까지만 지원할 수 있습니다.' });
         return;
       }
       
@@ -108,21 +126,6 @@ export default function EditApplicationsClient() {
     }
   };
 
-  const handleRankChange = (universityId: string, newRank: number) => {
-    if (newRank < 1 || newRank > selectedUniversities.length) return;
-    
-    const updatedList = selectedUniversities.map(u => {
-      if (u.universityId === universityId) {
-        return { ...u, rank: newRank };
-      } else if (u.rank === newRank) {
-        const oldRank = selectedUniversities.find(x => x.universityId === universityId)?.rank || 0;
-        return { ...u, rank: oldRank };
-      }
-      return u;
-    });
-    
-    setSelectedUniversities(updatedList);
-  };
 
   const handleSubmit = async () => {
     if (!user) return;
@@ -191,14 +194,36 @@ export default function EditApplicationsClient() {
       
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8">
         {/* 현재 상태 표시 */}
-        <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-6">
+        <div className={`border rounded-lg p-4 mb-6 ${
+          modifyCount !== null && modifyCount >= 3
+            ? 'bg-red-50 border-red-200'
+            : 'bg-blue-50 border-blue-200'
+        }`}>
           <div className="flex items-center">
-            <div className="text-blue-600 text-xl mr-2">ℹ️</div>
+            <div className={`text-xl mr-2 ${
+              modifyCount !== null && modifyCount >= 3 ? 'text-red-600' : 'text-blue-600'
+            }`}>
+              {modifyCount !== null && modifyCount >= 3 ? '⚠️' : 'ℹ️'}
+            </div>
             <div>
-              <h3 className="text-blue-800 font-semibold">변경 가능 횟수</h3>
-              <p className="text-blue-700 text-sm">
+              <h3 className={`font-semibold ${
+                modifyCount !== null && modifyCount >= 3 ? 'text-red-800' : 'text-blue-800'
+              }`}>변경 가능 횟수</h3>
+              <p className={`text-sm ${
+                modifyCount !== null && modifyCount >= 3 ? 'text-red-700' : 'text-blue-700'
+              }`}>
                 총 {modifyCount !== null ? 3 - modifyCount : '?'}회 남음
                 {modifyCount !== null && modifyCount >= 3 && " (변경 불가)"}
+              </p>
+              <p className={`text-xs mt-1 ${
+                modifyCount !== null && modifyCount >= 3 ? 'text-red-600' : 'text-blue-600'
+              }`}>
+                마감 3일 전에 변경 가능 횟수가 4회로 초기화됩니다.
+              </p>
+              <p className={`text-xs mt-1 ${
+                modifyCount !== null && modifyCount >= 3 ? 'text-red-600' : 'text-blue-600'
+              }`}>
+                횟수 부족 시 zero2one.soma@gmail.com으로 연락주세요.
               </p>
             </div>
           </div>
@@ -227,32 +252,11 @@ export default function EditApplicationsClient() {
           {selectedUniversityData.length > 0 ? (
             <div className="space-y-3">
               {selectedUniversityData.map(({ university, rank, universityId }) => (
-                <div key={universityId} className="flex items-center justify-between p-3 border rounded-lg">
-                  <div className="flex items-center space-x-3">
-                    <span className="font-semibold text-lg text-blue-600">{rank}순위</span>
-                    <div className="flex items-center space-x-2">
-                      <span className="text-2xl">{getCountryFlag(university!.country)}</span>
-                      <span className="font-medium">{university!.name}</span>
-                    </div>
-                  </div>
-                  
+                <div key={universityId} className="flex items-center p-3 border rounded-lg">
+                  <span className="font-semibold text-lg text-blue-600 mr-3">{rank}순위</span>
                   <div className="flex items-center space-x-2">
-                    <select 
-                      value={rank}
-                      onChange={(e) => handleRankChange(universityId, parseInt(e.target.value))}
-                      className="border border-gray-300 rounded px-2 py-1 text-sm"
-                    >
-                      {Array.from({ length: selectedUniversities.length }, (_, i) => (
-                        <option key={i + 1} value={i + 1}>{i + 1}순위</option>
-                      ))}
-                    </select>
-                    
-                    <button
-                      onClick={() => handleUniversitySelect(universityId)}
-                      className="text-red-600 hover:text-red-800 px-2 py-1 text-sm border border-red-300 rounded hover:bg-red-50"
-                    >
-                      제거
-                    </button>
+                    <span className="text-2xl">{getCountryFlag(university!.country)}</span>
+                    <span className="font-medium">{university!.name}</span>
                   </div>
                 </div>
               ))}
@@ -288,14 +292,19 @@ export default function EditApplicationsClient() {
                 const isSelected = selectedUniversities.some(u => u.universityId === university.id);
                 const selectedRank = selectedUniversities.find(u => u.universityId === university.id)?.rank;
                 
+                const isDisabled = modifyCount !== null && modifyCount >= 3;
+                
                 return (
                   <button
                     key={university.id}
                     onClick={() => handleUniversitySelect(university.id)}
+                    disabled={isDisabled}
                     className={`text-left p-3 rounded-lg border transition-colors ${
                       isSelected
                         ? 'bg-blue-50 border-blue-300 text-blue-900'
-                        : 'bg-white border-gray-200 hover:bg-gray-50'
+                        : isDisabled
+                        ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
+                        : 'bg-white border-gray-200 hover:bg-gray-50 cursor-pointer'
                     }`}
                   >
                     <div className="flex items-center justify-between">
