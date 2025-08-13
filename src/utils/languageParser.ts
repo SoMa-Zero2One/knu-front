@@ -53,10 +53,10 @@ export const parseLangString = (langString: string): LanguageScore[] => {
         // 일본어 패턴이 맞지 않으면 UNKNOWN으로 설정
         type = 'UNKNOWN';
       }
-    } else if (lowerScoreStr.includes('cefr') || lowerScoreStr.includes('영작문') || lowerScoreStr.includes('진단')) {
+    } else if (lowerScoreStr.includes('cefr') || lowerScoreStr.includes('iwc') || lowerScoreStr.includes('영작문') || lowerScoreStr.includes('진단')) {
       type = 'CEFR';
-      // CEFR B2, C1, 영작문 B2, 진단평가 B2 형태 처리
-      const cefrMatch = scoreStr.match(/(?:cefr|영작문|진단).*?([a-c][1-2])(?:\s+(\d+))?/i);
+      // CEFR B2, C1, IWC B2, 영작문 B2, 진단평가 B2 형태 처리
+      const cefrMatch = scoreStr.match(/(?:cefr|iwc|영작문|진단).*?([a-c][1-2])(?:\s+(\d+))?/i);
       if (cefrMatch) {
         level = cefrMatch[1].toUpperCase(); // B2, C1 등
         score = cefrMatch[2] || null;

@@ -20,7 +20,7 @@ export default function LanguageScoreBadge({
     }
     
     // 레벨과 점수가 있는 경우 함께 표시
-    let result = score.type;
+    let result = score.type === 'CEFR' ? '영작문' : score.type;
     if (score.level) {
       result += ` ${score.level}`;
     }

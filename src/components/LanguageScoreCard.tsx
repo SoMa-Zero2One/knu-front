@@ -9,7 +9,7 @@ export default function LanguageScoreCard({ score }: LanguageScoreCardProps) {
     <div className="bg-green-50 rounded-lg p-3">
       <div className="flex justify-between items-center">
         <span className="font-medium text-green-900">
-          {score.type === 'UNKNOWN' ? '⚠️ 인식되지 않은 어학성적' : score.type}
+          {score.type === 'UNKNOWN' ? '⚠️ 인식되지 않은 어학성적' : (score.type === 'CEFR' ? '영작문' : score.type)}
         </span>
         <span className="font-semibold text-green-700">
           {score.type === 'UNKNOWN' 
