@@ -1,32 +1,26 @@
 'use client';
 
+import { useCallback } from 'react';
 import { event } from '@/lib/gtag';
+import { useAuth } from '@/contexts/AuthContext';
 
 export const useAnalytics = () => {
-  const trackEvent = (action: string, category: string, label?: string, value?: number) => {
+  const { user } = useAuth();
+
+  const trackEvent = useCallback((action: string, category: string, label?: string, value?: number) => {
+    // user.nickname이 '닉네임'이면 추적하지 않음
+    if (user?.nickname === '닉네임') {
+      return;
+    }
+
     event(action, {
       event_category: category,
       event_label: label,
       value: value,
     });
-  };
-
-  const trackButtonClick = (buttonName: string, eventName?: string) => {
-    trackEvent(eventName || 'click', 'button', buttonName, 1);
-  };
-
-  const trackNavigation = (label: string, eventName?: string) => {
-    trackEvent(eventName || 'navigate', 'navigation', label, 1);
-  };
-
-  const trackFormSubmit = (label: string, eventName?: string) => {
-    trackEvent(eventName || 'submit', 'form', label, 1);
-  };
+  }, [user?.nickname]);
 
   return {
     trackEvent,
-    trackButtonClick,
-    trackNavigation,
-    trackFormSubmit,
   };
 };
