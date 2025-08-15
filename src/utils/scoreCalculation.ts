@@ -71,6 +71,13 @@ function getEnglishScore(type: LanguageTestType, level: string | undefined, scor
       case 'CEFR':
         if (level) {
           match = entry.CEFR.includes(level);
+        } else if (score) {
+          // 등급 정보가 없고 점수만 있는 경우 (예: "영작문 75")
+          // CEFR 환산표에서 점수 범위를 추출하여 매칭
+          const scoreRangeMatch = entry.CEFR.match(/(\d+)~(\d+)/);
+          if (scoreRangeMatch) {
+            match = isScoreInRange(numScore, `${scoreRangeMatch[1]}~${scoreRangeMatch[2]}`);
+          }
         }
         break;
     }
