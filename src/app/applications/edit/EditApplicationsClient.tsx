@@ -106,7 +106,7 @@ export default function EditApplicationsClient() {
 
   const handleUniversitySelect = (universityId: string) => {
     // 변경 가능 횟수가 0 이하인 경우 선택 불가
-    if (modifyCount !== null && modifyCount >= 3) {
+    if (modifyCount !== null && modifyCount <= 0) {
       setMessage({ type: 'error', text: '변경 가능 횟수가 없습니다.' });
       return;
     }
@@ -195,33 +195,33 @@ export default function EditApplicationsClient() {
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8">
         {/* 현재 상태 표시 */}
         <div className={`border rounded-lg p-4 mb-6 ${
-          modifyCount !== null && modifyCount >= 3
+          modifyCount !== null && modifyCount <= 0
             ? 'bg-red-50 border-red-200'
             : 'bg-blue-50 border-blue-200'
         }`}>
           <div className="flex items-center">
             <div className={`text-xl mr-2 ${
-              modifyCount !== null && modifyCount >= 3 ? 'text-red-600' : 'text-blue-600'
+              modifyCount !== null && modifyCount <= 0 ? 'text-red-600' : 'text-blue-600'
             }`}>
-              {modifyCount !== null && modifyCount >= 3 ? '⚠️' : 'ℹ️'}
+              {modifyCount !== null && modifyCount <= 0 ? '⚠️' : 'ℹ️'}
             </div>
             <div>
               <h3 className={`font-semibold ${
-                modifyCount !== null && modifyCount >= 3 ? 'text-red-800' : 'text-blue-800'
+                modifyCount !== null && modifyCount <= 0 ? 'text-red-800' : 'text-blue-800'
               }`}>변경 가능 횟수</h3>
               <p className={`text-sm ${
-                modifyCount !== null && modifyCount >= 3 ? 'text-red-700' : 'text-blue-700'
+                modifyCount !== null && modifyCount <= 0 ? 'text-red-700' : 'text-blue-700'
               }`}>
-                총 {modifyCount !== null ? 3 - modifyCount : '?'}회 남음
-                {modifyCount !== null && modifyCount >= 3 && " (변경 불가)"}
+                총 {modifyCount !== null ? modifyCount : '?'}회 남음
+                {modifyCount !== null && modifyCount <= 0 && " (변경 불가)"}
               </p>
               <p className={`text-xs mt-1 ${
-                modifyCount !== null && modifyCount >= 3 ? 'text-red-600' : 'text-blue-600'
+                modifyCount !== null && modifyCount <= 0 ? 'text-red-600' : 'text-blue-600'
               }`}>
                 마감 3일 전에 변경 가능 횟수가 4회로 초기화됩니다.
               </p>
               <p className={`text-xs mt-1 ${
-                modifyCount !== null && modifyCount >= 3 ? 'text-red-600' : 'text-blue-600'
+                modifyCount !== null && modifyCount <= 0 ? 'text-red-600' : 'text-blue-600'
               }`}>
                 횟수 부족 시 zero2one.soma@gmail.com으로 연락주세요.
               </p>
@@ -292,7 +292,7 @@ export default function EditApplicationsClient() {
                 const isSelected = selectedUniversities.some(u => u.universityId === university.id);
                 const selectedRank = selectedUniversities.find(u => u.universityId === university.id)?.rank;
                 
-                const isDisabled = modifyCount !== null && modifyCount >= 3;
+                const isDisabled = modifyCount !== null && modifyCount <= 0;
                 
                 return (
                   <button
@@ -338,7 +338,7 @@ export default function EditApplicationsClient() {
           </button>
           <button
             onClick={handleSubmit}
-            disabled={isSubmitting || selectedUniversities.length === 0 || (modifyCount !== null && modifyCount >= 3)}
+            disabled={isSubmitting || selectedUniversities.length === 0 || (modifyCount !== null && modifyCount <= 0)}
             className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors"
           >
             {isSubmitting ? '변경 중...' : '변경 완료'}
