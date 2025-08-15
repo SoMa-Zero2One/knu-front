@@ -9,6 +9,7 @@ import Header from '@/components/Header';
 import BottomNavigation from '@/components/BottomNavigation';
 import { usersAPI, universitiesAPI } from '@/api';
 import { useAnalytics } from '@/hooks/useAnalytics';
+import Twemoji from 'react-twemoji';
 
 export default function EditApplicationsClient() {
   const { user, loading } = useAuth();
@@ -264,7 +265,9 @@ export default function EditApplicationsClient() {
                 <div key={universityId} className="flex items-center p-3 border rounded-lg">
                   <span className="font-semibold text-lg text-blue-600 mr-3">{rank}순위</span>
                   <div className="flex items-center space-x-2">
-                    <span className="text-2xl">{getCountryFlag(university!.country)}</span>
+                    <Twemoji options={{ className: 'twemoji text-2xl' }}>
+                      <span>{getCountryFlag(university!.country)}</span>
+                    </Twemoji>
                     <span className="font-medium">{university!.name}</span>
                   </div>
                 </div>
@@ -321,7 +324,9 @@ export default function EditApplicationsClient() {
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center space-x-2">
-                        <span className="text-2xl">{getCountryFlag(university.country)}</span>
+                        <Twemoji options={{ className: 'twemoji text-2xl' }}>
+                          <span>{getCountryFlag(university.country)}</span>
+                        </Twemoji>
                         <div>
                           <div className="font-medium">{university.name}</div>
                           <div className="text-sm text-gray-600">{university.country}</div>
