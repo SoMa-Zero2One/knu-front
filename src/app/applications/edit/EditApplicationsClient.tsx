@@ -94,12 +94,19 @@ export default function EditApplicationsClient() {
     }
     
     return filtered.sort((a, b) => {
-      const aSelected = selectedUniversities.some(u => u.universityId === a.id);
-      const bSelected = selectedUniversities.some(u => u.universityId === b.id);
+      const aSelected = selectedUniversities.find(u => u.universityId === a.id || u.universityId === a.id.toString());
+      const bSelected = selectedUniversities.find(u => u.universityId === b.id || u.universityId === b.id.toString());
       
+      // 둘 다 선택된 경우: 지망 순위 순으로 정렬 (낮은 순위가 먼저)
+      if (aSelected && bSelected) {
+        return aSelected.rank - bSelected.rank;
+      }
+      
+      // 하나만 선택된 경우: 선택된 것이 먼저
       if (aSelected && !bSelected) return -1;
       if (!aSelected && bSelected) return 1;
       
+      // 둘 다 선택되지 않은 경우: 알파벳 순
       return a.name.localeCompare(b.name);
     });
   };
@@ -140,10 +147,12 @@ export default function EditApplicationsClient() {
       // 지원 대학교 변경 시도 이벤트 추적
       trackEvent('지원_대학교_변경_시도', 'form', safeNickname);
       
-      const applicationsData = selectedUniversities.map(u => ({
-        universityId: parseInt(u.universityId),
-        choice: u.rank
-      }));
+      const applicationsData = {
+        applications: selectedUniversities.map(u => ({
+          universityId: parseInt(u.universityId),
+          choice: u.rank
+        }))
+      };
       
       await usersAPI.updateApplications(applicationsData);
       
@@ -180,7 +189,7 @@ export default function EditApplicationsClient() {
 
   const selectedUniversityData = selectedUniversities.map(selected => ({
     ...selected,
-    university: allUniversities.find(u => u.id === selected.universityId)
+    university: allUniversities.find(u => u.id === selected.universityId || u.id === parseInt(selected.universityId))
   })).filter(item => item.university).sort((a, b) => a.rank - b.rank);
 
   return (
@@ -289,22 +298,25 @@ export default function EditApplicationsClient() {
           <div className="max-h-96 overflow-y-auto">
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
               {getFilteredUniversities().map((university) => {
-                const isSelected = selectedUniversities.some(u => u.universityId === university.id);
-                const selectedRank = selectedUniversities.find(u => u.universityId === university.id)?.rank;
+                const selectedUniversity = selectedUniversities.find(u => 
+                  u.universityId === university.id || u.universityId === university.id.toString()
+                );
+                const isSelected = !!selectedUniversity;
+                const selectedRank = selectedUniversity?.rank;
                 
                 const isDisabled = modifyCount !== null && modifyCount <= 0;
                 
                 return (
                   <button
                     key={university.id}
-                    onClick={() => handleUniversitySelect(university.id)}
+                    onClick={() => handleUniversitySelect(university.id.toString())}
                     disabled={isDisabled}
-                    className={`text-left p-3 rounded-lg border transition-colors ${
+                    className={`relative text-left p-3 rounded-lg border transition-all duration-200 ${
                       isSelected
-                        ? 'bg-blue-50 border-blue-300 text-blue-900'
+                        ? 'bg-gradient-to-r from-blue-50 to-blue-100 border-blue-300 text-blue-900 shadow-md ring-2 ring-blue-200 cursor-pointer hover:from-blue-100 hover:to-blue-150'
                         : isDisabled
                         ? 'bg-gray-100 border-gray-200 text-gray-400 cursor-not-allowed'
-                        : 'bg-white border-gray-200 hover:bg-gray-50 cursor-pointer'
+                        : 'bg-white border-gray-200 hover:bg-gray-50 hover:border-gray-300 cursor-pointer'
                     }`}
                   >
                     <div className="flex items-center justify-between">
@@ -316,7 +328,7 @@ export default function EditApplicationsClient() {
                         </div>
                       </div>
                       {isSelected && (
-                        <div className="text-blue-600 font-semibold text-sm">
+                        <div className="bg-blue-600 text-white px-2 py-1 rounded-full text-xs font-bold">
                           {selectedRank}순위
                         </div>
                       )}
