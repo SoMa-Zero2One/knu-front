@@ -71,6 +71,14 @@ function getEnglishScore(type: LanguageTestType, level: string | undefined, scor
       case 'CEFR':
         if (level) {
           match = entry.CEFR.includes(level);
+        } else if (score) {
+          // 영작문 점수만 있는 경우 점수 구간으로 판단
+          const cefrScoreMatch = entry.CEFR.match(/(\d+)~(\d+)/);
+          if (cefrScoreMatch) {
+            const min = parseInt(cefrScoreMatch[1]);
+            const max = parseInt(cefrScoreMatch[2]);
+            match = numScore >= min && numScore <= max;
+          }
         }
         break;
     }

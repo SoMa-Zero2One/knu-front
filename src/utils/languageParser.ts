@@ -55,11 +55,18 @@ export const parseLangString = (langString: string): LanguageScore[] => {
       }
     } else if (lowerScoreStr.includes('cefr') || lowerScoreStr.includes('iwc') || lowerScoreStr.includes('영작문') || lowerScoreStr.includes('진단')) {
       type = 'CEFR';
-      // CEFR B2, C1, IWC B2, 영작문 B2, 진단평가 B2 형태 처리
-      const cefrMatch = scoreStr.match(/(?:cefr|iwc|영작문|진단).*?([a-c][1-2])(?:\s+(\d+))?/i);
-      if (cefrMatch) {
-        level = cefrMatch[1].toUpperCase(); // B2, C1 등
-        score = cefrMatch[2] || null;
+      // CEFR B2, C1, IWC B2, 영작문 B2, 영작문평가 B2, 진단평가 B2 형태 처리
+      // 또는 영작문평가 85 같이 점수만 있는 경우도 처리
+      const cefrLevelMatch = scoreStr.match(/(?:cefr|iwc|영작문평가|영작문|진단).*?([a-c][1-2])(?:\s+(\d+))?/i);
+      const cefrScoreOnlyMatch = scoreStr.match(/(?:cefr|iwc|영작문평가|영작문|진단)[^\d]*(\d+)/i);
+      
+      if (cefrLevelMatch) {
+        level = cefrLevelMatch[1].toUpperCase(); // B2, C1 등
+        score = cefrLevelMatch[2] || null;
+      } else if (cefrScoreOnlyMatch) {
+        // 점수만 있는 경우 (예: 영작문평가 85)
+        level = undefined;
+        score = cefrScoreOnlyMatch[1];
       } else {
         // CEFR 패턴이 맞지 않으면 UNKNOWN으로 설정
         type = 'UNKNOWN';
