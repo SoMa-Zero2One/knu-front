@@ -253,6 +253,77 @@ export default function DashboardPage() {
           </div>
         </div>
 
+        {/* 모바일 전용 정렬 버튼 */}
+        <div className="mb-6 sm:hidden">
+          <div className="bg-white rounded-lg shadow p-4">
+            <div className="mb-2">
+              <h3 className="text-sm font-medium text-gray-700">정렬 순서</h3>
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <button
+                onClick={() => handleSort('country')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  sortBy === 'country'
+                    ? 'bg-orange-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                국가순
+                {sortBy === 'country' && (
+                  <span className="ml-1">
+                    {sortDirection === 'asc' ? '↑' : '↓'}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => handleSort('name')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  sortBy === 'name'
+                    ? 'bg-blue-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                이름순
+                {sortBy === 'name' && (
+                  <span className="ml-1">
+                    {sortDirection === 'asc' ? '↑' : '↓'}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => handleSort('applicantCount')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  sortBy === 'applicantCount'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                지원자수
+                {sortBy === 'applicantCount' && (
+                  <span className="ml-1">
+                    {sortDirection === 'asc' ? '↑' : '↓'}
+                  </span>
+                )}
+              </button>
+              <button
+                onClick={() => handleSort('slot')}
+                className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  sortBy === 'slot'
+                    ? 'bg-green-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                모집인원
+                {sortBy === 'slot' && (
+                  <span className="ml-1">
+                    {sortDirection === 'asc' ? '↑' : '↓'}
+                  </span>
+                )}
+              </button>
+            </div>
+          </div>
+        </div>
+
         {/* 대학교 리스트 */}
         <div>
           {filteredUniversities.length > 0 ? (
