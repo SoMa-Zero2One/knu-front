@@ -68,8 +68,15 @@ export const parseLangString = (langString: string): LanguageScore[] => {
         level = undefined;
         score = cefrScoreOnlyMatch[1];
       } else {
-        // CEFR 패턴이 맞지 않으면 UNKNOWN으로 설정
-        type = 'UNKNOWN';
+        // 영작문이나 IWC에 점수만 있는 경우 (예: "영작문 75", "IWC 80")
+        const scoreOnlyMatch = scoreStr.match(/(?:영작문|iwc)\s+(\d+)/i);
+        if (scoreOnlyMatch) {
+          level = undefined; // 등급 정보 없음
+          score = scoreOnlyMatch[1];
+        } else {
+          // CEFR 패턴이 맞지 않으면 UNKNOWN으로 설정
+          type = 'UNKNOWN';
+        }
       }
     } else if (lowerScoreStr.includes('delf') || lowerScoreStr.includes('프랑스어')) {
       type = 'DELF';
@@ -126,7 +133,7 @@ export const parseLangString = (langString: string): LanguageScore[] => {
       // 먼저 점수가 있는 패턴을 시도
       const withScoreMatch = scoreStr.match(/([\w가-힣]+)\s+(\d+)/i);
       if (withScoreMatch) {
-        const [, testName, scoreValue] = withScoreMatch;
+        const [, , scoreValue] = withScoreMatch;
         score = scoreValue;
         
         if (lowerScoreStr.includes('toefl') || lowerScoreStr.includes('토플')) {

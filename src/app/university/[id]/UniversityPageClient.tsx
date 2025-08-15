@@ -27,8 +27,8 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
   const [university, setUniversity] = useState<UniversityDetail | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
-  const [sortType, setSortType] = useState<'choice' | 'grade' | 'convertedScore'>('choice');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortType, setSortType] = useState<'choice' | 'grade' | 'convertedScore'>('convertedScore');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showUnauthorizedModal, setShowUnauthorizedModal] = useState(false);
   const [unauthorizedUniversityName, setUnauthorizedUniversityName] = useState('');
   const [isUnauthorized, setIsUnauthorized] = useState(false);
@@ -244,19 +244,18 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                         const safeNickname = user?.nickname
                           ?.replace(/\s+/g, '_')
                           ?.replace(/[^\w가-힣_]/g, '') || user?.id;
-                        console.log('Tracking button click:', '지망순위순_정렬', safeNickname);
-                        trackEvent('지망순위순_정렬', 'button', safeNickname);
-                        handleSort('choice');
+                        trackEvent('환산점수순_정렬', 'button', safeNickname);
+                        handleSort('convertedScore');
                       }}
-                      className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                        sortType === 'choice' 
-                          ? 'bg-blue-100 text-blue-700 border border-blue-300' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      className={`inline-flex items-center px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
+                        sortType === 'convertedScore' 
+                          ? 'bg-gradient-to-r from-purple-500 to-purple-600 text-white shadow-lg transform scale-105' 
+                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-purple-50 hover:border-purple-300 hover:text-purple-700'
                       }`}
                     >
-                      지망순위
-                      {sortType === 'choice' && (
-                        <span className="ml-1">
+                      환산점수
+                      {sortType === 'convertedScore' && (
+                        <span className="ml-2 text-purple-200">
                           {sortOrder === 'asc' ? '↑' : '↓'}
                         </span>
                       )}
@@ -266,18 +265,19 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                         const safeNickname = user?.nickname
                           ?.replace(/\s+/g, '_')
                           ?.replace(/[^\w가-힣_]/g, '') || user?.id;
-                        trackEvent('환산점수순_정렬', 'button', safeNickname);
-                        handleSort('convertedScore');
+                        console.log('Tracking button click:', '지망순위순_정렬', safeNickname);
+                        trackEvent('지망순위순_정렬', 'button', safeNickname);
+                        handleSort('choice');
                       }}
-                      className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
-                        sortType === 'convertedScore' 
-                          ? 'bg-purple-100 text-purple-700 border border-purple-300' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                      className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
+                        sortType === 'choice' 
+                          ? 'bg-blue-500 text-white shadow-md' 
+                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-blue-50 hover:border-blue-300 hover:text-blue-700'
                       }`}
                     >
-                      환산점수
-                      {sortType === 'convertedScore' && (
-                        <span className="ml-1">
+                      지망순위
+                      {sortType === 'choice' && (
+                        <span className="ml-1 text-blue-200">
                           {sortOrder === 'asc' ? '↑' : '↓'}
                         </span>
                       )}
@@ -290,15 +290,15 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                         trackEvent('학점순_정렬', 'button', safeNickname);
                         handleSort('grade');
                       }}
-                      className={`inline-flex items-center px-3 py-1.5 rounded-md text-sm font-medium transition-colors cursor-pointer ${
+                      className={`inline-flex items-center px-3 py-2 rounded-lg text-sm font-medium transition-all duration-200 cursor-pointer ${
                         sortType === 'grade' 
-                          ? 'bg-green-100 text-green-700 border border-green-300' 
-                          : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                          ? 'bg-green-500 text-white shadow-md' 
+                          : 'bg-white text-gray-700 border border-gray-300 hover:bg-green-50 hover:border-green-300 hover:text-green-700'
                       }`}
                     >
                       학점
                       {sortType === 'grade' && (
-                        <span className="ml-1">
+                        <span className="ml-1 text-green-200">
                           {sortOrder === 'asc' ? '↑' : '↓'}
                         </span>
                       )}
