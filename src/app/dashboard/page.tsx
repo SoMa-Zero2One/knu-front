@@ -261,7 +261,10 @@ export default function DashboardPage() {
             </div>
             <div className="flex flex-wrap gap-2">
               <button
-                onClick={() => handleSort('country')}
+                onClick={() => {
+                  trackEvent('국가순 정렬', 'dashboard_sort', user?.nickname || 'unknown');
+                  handleSort('country');
+                }}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   sortBy === 'country'
                     ? 'bg-orange-600 text-white'
@@ -276,7 +279,10 @@ export default function DashboardPage() {
                 )}
               </button>
               <button
-                onClick={() => handleSort('name')}
+                onClick={() => {
+                  trackEvent('이름순 정렬', 'dashboard_sort', user?.nickname || 'unknown');
+                  handleSort('name');
+                }}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   sortBy === 'name'
                     ? 'bg-blue-600 text-white'
@@ -291,7 +297,10 @@ export default function DashboardPage() {
                 )}
               </button>
               <button
-                onClick={() => handleSort('applicantCount')}
+                onClick={() => {
+                  trackEvent('지원자수순 정렬', 'dashboard_sort', user?.nickname || 'unknown');
+                  handleSort('applicantCount');
+                }}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   sortBy === 'applicantCount'
                     ? 'bg-purple-600 text-white'
@@ -306,7 +315,10 @@ export default function DashboardPage() {
                 )}
               </button>
               <button
-                onClick={() => handleSort('slot')}
+                onClick={() => {
+                  trackEvent('모집인원순 정렬', 'dashboard_sort', user?.nickname || 'unknown');
+                  handleSort('slot');
+                }}
                 className={`px-3 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
                   sortBy === 'slot'
                     ? 'bg-green-600 text-white'
@@ -344,7 +356,10 @@ export default function DashboardPage() {
                     <tr>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                        onClick={() => handleSort('name')}
+                        onClick={() => {
+                          trackEvent('이름순 정렬', 'dashboard_table_sort', user?.nickname || 'unknown');
+                          handleSort('name');
+                        }}
                       >
                         <div className="flex items-center">
                           이름
@@ -353,7 +368,10 @@ export default function DashboardPage() {
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                        onClick={() => handleSort('country')}
+                        onClick={() => {
+                          trackEvent('국가순 정렬', 'dashboard_table_sort', user?.nickname || 'unknown');
+                          handleSort('country');
+                        }}
                       >
                         <div className="flex items-center">
                           국가
@@ -362,7 +380,10 @@ export default function DashboardPage() {
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                        onClick={() => handleSort('applicantCount')}
+                        onClick={() => {
+                          trackEvent('지원자수순 정렬', 'dashboard_table_sort', user?.nickname || 'unknown');
+                          handleSort('applicantCount');
+                        }}
                       >
                         <div className="flex items-center">
                           지원자 수
@@ -371,7 +392,10 @@ export default function DashboardPage() {
                       </th>
                       <th 
                         className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
-                        onClick={() => handleSort('slot')}
+                        onClick={() => {
+                          trackEvent('모집인원순 정렬', 'dashboard_table_sort', user?.nickname || 'unknown');
+                          handleSort('slot');
+                        }}
                       >
                         <div className="flex items-center">
                           모집인원
