@@ -19,6 +19,8 @@ export default function DashboardPage() {
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [filterType, setFilterType] = useState<'all' | 'applied' | 'hasApplicants'>('hasApplicants');
   const [userAppliedUniversities, setUserAppliedUniversities] = useState<Set<number>>(new Set());
+  const [sortBy, setSortBy] = useState<'name' | 'country' | 'applicantCount' | 'slot'>('country');
+  const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
   
   // 백엔드에서 학교 정보 가져오기
   useEffect(() => {
@@ -55,11 +57,21 @@ export default function DashboardPage() {
     fetchUserApplications();
   }, [user]);
 
-    useEffect(() => {
+  useEffect(() => {
     if (!loading && !user) {
       router.push('/');
     }
   }, [user, loading, router]);
+
+  // 정렬 핸들러
+  const handleSort = (column: 'name' | 'country' | 'applicantCount' | 'slot') => {
+    if (sortBy === column) {
+      setSortDirection(sortDirection === 'asc' ? 'desc' : 'asc');
+    } else {
+      setSortBy(column);
+      setSortDirection('asc');
+    }
+  };
 
   // 검색 및 필터링, 정렬된 대학교 목록
   const filteredUniversities = universities
@@ -86,14 +98,60 @@ export default function DashboardPage() {
       }
     })
     .sort((a, b) => {
-      // 먼저 국가순으로 정렬
-      const countryComparison = a.country.localeCompare(b.country);
-      if (countryComparison !== 0) {
-        return countryComparison;
+      let comparison = 0;
+      
+      switch (sortBy) {
+        case 'name':
+          comparison = a.name.localeCompare(b.name);
+          break;
+        case 'country':
+          comparison = a.country.localeCompare(b.country);
+          if (comparison === 0) {
+            // 같은 국가 내에서는 대학 이름순으로 정렬
+            comparison = a.name.localeCompare(b.name);
+          }
+          break;
+        case 'applicantCount':
+          comparison = a.applicantCount - b.applicantCount;
+          break;
+        case 'slot':
+          comparison = a.slot - b.slot;
+          break;
+        default:
+          comparison = 0;
       }
-      // 같은 국가 내에서는 대학 이름순으로 정렬
-      return a.name.localeCompare(b.name);
+      
+      return sortDirection === 'asc' ? comparison : -comparison;
     });
+
+  // 정렬 아이콘 컴포넌트
+  const SortIcon = ({ column, currentSort, direction }: { 
+    column: string; 
+    currentSort: string; 
+    direction: 'asc' | 'desc' 
+  }) => {
+    if (currentSort !== column) {
+      return (
+        <svg className="w-4 h-4 ml-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 9l4-4 4 4m0 6l-4 4-4-4" />
+        </svg>
+      );
+    }
+    
+    if (direction === 'asc') {
+      return (
+        <svg className="w-4 h-4 ml-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 15l7-7 7 7" />
+        </svg>
+      );
+    } else {
+      return (
+        <svg className="w-4 h-4 ml-1 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+        </svg>
+      );
+    }
+  };
 
   if (loading) {
     return (
@@ -213,17 +271,41 @@ export default function DashboardPage() {
                 <table className="min-w-full divide-y divide-gray-200">
                   <thead className="bg-gray-50">
                     <tr>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        이름
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                        onClick={() => handleSort('name')}
+                      >
+                        <div className="flex items-center">
+                          이름
+                          <SortIcon column="name" currentSort={sortBy} direction={sortDirection} />
+                        </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        국가
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                        onClick={() => handleSort('country')}
+                      >
+                        <div className="flex items-center">
+                          국가
+                          <SortIcon column="country" currentSort={sortBy} direction={sortDirection} />
+                        </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        지원자 수
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                        onClick={() => handleSort('applicantCount')}
+                      >
+                        <div className="flex items-center">
+                          지원자 수
+                          <SortIcon column="applicantCount" currentSort={sortBy} direction={sortDirection} />
+                        </div>
                       </th>
-                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        모집인원
+                      <th 
+                        className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:bg-gray-100 select-none"
+                        onClick={() => handleSort('slot')}
+                      >
+                        <div className="flex items-center">
+                          모집인원
+                          <SortIcon column="slot" currentSort={sortBy} direction={sortDirection} />
+                        </div>
                       </th>
                     </tr>
                   </thead>
