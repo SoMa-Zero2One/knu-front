@@ -315,8 +315,8 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
                     접근 권한이 필요합니다
                   </h3>
                   <p className="text-gray-600 mb-6 leading-relaxed">
-                    <strong>{displayUniversity.name}</strong>는 지원하지 않은 대학입니다.<br />
-                    지원 대학을 변경한 후 세부내용을 확인해주세요.
+                    지원한 대학만 볼 수 있습니다.<br />
+                    <strong>{displayUniversity.name}</strong>은 지원하지 않은 대학입니다.
                   </p>
                   <button
                     onClick={() => {
