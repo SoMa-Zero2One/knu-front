@@ -7,12 +7,13 @@ import { getCountryFlag } from '@/utils/countryFlags';
 import { getColorForValue } from '@/utils/colorUtils';
 
 interface UniversityItemProps {
-  university: University & { rank?: number };
+  university: University & { rank?: number; admissionProbability?: string };
   isMobile?: boolean;
   showRank?: boolean;
+  showAdmissionProbability?: boolean;
 }
 
-export default function UniversityItem({ university, isMobile = false, showRank = false }: UniversityItemProps) {
+export default function UniversityItem({ university, isMobile = false, showRank = false, showAdmissionProbability = false }: UniversityItemProps) {
 
   const router = useRouter();
 
@@ -56,6 +57,19 @@ export default function UniversityItem({ university, isMobile = false, showRank 
               <span className={`px-2 py-1 rounded-md text-xs font-medium ${getColorForValue(university.slot.toString())}`}>
                 모집 {university.slot}명
               </span>
+              {showAdmissionProbability && university.admissionProbability && (
+                <>
+                  <span className="text-gray-400">•</span>
+                  <span className={`px-2 py-1 rounded-md text-xs font-medium ${
+                    parseInt(university.admissionProbability) >= 70 ? 'bg-green-100 text-green-800' :
+                    parseInt(university.admissionProbability) >= 50 ? 'bg-yellow-100 text-yellow-800' :
+                    parseInt(university.admissionProbability) >= 30 ? 'bg-orange-100 text-orange-800' :
+                    'bg-red-100 text-red-800'
+                  }`}>
+                    합격가능성 {university.admissionProbability}
+                  </span>
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -107,6 +121,22 @@ export default function UniversityItem({ university, isMobile = false, showRank 
           {university.slot}명
         </span>
       </td>
+      {showAdmissionProbability && (
+        <td className="px-6 py-4 whitespace-nowrap">
+          {university.admissionProbability ? (
+            <span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+              parseInt(university.admissionProbability) >= 70 ? 'bg-green-100 text-green-800' :
+              parseInt(university.admissionProbability) >= 50 ? 'bg-yellow-100 text-yellow-800' :
+              parseInt(university.admissionProbability) >= 30 ? 'bg-orange-100 text-orange-800' :
+              'bg-red-100 text-red-800'
+            }`}>
+              {university.admissionProbability}
+            </span>
+          ) : (
+            <span className="text-gray-400">-</span>
+          )}
+        </td>
+      )}
     </tr>
   );
 }
