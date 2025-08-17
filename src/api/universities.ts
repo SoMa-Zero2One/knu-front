@@ -36,7 +36,7 @@ export const universitiesAPI = {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch university: ${response.status}`);
+      throw new Error(`${response.status}: Failed to fetch university`);
     }
 
     return response.json();
@@ -49,7 +49,7 @@ export const universitiesAPI = {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to fetch university: ${response.status}`);
+      throw new Error(`${response.status}: Failed to fetch university`);
     }
 
     return response.json();

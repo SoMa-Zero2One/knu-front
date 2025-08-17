@@ -106,24 +106,16 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
         
         // 403 에러인 경우 기본 대학 정보는 표시하고 권한 없음 상태로 설정
         if (error instanceof Error && error.message.includes('403')) {
-          try {
-            // 대학교 목록에서 기본 정보 가져오기
-            const universities = await universitiesAPI.getUniversities();
-            const targetUniversity = universities.find(u => u.id === resolvedParams.id);
-            if (targetUniversity) {
-              setUnauthorizedUniversityData({
-                ...targetUniversity,
-                applicants: []
-              });
-              setUnauthorizedUniversityName(targetUniversity.name);
-            } else {
-              setUnauthorizedUniversityName('해당 대학교');
-            }
-            setIsUnauthorized(true);
-          } catch {
-            setUnauthorizedUniversityName('해당 대학교');
-            setIsUnauthorized(true);
-          }
+          setUnauthorizedUniversityData({
+            id: resolvedParams.id,
+            name: '해당 대학교',
+            country: 'Unknown',
+            totalApplicants: 0,
+            slot: 0,
+            applicants: []
+          });
+          setUnauthorizedUniversityName('해당 대학교');
+          setIsUnauthorized(true);
         }
       } finally {
         setDataLoading(false);
@@ -182,36 +174,38 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
       {displayUniversity && (
         <>
           <Header 
-            title={displayUniversity.name}
+            title={isUnauthorized ? "대학 정보" : displayUniversity.name}
             showBackButton={true}
             showHomeButton={true}
-            universityFlag={getCountryFlag(displayUniversity.country)}
-            universityName={displayUniversity.name}
+            universityFlag={isUnauthorized ? undefined : getCountryFlag(displayUniversity.country)}
+            universityName={isUnauthorized ? undefined : displayUniversity.name}
           />
 
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20 sm:pb-8">
-            {/* 대학교 정보 */}
-            <div className="bg-white rounded-lg shadow p-6 mb-8">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">국가</h3>
-                  <div className="flex items-center justify-center space-x-2">
-                    <Twemoji options={{ className: 'twemoji text-2xl' }}>
-                      <span>{getCountryFlag(displayUniversity.country)}</span>
-                    </Twemoji>
-                    <p className="text-2xl text-blue-600 font-semibold">{displayUniversity.country}</p>
+            {/* 대학교 정보 - 권한이 있는 경우만 표시 */}
+            {!isUnauthorized && (
+              <div className="bg-white rounded-lg shadow p-6 mb-8">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">국가</h3>
+                    <div className="flex items-center justify-center space-x-2">
+                      <Twemoji options={{ className: 'twemoji text-2xl' }}>
+                        <span>{getCountryFlag(displayUniversity.country)}</span>
+                      </Twemoji>
+                      <p className="text-2xl text-blue-600 font-semibold">{displayUniversity.country}</p>
+                    </div>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">총 지원자 수</h3>
+                    <p className="text-3xl font-bold text-blue-600">{displayUniversity.totalApplicants}명</p>
+                  </div>
+                  <div className="text-center">
+                    <h3 className="text-lg font-semibold text-gray-900 mb-2">모집인원</h3>
+                    <p className="text-3xl font-bold text-green-600">{displayUniversity.slot}명</p>
                   </div>
                 </div>
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">총 지원자 수</h3>
-                  <p className="text-3xl font-bold text-blue-600">{displayUniversity.totalApplicants}명</p>
-                </div>
-                <div className="text-center">
-                  <h3 className="text-lg font-semibold text-gray-900 mb-2">모집인원</h3>
-                  <p className="text-3xl font-bold text-green-600">{displayUniversity.slot}명</p>
-                </div>
               </div>
-            </div>
+            )}
 
             {/* 지원자 목록 또는 접근 제한 안내 */}
             <div className="bg-white rounded-lg shadow">
