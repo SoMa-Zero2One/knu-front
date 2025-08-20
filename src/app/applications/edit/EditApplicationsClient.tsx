@@ -260,8 +260,8 @@ export default function EditApplicationsClient() {
           </div>
         )}
 
-        {/* 현재 선택된 대학교 */}
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
+        {/* 현재 선택된 대학교 - 데스크탑에서만 표시 */}
+        <div className="bg-white rounded-lg shadow p-6 mb-8 hidden sm:block">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
             선택된 대학교 ({selectedUniversities.length}/5)
           </h2>
@@ -289,7 +289,8 @@ export default function EditApplicationsClient() {
         {/* 대학교 검색 및 선택 */}
         <div className="bg-white rounded-lg shadow p-6 mb-8">
           <h2 className="text-xl font-semibold text-gray-900 mb-4">
-            대학교 선택
+            <span className="sm:hidden">대학교 선택 ({selectedUniversities.length}/5)</span>
+            <span className="hidden sm:inline">대학교 선택</span>
           </h2>
           
           {/* 검색 */}
