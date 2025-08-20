@@ -168,10 +168,7 @@ export default function EditApplicationsClient() {
       
       setMessage({ type: 'success', text: '지원 대학교가 성공적으로 변경되었습니다.' });
       
-      // 3초 후 프로필 페이지로 이동
-      setTimeout(() => {
-        router.push(`/profile/${user.id}`);
-      }, 1500);
+    router.push(`/profile/${user.id}`);
     } catch (error) {
       console.error('지원 대학교 변경 오류:', error);
       setMessage({ 
