@@ -112,6 +112,12 @@ export default function EditApplicationsClient() {
     });
   };
 
+  const reorderRanks = (universities: AppliedUniversity[]) => {
+    return universities
+      .sort((a, b) => a.rank - b.rank)
+      .map((u, index) => ({ ...u, rank: index + 1 }));
+  };
+
   const handleUniversitySelect = (universityId: string) => {
     // 변경 가능 횟수가 0 이하인 경우 선택 불가
     if (modifyCount !== null && modifyCount <= 0) {
@@ -122,7 +128,9 @@ export default function EditApplicationsClient() {
     const isAlreadySelected = selectedUniversities.some(u => u.universityId === universityId);
     
     if (isAlreadySelected) {
-      setSelectedUniversities(selectedUniversities.filter(u => u.universityId !== universityId));
+      // 제거 후 순서 재정렬
+      const filtered = selectedUniversities.filter(u => u.universityId !== universityId);
+      setSelectedUniversities(reorderRanks(filtered));
     } else {
       if (selectedUniversities.length >= 5) {
         setMessage({ type: 'error', text: '최대 5개 대학교까지만 지원할 수 있습니다.' });
@@ -130,7 +138,8 @@ export default function EditApplicationsClient() {
       }
       
       const newRank = selectedUniversities.length + 1;
-      setSelectedUniversities([...selectedUniversities, { universityId, rank: newRank }]);
+      const updated = [...selectedUniversities, { universityId, rank: newRank }];
+      setSelectedUniversities(reorderRanks(updated));
     }
   };
 

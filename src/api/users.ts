@@ -76,7 +76,16 @@ export const usersAPI = {
     });
 
     if (!response.ok) {
-      throw new Error(`Failed to update applications: ${response.status}`);
+      let errorMessage = `Failed to update applications: ${response.status}`;
+      try {
+        const errorData = await response.json();
+        if (errorData.message) {
+          errorMessage = errorData.message;
+        }
+      } catch (e) {
+        // JSON 파싱 실패 시 기본 메시지 사용
+      }
+      throw new Error(errorMessage);
     }
   },
 
