@@ -17,7 +17,7 @@ export default function DashboardPage() {
 
   const [universities, setUniversities] = useState<University[]>([]);
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [filterType, setFilterType] = useState<'all' | 'applied' | 'hasApplicants'>('hasApplicants');
+  const [filterType, setFilterType] = useState<'all' | 'applied' | 'hasApplicants'>('applied');
   const [userAppliedUniversities, setUserAppliedUniversities] = useState<Set<number>>(new Set());
   const [sortBy, setSortBy] = useState<'name' | 'country' | 'applicantCount' | 'slot'>('country');
   const [sortDirection, setSortDirection] = useState<'asc' | 'desc'>('asc');
@@ -212,6 +212,19 @@ export default function DashboardPage() {
             <div className="flex flex-wrap gap-2 sm:gap-3">
               <button
                 onClick={() => {
+                  trackEvent('지망한 대학만', 'dashboard_filter', user?.nickname || 'unknown');
+                  setFilterType('applied');
+                }}
+                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                  filterType === 'applied'
+                    ? 'bg-purple-600 text-white'
+                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
+                }`}
+              >
+                지망한 대학만 ({userAppliedUniversities.size})
+              </button>
+              <button
+                onClick={() => {
                   trackEvent('지원자가 있는 대학만', 'dashboard_filter', user?.nickname || 'unknown');
                   setFilterType('hasApplicants');
                 }}
@@ -235,19 +248,6 @@ export default function DashboardPage() {
                 }`}
               >
                 모든 대학 ({universities.length})
-              </button>
-              <button
-                onClick={() => {
-                  trackEvent('지망한 대학만', 'dashboard_filter', user?.nickname || 'unknown');
-                  setFilterType('applied');
-                }}
-                className={`px-4 py-2 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-                  filterType === 'applied'
-                    ? 'bg-purple-600 text-white'
-                    : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
-                }`}
-              >
-                지망한 대학만 ({userAppliedUniversities.size})
               </button>
             </div>
           </div>
