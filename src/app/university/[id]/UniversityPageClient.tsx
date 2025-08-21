@@ -27,8 +27,8 @@ export default function UniversityPageClient({ params }: UniversityPageClientPro
   const [university, setUniversity] = useState<UniversityDetail | null>(null);
   const [dataLoading, setDataLoading] = useState(true);
   const [resolvedParams, setResolvedParams] = useState<{ id: string } | null>(null);
-  const [sortType, setSortType] = useState<'choice' | 'grade' | 'convertedScore'>('choice');
-  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('asc');
+  const [sortType, setSortType] = useState<'choice' | 'grade' | 'convertedScore'>('convertedScore');
+  const [sortOrder, setSortOrder] = useState<'asc' | 'desc'>('desc');
   const [showUnauthorizedModal, setShowUnauthorizedModal] = useState(false);
   const [unauthorizedUniversityName, setUnauthorizedUniversityName] = useState('');
   const [isUnauthorized, setIsUnauthorized] = useState(false);
