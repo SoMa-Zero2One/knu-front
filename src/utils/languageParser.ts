@@ -4,7 +4,19 @@ export const parseLangString = (langString: string): LanguageScore[] => {
   if (!langString) return [];
   
   // 여러 개의 어학 성적이 있을 수 있으므로 쉼표, 세미콜론, 여러 띄어쓰기로 구분
-  const scores = langString.split(/[,;]|\s{2,}/).map(s => s.trim()).filter(s => s);
+  // 또한 "영작문 90 토익 950" 같은 패턴도 분리할 수 있도록 개선
+  let scores = langString.split(/[,;]|\s{2,}/).map(s => s.trim()).filter(s => s);
+  
+  // 단일 문자열에서 여러 시험 점수가 연속으로 나타나는 경우를 처리
+  scores = scores.flatMap(scoreStr => {
+    // "영작문 90 토익 950" 패턴을 찾아서 분리
+    const multiTestPattern = /(.+?\s+\d+)\s+(.+?\s+\d+)/;
+    const match = scoreStr.match(multiTestPattern);
+    if (match) {
+      return [match[1], match[2]].map(s => s.trim()).filter(s => s);
+    }
+    return scoreStr;
+  });
   
   return scores.map((scoreStr, index) => {
     let type: LanguageTestType = 'TOEFL_IBT'; // 기본값
@@ -56,15 +68,15 @@ export const parseLangString = (langString: string): LanguageScore[] => {
     } else if (lowerScoreStr.includes('cefr') || lowerScoreStr.includes('iwc') || lowerScoreStr.includes('영작문') || lowerScoreStr.includes('진단')) {
       type = 'CEFR';
       // CEFR B2, C1, IWC B2, 영작문 B2, 영작문평가 B2, 진단평가 B2 형태 처리
-      // 또는 영작문평가 85 같이 점수만 있는 경우도 처리
-      const cefrLevelMatch = scoreStr.match(/(?:cefr|iwc|영작문평가|영작문|진단).*?([a-c][1-2])(?:\s+(\d+))?/i);
-      const cefrScoreOnlyMatch = scoreStr.match(/(?:cefr|iwc|영작문평가|영작문|진단)[^\d]*(\d+)/i);
+      // 또는 영작문평가 85, 영작문진단평가 95 같이 점수만 있는 경우도 처리
+      const cefrLevelMatch = scoreStr.match(/(?:cefr|iwc|영작문평가|영작문진단평가|영작문|진단평가|진단).*?([a-c][1-2])(?:\s+(\d+))?/i);
+      const cefrScoreOnlyMatch = scoreStr.match(/(?:cefr|iwc|영작문평가|영작문진단평가|영작문|진단평가|진단)[^\d]*(\d+)/i);
       
       if (cefrLevelMatch) {
         level = cefrLevelMatch[1].toUpperCase(); // B2, C1 등
         score = cefrLevelMatch[2] || null;
       } else if (cefrScoreOnlyMatch) {
-        // 점수만 있는 경우 (예: 영작문평가 85)
+        // 점수만 있는 경우 (예: 영작문평가 85, 영작문진단평가 95)
         level = undefined;
         score = cefrScoreOnlyMatch[1];
       } else {
